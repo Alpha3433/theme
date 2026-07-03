@@ -309,7 +309,7 @@
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
                                 <path d="M16 10a4 4 0 0 1-8 0"></path>
                               </svg>
-                              {{ section.settings.purchase_date_prefix | default: 'Purchased on' | escape }}
+                              {{ section.settings.purchase_date_prefix | default: '[TODO: real review]' | escape }}
                               {{ block.settings.purchase_date }}
                             </p>
                           {% endif %}
@@ -1211,7 +1211,7 @@
       "type": "richtext",
       "id": "rating_summary_text",
       "label": "Rating Summary Text",
-      "default": "<p>Excellent 4.8/5 based on 2,500+ customer reviews</p>",
+      "default": "<p>[TODO: real reviews — do not launch with placeholder]</p>",
       "info": "Complete rating text with formatting support"
     },
     {
@@ -1463,7 +1463,7 @@
       "type": "text",
       "id": "verified_text",
       "label": "Verified Text",
-      "default": "Verified customer"
+      "default": "[TODO: show only for genuinely verified reviews]"
     },
     {
       "type": "header",
@@ -1624,20 +1624,20 @@
           "type": "text",
           "id": "title",
           "label": "Testimonial Title",
-          "default": "Outstanding Quality",
+          "default": "[TODO: real review title]",
           "info": "Add a title for this testimonial (e.g., 'Great Product', 'Excellent Service')"
         },
         {
           "type": "richtext",
           "id": "content",
           "label": "Testimonial Content",
-          "default": "<p>I've been shopping with this brand for over a year now and the quality never disappoints. Every purchase has exceeded my expectations and their customer service is exceptional.</p>"
+          "default": "<p>[TODO: real launch review]</p>"
         },
         {
           "type": "text",
           "id": "author_name",
           "label": "Author Name",
-          "default": "Sarah M."
+          "default": "[TODO: real reviewer]"
         },
         {
           "type": "image_picker",
@@ -1670,7 +1670,7 @@
           "type": "text",
           "id": "purchase_date",
           "label": "Purchase Date",
-          "default": "March 14th, 2024",
+          "default": "[TODO: real date]",
           "info": "Enter the purchase date (e.g., 'March 14th, 2024' or '2 weeks ago')"
         }
       ]
@@ -1686,17 +1686,17 @@
         {
           "type": "testimonial",
           "settings": {
-            "title": "Worth It!",
-            "content": "<p>Okay, so I thought about the price, but this jacket is 100% worth every penny. The way it's made is top-notch, and it's surprisingly warm without being super bulky. A total keeper.</p>",
-            "author_name": "Jessica M."
+            "title": "[TODO: real review title]",
+            "content": "<p>[TODO: real launch review]</p>",
+            "author_name": "[TODO: real reviewer]"
           }
         },
         {
           "type": "testimonial",
           "settings": {
-            "title": "Must-Have",
-            "content": "<p>Your basic tees are anything but basic. They're crazy soft, really well-made, and they wash up perfectly every time. I've bought them in every color, seriously!</p>",
-            "author_name": "Liam B."
+            "title": "[TODO: real review title]",
+            "content": "<p>[TODO: real launch review]</p>",
+            "author_name": "[TODO: real reviewer]"
           }
         }
       ]
