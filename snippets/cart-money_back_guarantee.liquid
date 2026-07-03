@@ -67,7 +67,7 @@
       {% if block.settings.money_back_guarantee_custom_icon != blank %}
         <img 
           src="{{ block.settings.money_back_guarantee_custom_icon | image_url: width: 36 }}"
-          alt="Money Back Guarantee Icon"
+          alt="Shade Card Guarantee icon"
           width="18"
           height="18"
           loading="lazy"
@@ -84,6 +84,6 @@
       | default: '30'
     }}
   {% else %}
-    {{ block.settings.money_back_guarantee_text | default: '30 Day Money Back Guarantee' }}
+    {{ block.settings.money_back_guarantee_text | default: "★ The Shade Card Guarantee — photograph Day 1. If Day 30 isn't visibly whiter, we refund everything and you keep the device." }}
   {% endif %}
 </h2>

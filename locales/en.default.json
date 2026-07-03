@@ -81,7 +81,7 @@
   },
   "newsletter": {
     "label": "Email",
-    "success": "Thanks for subscribing",
+    "success": "Thanks — you're on the list.",
     "button_label": "Subscribe",
     "placeholder": "Enter your email",
     "tag_value": "newsletter"
@@ -259,10 +259,10 @@
   },
   "theme": {
     "progress_bar": {
-      "you_earned_free_shipping": "You've earned free shipping!",
-      "you_earned_free_product": "You've earned a free product!",
-      "amount_away_free_shipping": "You're just {{ amount }} away from free shipping!",
-      "amount_away_free_product": "You're just {{ amount }} away from a free product!",
+      "you_earned_free_shipping": "Free shipping unlocked!",
+      "you_earned_free_product": "Your free gift is in — [Brand] Purple Toothpaste.",
+      "amount_away_free_shipping": "You're {{ amount }} from free shipping →",
+      "amount_away_free_product": "{{ amount }} more unlocks a free Purple Toothpaste",
       "free_shipping": "Free Shipping"
     }
   },
@@ -312,7 +312,7 @@
       }
     },
     "404": {
-      "title": "Page not found",
+      "title": "That page has gone missing",
       "subtext": "404"
     }
   },
@@ -587,10 +587,10 @@
     }
   },
   "progress_bar": {
-    "you_earned_free_shipping": "You've earned <strong>Free Shipping</strong>",
-    "you_earned_free_product": "You've earned <strong>{{ product_title }}</strong>",
-    "amount_away_free_shipping": "Your {{ amount }} away <strong>Free Shipping</strong>",
-    "amount_away_free_product": "Your {{ amount }} away <strong>{{ product_title }}</strong>",
+    "you_earned_free_shipping": "You've unlocked <strong>Free Shipping</strong>",
+    "you_earned_free_product": "You've unlocked <strong>{{ product_title }}</strong>",
+    "amount_away_free_shipping": "You're {{ amount }} from <strong>free shipping</strong> →",
+    "amount_away_free_product": "{{ amount }} more unlocks <strong>{{ product_title }}</strong>",
     "free_shipping": "Free Shipping"
   },
   "recipient": {
