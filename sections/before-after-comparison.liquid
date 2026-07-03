@@ -46,10 +46,10 @@ Removed unused variables - Deleted the unused section_id variable
   
   assign before_image = section.settings.before_image
   assign after_image = section.settings.after_image
-  assign section_title = section.settings.title | default: 'Image Comparison'
-  assign section_description = section.settings.description | default: 'See the stunning transformations our products deliver — real results from real customers.'
-  assign before_label = section.settings.before_label | default: 'Before'
-  assign after_label = section.settings.after_label | default: 'After'
+  assign section_title = section.settings.title | default: 'Day 1 vs Day 30'
+  assign section_description = section.settings.description | default: 'Real shade-card photos from real customers. Individual results vary.'
+  assign before_label = section.settings.before_label | default: 'Day 1'
+  assign after_label = section.settings.after_label | default: 'Day 30'
   assign instructions_text = section.settings.instructions_text | default: 'Drag the slider to see the difference'
   
   assign container_max_width = section.settings.container_max_width | default: 600
@@ -1067,7 +1067,7 @@ Removed unused variables - Deleted the unused section_id variable
       "type": "text",
       "id": "title",
       "label": "Title",
-      "default": "Image Comparison"
+      "default": "Day 1 vs Day 30"
     },
     {
       "type": "text",
@@ -1239,7 +1239,7 @@ Removed unused variables - Deleted the unused section_id variable
       "type": "textarea",
       "id": "description",
       "label": "Description",
-      "default": "See the stunning transformations our products deliver — real results from real customers."
+      "default": "Real shade-card photos from real customers. Individual results vary."
     },
     {
       "type": "textarea",
@@ -1271,13 +1271,13 @@ Removed unused variables - Deleted the unused section_id variable
       "type": "text",
       "id": "before_label",
       "label": "Before label",
-      "default": "Before"
+      "default": "Day 1"
     },
     {
       "type": "text",
       "id": "after_label",
       "label": "After label",
-      "default": "After"
+      "default": "Day 30"
     },
     {
       "type": "header",
