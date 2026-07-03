@@ -53,19 +53,19 @@
             {% else %}
               <img
                 src="{{ badge_image | img_url: '100x' }}"
-                alt="Money Back Guarantee"
+                alt="Shade Card Guarantee"
                 class="custom-badge-image"
                 width=""
                 height=""
               >
             {% endif %}
           {% else %}
-            <img src="{{ badge_image }}" alt="Money Back Guarantee" class="custom-badge-image" width="" height="">
+            <img src="{{ badge_image }}" alt="Shade Card Guarantee" class="custom-badge-image" width="" height="">
           {% endif %}
         {% else %}
           <img
             src="https://cdn.shopify.com/s/files/1/0610/9937/6753/files/menoy1.png?v=1740592879"
-            alt="Money Back Guarantee"
+            alt="Shade Card Guarantee"
             class="custom-badge-image"
             width=""
             height=""
@@ -74,11 +74,11 @@
       </div>
     </div>
     <div class="custom-guarantee-text">
-      <h3>{{ title_text | default: '30-Day Money Back Guarantee' }}</h3>
+      <h3>{{ title_text | default: '★ The Shade Card Guarantee' }}</h3>
       <p>
         {{
           description_text
-          | default: "That's how confident we are in your results. But if you're not thrilled, send it back and we'll refund your purchase."
+          | default: "Photograph Day 1. If Day 30 isn't visibly whiter, we refund everything and you keep the device."
         }}
       </p>
     </div>
