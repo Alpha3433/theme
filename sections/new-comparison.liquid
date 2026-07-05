@@ -57,7 +57,7 @@
       <div class="brand-header">
         <div class="table-col"></div>
         <div class="brand-name" style="grid-column: 2;">
-          <h3>{{ section.settings.brand_name | default: '[Brand]' }}</h3>
+          <h3>{{ section.settings.brand_name | default: 'Elaren' }}</h3>
         </div>
         <div class="table-col"></div>
       </div>
@@ -76,7 +76,7 @@
             ></div>
 
             <div class="table-col" style="grid-column: 3;">
-              <p>{{ section.settings.other_brand_name | default: 'Whitening strips' }}</p>
+              <p>{{ section.settings.other_brand_name | default: 'Strips alone' }}</p>
             </div>
             {% if section.settings.enable_third_column %}
               <div class="table-col" style="grid-column: 4;">
@@ -1041,7 +1041,7 @@
       "type": "text",
       "id": "subheading",
       "label": "Subheading",
-      "default": "See how [Brand] compares"
+      "default": "See how Elaren compares"
     },
     {
       "type": "header",
@@ -1101,19 +1101,19 @@
       "type": "text",
       "id": "title",
       "label": "Title",
-      "default": "How [Brand] compares"
+      "default": "How Elaren compares"
     },
     {
       "type": "text",
       "id": "brand_name",
       "label": "Your Brand Name",
-      "default": "[Brand]"
+      "default": "Elaren"
     },
     {
       "type": "text",
       "id": "other_brand_name",
       "label": "Other Brand Name",
-      "default": "Whitening strips"
+      "default": "Strips alone"
     },
     {
       "type": "header",
@@ -2126,8 +2126,8 @@
         {
           "type": "comparison_row",
           "settings": {
-            "feature_title": "<p>PEROXIDE-FREE</p>",
-            "feature_desc": "PAP+ whitening — no zingers",
+            "feature_title": "<p>ENAMEL-SAFE</p>",
+            "feature_desc": "Gentle, alcohol-free whitening",
             "our_brand_has_feature": true,
             "competitor_has_feature": false,
             "third_column_has_feature": false

@@ -221,7 +221,7 @@
     "discount_banner_gradient_start_color": "#181b1d",
     "discount_banner_gradient_end_color": "#71acc2",
     "product_free_show": true,
-    "shipping_earn_text": "You've unlocked free shipping.",
+    "shipping_earn_text": "You've unlocked free express shipping.",
     "free_product_earn_text": "You've unlocked a free [freeProduct].",
     "product_free_shipping": 90,
     "product_free_amount": 50,
@@ -323,7 +323,7 @@
             "type": "cart_money_back_guarantee",
             "settings": {
               "show_money_back_guarantee": true,
-              "money_back_guarantee_text": "Shade Card Guarantee — whiter by Day 30 or a full refund",
+              "money_back_guarantee_text": "Elaren Whitening Guarantee. Whiter in 30 days or your money back.",
               "money_back_guarantee_icon": "checkmark",
               "money_back_guarantee_color": "#000000"
             }

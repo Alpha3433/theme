@@ -15,7 +15,7 @@
         "header_Tt4Mbf": {
           "type": "header",
           "settings": {
-            "title": "10 Reasons Australians Are Swapping Whitening Strips for This Hands-Free PAP+ System",
+            "title": "10 Reasons Australians Are Switching to the Elaren Whitening Routine",
             "title_size": 48,
             "title_font_weight": 700,
             "title_line_height": 1.2,
@@ -25,7 +25,7 @@
             "title_margin_bottom": 30,
             "show_author_info": true,
             "author_avatar": "shopify://shop_images/gemini-2.5-flash-image-preview_use_the_same_woman_f.png",
-            "author_name": "[TODO: real author — no invented names or medical credentials]",
+            "author_name": "[TODO: real author, no invented names or medical credentials]",
             "author_date": "[TODO: real \"Last updated\" date]",
             "avatar_size": 50,
             "author_gap": 16,
@@ -48,8 +48,8 @@
         "countdown_banner_Aw83LG": {
           "type": "countdown_banner",
           "settings": {
-            "title": "[TODO: timer text — element left in place per store owner]",
-            "subtitle": "[TODO: timer text — element left in place per store owner]",
+            "title": "[TODO: timer text, element left in place per store owner]",
+            "subtitle": "[TODO: timer text, element left in place per store owner]",
             "countdown_type": "duration",
             "countdown_hours": 2,
             "countdown_minutes": 47,
@@ -91,7 +91,7 @@
         "summary_hpMNBU": {
           "type": "summary",
           "settings": {
-            "summary_text": "<p><strong>Summary:</strong> You can now whiten at home without peroxide zingers, $600+ in-chair sessions, or messy strips. [Brand]'s hands-free PAP+ system takes ten minutes a day while you get ready — and every kit ships with a shade card so you can measure the change yourself. Keep reading for the ten reasons it's worth switching.</p>"
+            "summary_text": "<p><strong>Summary:</strong> You can now whiten at home without a $600 in-chair bill or messy guesswork. The Elaren routine pairs a Purple Mouthwash for instant brightness, enamel-safe Whitening Strips for deeper results, and a hands-free LED Device that brightens your whole smile at once. Alcohol-free and gentle on your enamel, backed by a 30-day money-back guarantee. Keep reading for the ten reasons it is worth switching.</p>"
           }
         },
         "listicle_item_RtCU4x": {
@@ -99,9 +99,9 @@
           "settings": {
             "enable_container": false,
             "image": "shopify://shop_images/dark_circles.png",
-            "title": "1. It's hands-free — you whiten while you get ready",
-            "content": "<p>Most whitening makes you stop your morning: hold a tray, don't talk, don't move. [Brand] is different — load a ribbon of PAP+ gel in the tray, bite down, LED on. Hands free. Ten minutes while you do your makeup, shave or make coffee. Rinse. Done. Whitening stops being a chore because it happens inside time you were already spending.</p>",
-            "highlight_text": "",
+            "title": "1. It is hands-free, so you whiten while you get on with your day",
+            "content": "<p>Most whitening makes you stop and sit still. The Elaren LED Whitening Device is different. It is U-shaped, so it brightens every tooth at once while your hands stay free. Slip it in, switch it on, and get on with your morning. No trays to hold, no sitting still. Whitening stops being a chore because it happens inside time you were already spending.</p>",
+            "highlight_text": "It brightens every tooth at once, hands-free.",
             "item_gap": 25,
             "item_image_width": 250,
             "item_image_border_radius": 6,
@@ -125,8 +125,8 @@
           "settings": {
             "enable_container": false,
             "image": "shopify://shop_images/before_after_1.png",
-            "title": "2. You skip the $600+ in-chair bill",
-            "content": "<p>In-chair whitening starts around $600 a session, and the peroxide concentrations used often mean days of sensitivity afterwards. The System is $49 today, then $29 every 5 weeks for refills — a fraction of one clinic visit, on your schedule, at your bathroom mirror.</p>",
+            "title": "2. You skip the $600 in-chair bill",
+            "content": "<p>In-chair whitening starts around $600 a session, and the strong formulas used often mean days of sensitivity afterwards. The Elaren Complete Kit is $49 to start, then $29 for a refill of your Purple Mouthwash and Whitening Strips. A fraction of one clinic visit, on your own schedule, at your bathroom mirror.</p>",
             "highlight_text": "",
             "item_gap": 25,
             "item_image_width": 250,
@@ -150,9 +150,9 @@
           "type": "listicle_item",
           "settings": {
             "enable_container": false,
-            "title": "3. Ten minutes a day is all it takes",
-            "content": "<p>PAP+ needs about ten minutes of contact time to work — so that's exactly what a session is. No marathon protocols, no guessing. Ten minutes, once a day, hands-free. It's the kind of habit that survives real life, because it slots into the getting-ready time you already have.</p>",
-            "highlight_text": "Ten minutes, once a day, hands-free.",
+            "title": "3. Real timings that fit real life",
+            "content": "<p>The Elaren routine fits around your day. Rinse with the Purple Mouthwash for about 30 seconds for instant brightness. Wear the Whitening Strips for about 30 minutes for deeper results. Run the LED Device hands-free while you get on with everything else. No marathon protocols, no guessing. The habits that survive real life slot into time you already have.</p>",
+            "highlight_text": "Rinse in 30 seconds, strips in 30 minutes, device hands-free.",
             "item_gap": 25,
             "item_image_width": 250,
             "item_image_border_radius": 6,
@@ -175,9 +175,9 @@
           "type": "listicle_item",
           "settings": {
             "enable_container": false,
-            "title": "4. The maths beats strips and embarrasses the dentist's quote",
-            "content": "<p>Run the maths: refills are $29 every 5 weeks and include 2 PAP+ gel syringes — enough for daily sessions until the next box lands. Compare that with re-buying strip packs that sting, or a $600+ in-chair session.</p><p>Your first order is $49 today ($117 value): the device at 40% off, 2 gel syringes and a shade card, with free express shipping on every subscription order.</p>",
-            "highlight_text": "refills are $29 every 5 weeks",
+            "title": "4. The maths beats a clinic quote",
+            "content": "<p>Run the maths. Refills are $29 when you subscribe and save, and each one restocks your Purple Mouthwash and Whitening Strips so you never run dry. Compare that with re-buying random strip packs, or a $600 in-chair session.</p><p>Your first order is $49 today, a $117 value. You get the LED Device at 40% off, the Purple Mouthwash and the Whitening Strips, with free express shipping on every subscription order.</p>",
+            "highlight_text": "refills are $29 when you subscribe and save",
             "item_gap": 25,
             "item_image_width": 250,
             "item_image_border_radius": 6,
@@ -200,9 +200,9 @@
           "type": "listicle_item",
           "settings": {
             "enable_container": false,
-            "title": "5. It's peroxide-free — no zingers",
-            "content": "<p>Peroxide whitens by oxidising through the enamel. Effective — but it's exactly why strips sting and why people with sensitive teeth give up on whitening. PAP+ breaks down stains without free radicals, so you get the lift without the sensitivity. PAP has been used in Australian cosmetic whitening for years.</p><p>(One honest note: whitening only works on natural enamel, so it won't change veneers or crowns.)</p>",
-            "highlight_text": "the lift without the sensitivity",
+            "title": "5. It is enamel-safe and gentle",
+            "content": "<p>Harsh whitening is exactly why some strips sting and why people with sensitive teeth give up. Elaren is built to be gentle. The Whitening Strips are enamel-safe, and the Purple Mouthwash is alcohol-free with a fresh mint finish, so it is comfortable enough to use every day.</p><p>One honest note. Whitening only works on natural enamel, so it will not change veneers or crowns.</p>",
+            "highlight_text": "gentle enough for sensitive teeth",
             "item_gap": 25,
             "item_image_width": 250,
             "item_image_border_radius": 6,
@@ -225,9 +225,9 @@
           "type": "listicle_item",
           "settings": {
             "enable_container": false,
-            "title": "6. The purple gel is doing two jobs at once",
-            "content": "<p>Why purple? The purple pigment is instant colour-correction on camera — it counteracts yellow tones the moment it goes on. Underneath, the PAP+ is doing the permanent work, breaking down stains session by session. Instant optics plus gradual, real change — and neither part needs peroxide.</p>",
-            "highlight_text": "instant colour-correction on camera",
+            "title": "6. The purple mouthwash brightens the moment you rinse",
+            "content": "<p>Why purple? Purple sits opposite yellow on the colour wheel, so the Purple Mouthwash neutralises yellow tones the moment you rinse. That is instant brightness before you walk out the door. The enamel-safe Whitening Strips then do the deeper work over the following weeks. Instant lift plus gradual, real change.</p>",
+            "highlight_text": "instant brightness before you walk out the door",
             "item_gap": 25,
             "item_image_width": 250,
             "item_image_border_radius": 6,
@@ -250,8 +250,8 @@
           "type": "listicle_item",
           "settings": {
             "enable_container": false,
-            "title": "7. The shade card means you're not guessing",
-            "content": "<p>Every kit includes a shade card. Photograph Day 1, then make Sunday your shade-check day: tap your teeth on the card and watch the number drop. Most people see the first shade-card movement around Day 7, and by Day 30 you have side-by-side photo proof. Individual results vary — which is exactly why we give you the measuring tool instead of a marketing claim.</p>",
+            "title": "7. You can see the change from the first use",
+            "content": "<p>Photograph Day 1, then take a photo each week and compare. Many people notice a visible difference after the very first use of the Whitening Strips, and the Purple Mouthwash brightens on day one. Individual results vary, which is why we suggest you track your own photos instead of trusting a marketing claim.</p>",
             "highlight_text": "Photograph Day 1",
             "item_gap": 25,
             "item_image_width": 250,
@@ -275,8 +275,8 @@
           "type": "listicle_item",
           "settings": {
             "enable_container": false,
-            "title": "8. Refills run themselves — and cancelling takes 2 clicks",
-            "content": "<p>Subscribe and 2 fresh gel syringes land every 5 weeks, timed to daily 10-minute sessions, with free express shipping always. Plans change? Skip or pause anytime from your account. Want out? Cancel in 2 clicks from your account page — no lock-in, no emails, no phone calls. We keep the cancel button where you can see it, because the product is what keeps you — not the fine print.</p>",
+            "title": "8. Refills run themselves, and cancelling takes 2 clicks",
+            "content": "<p>Subscribe and fresh Purple Mouthwash and Whitening Strips arrive on repeat, with free express shipping every time. Plans change? Skip or pause anytime from your account. Want out? Cancel in 2 clicks from your account page. No lock-in, no emails, no phone calls. We keep the cancel button where you can see it, because the product is what keeps you, not the fine print.</p>",
             "highlight_text": "Skip or pause anytime",
             "item_gap": 25,
             "item_image_width": 250,
@@ -300,8 +300,8 @@
           "type": "listicle_item",
           "settings": {
             "enable_container": false,
-            "title": "9. The timeline is honest — Day 3 to Day 30",
-            "content": "<p>Here's what to expect. Day 3: a cleaner, smoother feel. Day 7: first shade-card movement for most people. Day 14: someone comments on it. Day 30: side-by-side photo proof. No overnight-miracle promises — gradual change you can measure yourself, and individual results vary.</p>",
+            "title": "9. The timeline is honest, from Day 1 to Day 30",
+            "content": "<p>Here is what to expect. Day 1: a visibly brighter look from the Purple Mouthwash, and a fresher feel from the first strip treatment. Day 7: many people see clearer progress. Day 14: someone comments on it. Day 30: side-by-side photo proof. No overnight miracle promises. Gradual change you can see for yourself, and individual results vary.</p>",
             "highlight_text": "Day 14: someone comments on it.",
             "item_gap": 25,
             "item_image_width": 250,
@@ -325,9 +325,9 @@
           "type": "listicle_item",
           "settings": {
             "enable_container": false,
-            "title": "10. It's backed by the Shade Card Guarantee",
-            "content": "<p>★ The Shade Card Guarantee — photograph Day 1. If Day 30 isn't visibly whiter, we refund everything and you keep the device.</p><p>That's the whole guarantee: you hold the photographic proof, and the risk sits with us, not you. If the shade card doesn't move, you don't pay.</p>",
-            "highlight_text": "we refund everything and you keep the device",
+            "title": "10. It is backed by the Elaren Whitening Guarantee",
+            "content": "<p>★ The Elaren Whitening Guarantee. Love your whiter smile or your money back. 30 days, no questions.</p><p>That is the whole guarantee. Give the routine an honest go, and if you are not happy with your brighter smile, we refund you. The risk sits with us, not you.</p>",
+            "highlight_text": "Love your whiter smile or your money back",
             "item_gap": 25,
             "item_image_width": 250,
             "item_image_border_radius": 6,
@@ -351,22 +351,22 @@
           "settings": {
             "chip_text": "MOST POPULAR · SAVE $68 TODAY",
             "image": "shopify://shop_images/ChatGPT_Image_Aug_27_2025_07_26_23_AM.png",
-            "eyebrow_text": "The System · Subscribe",
+            "eyebrow_text": "The Complete Kit · Subscribe & Save",
             "headline_accent": "$49 today",
-            "headline_strong": "($117 value) · then $29 every 5 weeks",
-            "description": "No lock-in. Cancel from your account — no emails, no phone calls.",
-            "cta_label": "Start my whitening — $49",
+            "headline_strong": "($117 value) · then $29 to refill",
+            "description": "No lock-in. Cancel from your account. No emails, no phone calls.",
+            "cta_label": "Get the Complete Kit for $49",
             "cta_link": "shopify://products/radiant-eye-glow-kit",
             "deal_mode": "duration",
             "duration_hours": 2,
             "duration_minutes": 33,
             "duration_seconds": 53,
             "deadline": "2025-09-03T23:59:59Z",
-            "sellout_risk": "[TODO: sell-out risk meter — element left in place per store owner]",
-            "countdown_label": "[TODO: timer text — element left in place per store owner]",
-            "sellout_risk_label": "[TODO: sell-out risk meter — element left in place per store owner]",
+            "sellout_risk": "[TODO: sell-out risk meter, element left in place per store owner]",
+            "countdown_label": "[TODO: timer text, element left in place per store owner]",
+            "sellout_risk_label": "[TODO: sell-out risk meter, element left in place per store owner]",
             "shipping_text": "Free express shipping, always",
-            "guarantee_text": "★ The Shade Card Guarantee — photograph Day 1. If Day 30 isn't visibly whiter, we refund everything and you keep the device.",
+            "guarantee_text": "★ The Elaren Whitening Guarantee. Love your whiter smile or your money back. 30 days, no questions.",
             "navy_color": "#25282a",
             "accent_red": "#e79dd3",
             "bg_cream": "#ffffff",
@@ -397,9 +397,9 @@
         "sticky_add_to_cart_CGgphY": {
           "type": "sticky_add_to_cart",
           "settings": {
-            "button_text": "Start my whitening — $49",
+            "button_text": "Get the Complete Kit for $49",
             "button_link": "https://radiance.com/eye-glow-kit-special",
-            "verification_text": "No lock-in. Cancel from your account — no emails, no phone calls.",
+            "verification_text": "No lock-in. Cancel from your account. No emails, no phone calls.",
             "button_bg_color": "#25282a",
             "button_text_color": "#ffffff",
             "button_border_radius": 8,
@@ -425,8 +425,8 @@
         "advertorial_footer_ihAU3M": {
           "type": "advertorial_footer",
           "settings": {
-            "disclaimer_text": "*The System: $49 for your first order (device, 2 PAP+ gel syringes, shade card), then $29 every 5 weeks for refills. Skip, pause or cancel anytime from your account. Free express shipping on subscription orders; one-time orders ship free over $79. Individual results vary.",
-            "copyright_text": "© 2026 [Brand]. All rights reserved.",
+            "disclaimer_text": "*The Complete Kit: $49 for your first order (LED Whitening Device, Purple Mouthwash, Whitening Strips), then $29 for each refill of mouthwash and strips when you subscribe and save. Skip, pause or cancel anytime from your account. Free express shipping on subscription orders. One-time orders ship free over $79. Individual results vary.",
+            "copyright_text": "© 2026 Elaren. All rights reserved.",
             "show_links": true,
             "terms_text": "Terms of Service",
             "terms_link": "",

@@ -7,7 +7,7 @@
 
 {% liquid
 	assign timer_minutes = block.settings.timer_minutes | default: 10
-	assign timer_text = block.settings.timer_text | default: '[TODO: timer text — element left in place per store owner]'
+	assign timer_text = block.settings.timer_text | default: '[TODO: timer text, element left in place per store owner]'
 	assign bg_color = block.settings.timer_bg_color | default: '#000000'
 	assign text_color = block.settings.timer_text_color | default: '#ffffff'
 	assign padding = block.settings.timer_padding | default: 8
