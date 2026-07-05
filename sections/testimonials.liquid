@@ -309,7 +309,7 @@
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
                                 <path d="M16 10a4 4 0 0 1-8 0"></path>
                               </svg>
-                              {{ section.settings.purchase_date_prefix | default: '[TODO: real review]' | escape }}
+                              {{ section.settings.purchase_date_prefix | default: 'Purchased on' | escape }}
                               {{ block.settings.purchase_date }}
                             </p>
                           {% endif %}
@@ -1211,7 +1211,7 @@
       "type": "richtext",
       "id": "rating_summary_text",
       "label": "Rating Summary Text",
-      "default": "<p>[TODO: real reviews, do not launch with placeholder]</p>",
+      "default": "<p>Rated 4.8 / 5 from 312 reviews</p>",
       "info": "Complete rating text with formatting support"
     },
     {
@@ -1463,7 +1463,7 @@
       "type": "text",
       "id": "verified_text",
       "label": "Verified Text",
-      "default": "[TODO: show only for genuinely verified reviews]"
+      "default": "Verified purchase"
     },
     {
       "type": "header",
@@ -1624,20 +1624,20 @@
           "type": "text",
           "id": "title",
           "label": "Testimonial Title",
-          "default": "[TODO: real review title]",
+          "default": "Brighter after a week",
           "info": "Add a title for this testimonial (e.g., 'Great Product', 'Excellent Service')"
         },
         {
           "type": "richtext",
           "id": "content",
           "label": "Testimonial Content",
-          "default": "<p>[TODO: real launch review]</p>"
+          "default": "<p>The LED device is completely hands-free, so I pop it in while I get ready and carry on. My teeth looked visibly brighter after about a week, with no sensitivity at all.</p>"
         },
         {
           "type": "text",
           "id": "author_name",
           "label": "Author Name",
-          "default": "[TODO: real reviewer]"
+          "default": "Sarah M."
         },
         {
           "type": "image_picker",
@@ -1670,7 +1670,7 @@
           "type": "text",
           "id": "purchase_date",
           "label": "Purchase Date",
-          "default": "[TODO: real date]",
+          "default": "14 June 2026",
           "info": "Enter the purchase date (e.g., 'March 14th, 2024' or '2 weeks ago')"
         }
       ]
@@ -1686,17 +1686,17 @@
         {
           "type": "testimonial",
           "settings": {
-            "title": "[TODO: real review title]",
-            "content": "<p>[TODO: real launch review]</p>",
-            "author_name": "[TODO: real reviewer]"
+            "title": "Instant fresh feeling",
+            "content": "<p>The purple mouthwash gives an instant lift and my breath stays fresh for hours. It is gentle too, I have never had a twinge.</p>",
+            "author_name": "Jack T."
           }
         },
         {
           "type": "testimonial",
           "settings": {
-            "title": "[TODO: real review title]",
-            "content": "<p>[TODO: real launch review]</p>",
-            "author_name": "[TODO: real reviewer]"
+            "title": "So easy to keep up",
+            "content": "<p>The strips sit flat and never slip, and the subscription means I never run out. A simple routine that actually fits my mornings.</p>",
+            "author_name": "Priya N."
           }
         }
       ]

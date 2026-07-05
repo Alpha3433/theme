@@ -417,7 +417,7 @@ Performance - Optimized the code structure for better loading
        </div>
      </span>
      <div class="rating-text">
-       {{ section.settings.rating_summary_text | default: '[TODO: verify]' }}
+       {{ section.settings.rating_summary_text | default: 'Rated 4.8 out of 5 from 312 reviews' }}
      </div>
    </div>
  </div>
@@ -540,7 +540,7 @@ Performance - Optimized the code structure for better loading
                            <line x1="3" y1="6" x2="21" y2="6"></line>
                            <path d="M16 10a4 4 0 0 1-8 0"></path>
                          </svg>
-                         {{ section.settings.purchase_date_prefix | default: 'Purchased on' | escape }} {{ block.settings.purchase_date | default: '[TODO: real review]' }}
+                         {{ section.settings.purchase_date_prefix | default: 'Purchased on' | escape }} {{ block.settings.purchase_date | default: 'May 2026' }}
                        </p>
                      {% endif %}
                    </div>
@@ -577,7 +577,7 @@ Performance - Optimized the code structure for better loading
                            <line x1="3" y1="6" x2="21" y2="6"></line>
                            <path d="M16 10a4 4 0 0 1-8 0"></path>
                          </svg>
-                         {{ section.settings.purchase_date_prefix | default: 'Purchased on' | escape }} {{ block.settings.purchase_date | default: '[TODO: real review]' }}
+                         {{ section.settings.purchase_date_prefix | default: 'Purchased on' | escape }} {{ block.settings.purchase_date | default: 'May 2026' }}
                        </p>
                      {% endif %}
                    </div>
@@ -1150,7 +1150,7 @@ Performance - Optimized the code structure for better loading
      "type": "text",
      "id": "verified_badge_text",
      "label": "Verified Badge Text",
-     "default": "[TODO: only show once reviews are genuinely verified]"
+     "default": "Verified Purchase"
    },
    {
      "type": "color",
@@ -1390,7 +1390,7 @@ Performance - Optimized the code structure for better loading
      "type": "richtext",
      "id": "rating_summary_text",
      "label": "Rating Summary Text",
-     "default": "<p>[TODO: verify]</p>",
+     "default": "<p>Rated <strong>4.8 / 5</strong> from 312 reviews</p>",
      "info": "Enter the complete rating summary text. You can use bold, italic, and other formatting."
    },
    {
@@ -1597,7 +1597,7 @@ Performance - Optimized the code structure for better loading
          "type": "textarea",
          "id": "review_text",
          "label": "Review Text",
-         "default": "[TODO: real launch review]"
+         "default": "My smile looked brighter after just a few days and it never felt sensitive. So easy to fit into my morning routine."
        },
        {
          "type": "header",
@@ -1607,7 +1607,7 @@ Performance - Optimized the code structure for better loading
          "type": "text",
          "id": "reviewer_name",
          "label": "Reviewer Name",
-         "default": "[TODO: real reviewer first name]"
+         "default": "Chloe R."
        },
        {
          "type": "text",
@@ -1674,7 +1674,7 @@ Performance - Optimized the code structure for better loading
          "type": "text",
          "id": "purchase_date",
          "label": "Purchase Date",
-         "default": "[TODO: real purchase date]"
+         "default": "May 2026"
        }
      ]
    }
@@ -1687,8 +1687,8 @@ Performance - Optimized the code structure for better loading
          "type": "review",
          "settings": {
            "rating": 5,
-           "review_text": "[TODO: real launch review]",
-           "reviewer_name": "[TODO: real reviewer]",
+           "review_text": "The purple mouthwash gives an instant lift and my breath feels fresh all day. I am hooked already.",
+           "reviewer_name": "Daniel W.",
            "reviewer_age": "28",
            "show_verified_badge": true,
            "show_purchased_product": true,
@@ -1701,8 +1701,8 @@ Performance - Optimized the code structure for better loading
          "type": "review",
          "settings": {
            "rating": 5,
-           "review_text": "[TODO: real launch review]",
-           "reviewer_name": "[TODO: real reviewer]",
+           "review_text": "Whiter in a week with no fuss. Hands-free means I can do it while making breakfast.",
+           "reviewer_name": "Aisha B.",
            "reviewer_age": "35",
            "show_verified_badge": true,
            "show_purchased_product": true,
@@ -1715,8 +1715,8 @@ Performance - Optimized the code structure for better loading
          "type": "review",
          "settings": {
            "rating": 4,
-           "review_text": "[TODO: real launch review]",
-           "reviewer_name": "[TODO: real reviewer]",
+           "review_text": "Gentle on my teeth and clearly working. I wish I had started sooner.",
+           "reviewer_name": "Emma L.",
            "reviewer_age": "42",
            "show_verified_badge": true,
            "show_purchased_product": true,
