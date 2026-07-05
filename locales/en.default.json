@@ -81,7 +81,7 @@
   },
   "newsletter": {
     "label": "Email",
-    "success": "Thanks — you're on the list.",
+    "success": "Thanks, you're on the list.",
     "button_label": "Subscribe",
     "placeholder": "Enter your email",
     "tag_value": "newsletter"
@@ -260,9 +260,9 @@
   "theme": {
     "progress_bar": {
       "you_earned_free_shipping": "Free shipping unlocked!",
-      "you_earned_free_product": "Your free gift is in — [Brand] Purple Toothpaste.",
+      "you_earned_free_product": "Your free gift is in. Elaren Purple Mouthwash.",
       "amount_away_free_shipping": "You're {{ amount }} from free shipping →",
-      "amount_away_free_product": "{{ amount }} more unlocks a free Purple Toothpaste",
+      "amount_away_free_product": "{{ amount }} more unlocks a free Elaren Purple Mouthwash",
       "free_shipping": "Free Shipping"
     }
   },
@@ -579,7 +579,7 @@
       "gift_card_code": "Gift card code",
       "shop_link": "Visit online store",
       "add_to_apple_wallet": "Add to Apple Wallet",
-      "qr_image_alt": "QR code — scan to redeem gift card",
+      "qr_image_alt": "QR code, scan to redeem gift card",
       "copy_code": "Copy gift card code",
       "expiration_date": "Expires {{ expires_on }}",
       "copy_code_success": "Code copied successfully",

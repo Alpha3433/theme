@@ -873,7 +873,7 @@
     }
     
     // Get button text and format money function from global scope or define defaults
-    var addToCartButtonText = (typeof window.addToCartButtonText !== 'undefined') ? window.addToCartButtonText : 'Start my whitening — $49';
+    var addToCartButtonText = (typeof window.addToCartButtonText !== 'undefined') ? window.addToCartButtonText : 'Get the Complete Kit';
     function formatMoneyWithoutSuffix(amount) {
       if (typeof window.formatMoneyWithoutSuffix === 'function') {
         return window.formatMoneyWithoutSuffix(amount);
@@ -1181,7 +1181,7 @@
               if (hasTextOverride && persistentText) {
                 buttonText = persistentText;
               } else {
-                buttonText = addToCartButtonText || 'Start my whitening — $49';
+                buttonText = addToCartButtonText || 'Get the Complete Kit';
               }
               
               let newButtonText = buttonText;
@@ -1491,7 +1491,7 @@
             if (totalComparePrice > totalPrice && comparePriceLabel)
               comparePriceLabel.innerText = totalComparePriceLabel;
 
-            let buttonText = addToCartButtonText || 'Start my whitening — $49';
+            let buttonText = addToCartButtonText || 'Get the Complete Kit';
             buttonText += " - " + totalPriceLabel;
             if (totalComparePrice > totalPrice) {
               buttonText += ` <span class="compare-price">(${totalComparePriceLabel})</span>`;
