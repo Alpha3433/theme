@@ -1,0 +1,716 @@
+{% comment %}
+  Bundle Builder (FUM "Journey Pack" style) for the Elaren theme.
+  One native Shopify product: options are the builder steps, variants are pre-priced.
+  Client-side pricing from an embedded variant JSON island. Locked accordion steps,
+  per-tile whole-dollar deltas, sticky CTA showing the cheapest completion,
+  selling-plan attach for option values containing the club marker, marquee strip.
+  Cart success path uses this theme's Dawn-style <cart-drawer> renderContents().
+{% endcomment %}
+
+{%- liquid
+  assign bb_id = section.id
+  assign has_builder = false
+  if product and product.variants.size > 1 and product.options_with_values.size > 0
+    assign has_builder = true
+  endif
+  assign marker = section.settings.club_marker | strip
+  assign none_value = section.settings.optional_none_value | strip
+-%}
+
+{%- if has_builder or request.design_mode -%}
+<div class="bb-section" id="bb-{{ bb_id }}" data-bb-root data-section-id="{{ bb_id }}">
+  {%- unless has_builder -%}
+    {%- if request.design_mode -%}
+      <div class="bb-setup-note">
+        <strong>Bundle builder:</strong> assign this section to a product with 2 or more options and pre-priced variants (see docs/BUNDLE_BUILDER_BRIEF.md). It stays hidden on the storefront until then.
+      </div>
+    {%- endif -%}
+  {%- else -%}
+
+  <div class="bb-layout page-width">
+    {%- comment -%} ============ Gallery column ============ {%- endcomment -%}
+    <div class="bb-gallery">
+      <div class="bb-gallery__main">
+        {%- if product.featured_media -%}
+          <img data-bb-main-image src="{{ product.featured_media | image_url: width: 1100 }}" alt="{{ product.featured_media.alt | default: product.title | escape }}" width="1100" height="{{ 1100 | divided_by: product.featured_media.aspect_ratio | round }}" loading="eager">
+        {%- endif -%}
+      </div>
+      {%- if product.media.size > 1 -%}
+        <div class="bb-gallery__thumbs" data-bb-thumbs>
+          {%- for media in product.media limit: 10 -%}
+            <button type="button" class="bb-thumb{% if forloop.first %} is-active{% endif %}" data-bb-thumb data-full="{{ media | image_url: width: 1100 }}" aria-label="View image {{ forloop.index }}">
+              <img src="{{ media | image_url: width: 160 }}" alt="{{ media.alt | escape }}" width="80" height="80" loading="lazy">
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} ============ Builder column ============ {%- endcomment -%}
+    <div class="bb-builder">
+      <h2 class="bb-title">
+        {{ section.settings.title | escape }}
+        {%- if section.settings.title_accent != blank %} <em class="bb-title__accent">{{ section.settings.title_accent | escape }}</em>{% endif %}
+      </h2>
+      {%- if section.settings.subtitle != blank -%}
+        <p class="bb-subtitle">{{ section.settings.subtitle | escape }}</p>
+      {%- endif -%}
+
+      {%- for option in product.options_with_values -%}
+        {%- assign opt_idx = forloop.index0 -%}
+        {%- assign is_optional = false -%}
+        {%- if option.name == section.settings.optional_step_name -%}{%- assign is_optional = true -%}{%- endif -%}
+        <section class="bb-step{% if opt_idx > 0 %} is-locked{% endif %}" data-bb-step="{{ opt_idx }}" data-step-name="{{ option.name | escape }}" aria-label="Step {{ forloop.index }}: {{ option.name | escape }}">
+          <header class="bb-step__head" data-bb-step-head>
+            <h3 class="bb-step__title"><span class="bb-step__num">{{ forloop.index }}.</span> {{ section.settings.step_verb | escape }} {{ option.name | downcase | escape }}</h3>
+            <span class="bb-step__meta">
+              {%- if is_optional %}<span class="bb-step__optional">{{ section.settings.optional_label | escape }}</span>{% endif -%}
+              <span class="bb-step__dot" data-bb-step-dot aria-hidden="true"></span>
+            </span>
+          </header>
+          <div class="bb-step__body">
+            <div class="bb-tiles" role="listbox" aria-label="{{ option.name | escape }}">
+              {%- for value in option.values -%}
+                {%- assign tile_image = blank -%}
+                {%- assign tile_desc = blank -%}
+                {%- assign tile_badge = blank -%}
+                {%- for block in section.blocks -%}
+                  {%- if block.type == 'tile' and block.settings.option_value == value -%}
+                    {%- assign tile_image = block.settings.image -%}
+                    {%- assign tile_desc = block.settings.description -%}
+                    {%- assign tile_badge = block.settings.badge -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if tile_image == blank -%}
+                  {%- for variant in product.variants -%}
+                    {%- if variant.options[opt_idx] == value and variant.featured_image -%}
+                      {%- assign tile_image = variant.featured_image -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+                {%- assign display_value = value -%}
+                {%- if marker != blank -%}
+                  {%- assign display_value = value | remove: marker | strip -%}
+                {%- endif -%}
+                <div class="bb-tile" data-bb-tile data-option-index="{{ opt_idx }}" data-value="{{ value | escape }}" role="option" aria-selected="false">
+                  {%- if tile_badge != blank -%}<span class="bb-tile__badge">{{ tile_badge | escape }}</span>{%- endif -%}
+                  {%- if value contains marker and marker != blank -%}<span class="bb-tile__club">{{ section.settings.club_badge_label | escape }}</span>{%- endif -%}
+                  <div class="bb-tile__media">
+                    {%- if tile_image != blank -%}
+                      <img src="{{ tile_image | image_url: width: 480 }}" alt="{{ display_value | escape }}" width="240" height="240" loading="lazy">
+                    {%- else -%}
+                      <span class="bb-tile__media-fallback" aria-hidden="true">{{ display_value | slice: 0, 1 }}</span>
+                    {%- endif -%}
+                  </div>
+                  <h4 class="bb-tile__name">{{ display_value | escape }}</h4>
+                  {%- if tile_desc != blank -%}<p class="bb-tile__desc">{{ tile_desc | escape }}</p>{%- endif -%}
+                  <button type="button" class="bb-tile__select" data-bb-select>
+                    <span data-bb-select-label>{{ section.settings.select_label | escape }}</span>
+                    <span class="bb-tile__delta" data-bb-delta></span>
+                  </button>
+                </div>
+              {%- endfor -%}
+            </div>
+          </div>
+        </section>
+      {%- endfor -%}
+
+      {%- comment -%} Subscription frequency, revealed when a club value is selected {%- endcomment -%}
+      {%- if product.selling_plan_groups.size > 0 -%}
+        <div class="bb-frequency" data-bb-frequency hidden>
+          <label class="bb-frequency__label" for="bb-freq-{{ bb_id }}">{{ section.settings.frequency_label | escape }}</label>
+          <select class="bb-frequency__select" id="bb-freq-{{ bb_id }}" data-bb-frequency-select>
+            {%- for group in product.selling_plan_groups -%}
+              {%- for plan in group.selling_plans -%}
+                <option value="{{ plan.id }}">{{ plan.name | escape }}</option>
+              {%- endfor -%}
+            {%- endfor -%}
+          </select>
+          {%- if section.settings.frequency_note != blank -%}
+            <p class="bb-frequency__note">{{ section.settings.frequency_note | escape }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} ============ Sticky CTA ============ {%- endcomment -%}
+      <div class="bb-cta-wrap">
+        <button type="button" class="bb-cta" data-bb-cta disabled>
+          <span class="bb-cta__label" data-bb-cta-label>{{ section.settings.select_label | escape }}</span>
+          <span class="bb-cta__price">
+            <span data-bb-cta-price></span>
+            <s class="bb-cta__compare" data-bb-cta-compare hidden></s>
+          </span>
+        </button>
+        <p class="bb-cta__error" data-bb-error hidden></p>
+        {%- if section.settings.delivery_note != blank -%}
+          <p class="bb-delivery">{{ section.settings.delivery_note | escape }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} ============ Marquee strip ============ {%- endcomment -%}
+  {%- if section.settings.show_marquee and section.settings.marquee_text != blank -%}
+    {%- assign marquee_items = section.settings.marquee_text | split: ',' -%}
+    <div class="bb-marquee" aria-hidden="true">
+      <div class="bb-marquee__track">
+        {%- for repeat in (1..2) -%}
+          {%- for item in marquee_items -%}
+            <span class="bb-marquee__item">{{ item | strip | escape }}</span><span class="bb-marquee__sep">&middot;</span>
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ============ Data islands ============ {%- endcomment -%}
+  <script type="application/json" data-bb-variants>
+    [
+      {%- for variant in product.variants -%}
+        {"id":{{ variant.id }},"price":{{ variant.price }},"cap":{{ variant.compare_at_price | default: 0 }},"av":{{ variant.available }},"o":{{ variant.options | json }}}{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  </script>
+  <script type="application/json" data-bb-config>
+    {
+      "marker": {{ marker | json }},
+      "noneValue": {{ none_value | json }},
+      "optionalStep": {{ section.settings.optional_step_name | json }},
+      "preselectNone": {{ section.settings.preselect_none }},
+      "optionNames": {{ product.options | json }},
+      "selectLabel": {{ section.settings.select_label | json }},
+      "selectedLabel": {{ section.settings.selected_label | json }},
+      "addLabel": {{ section.settings.add_label | json }},
+      "stepVerb": {{ section.settings.step_verb | json }},
+      "soldOutLabel": {{ section.settings.sold_out_label | json }},
+      "cartAddUrl": {{ routes.cart_add_url | json }},
+      "cartUrl": {{ routes.cart_url | json }}
+    }
+  </script>
+  {%- endunless -%}
+</div>
+{%- endif -%}
+
+{%- style -%}
+  #bb-{{ bb_id }} {
+    --bb-fg: rgb(var(--color-foreground, 37 40 42));
+    --bb-bg: rgb(var(--color-background, 255 255 255));
+    --bb-accent: var(--global-section-accent-1-color, #25282a);
+    color: var(--bb-fg);
+    background: var(--bb-bg);
+    font-family: var(--font-body-family, sans-serif);
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+  }
+  #bb-{{ bb_id }} .bb-setup-note { padding: 24px; border: 1px dashed var(--bb-fg); border-radius: 8px; margin: 0 24px; }
+  #bb-{{ bb_id }} .bb-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 40px; align-items: start; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+  #bb-{{ bb_id }} .bb-gallery { position: sticky; top: 24px; }
+  #bb-{{ bb_id }} .bb-gallery__main img { width: 100%; height: auto; border-radius: 12px; display: block; }
+  #bb-{{ bb_id }} .bb-gallery__thumbs { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; padding-bottom: 4px; }
+  #bb-{{ bb_id }} .bb-thumb { flex: 0 0 auto; width: 64px; height: 64px; padding: 0; border: 1px solid rgba(var(--color-foreground, 37 40 42), 0.18); border-radius: 8px; background: none; cursor: pointer; overflow: hidden; }
+  #bb-{{ bb_id }} .bb-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #bb-{{ bb_id }} .bb-thumb.is-active { border-color: var(--bb-fg); border-width: 2px; }
+
+  #bb-{{ bb_id }} .bb-title { font-family: var(--font-heading-family, serif); font-size: clamp(28px, 4vw, 40px); line-height: 1.15; margin: 0 0 6px; letter-spacing: var(--letter-spacing-heading, -0.5px); }
+  #bb-{{ bb_id }} .bb-title__accent { font-family: var(--font-accent-family, serif); font-style: var(--font-accent-style, italic); font-weight: var(--font-accent-weight, 300); color: var(--bb-accent); }
+  #bb-{{ bb_id }} .bb-subtitle { margin: 0 0 22px; font-size: 15px; opacity: 0.75; }
+
+  #bb-{{ bb_id }} .bb-step { border-top: 1px solid rgba(var(--color-foreground, 37 40 42), 0.14); padding: 16px 0; }
+  #bb-{{ bb_id }} .bb-step__head { display: flex; justify-content: space-between; align-items: center; }
+  #bb-{{ bb_id }} .bb-step__title { font-family: var(--font-heading-family, serif); font-size: 20px; margin: 0; }
+  #bb-{{ bb_id }} .bb-step__num { color: var(--bb-accent); }
+  #bb-{{ bb_id }} .bb-step__meta { display: flex; align-items: center; gap: 10px; }
+  #bb-{{ bb_id }} .bb-step__optional { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.55; }
+  #bb-{{ bb_id }} .bb-step__dot { width: 18px; height: 18px; border: 2px solid rgba(var(--color-foreground, 37 40 42), 0.35); border-radius: 50%; display: inline-block; }
+  #bb-{{ bb_id }} .bb-step.is-done .bb-step__dot { background: var(--bb-accent); border-color: var(--bb-accent); }
+  #bb-{{ bb_id }} .bb-step.is-locked .bb-step__body { display: none; }
+  #bb-{{ bb_id }} .bb-step.is-locked { opacity: 0.45; pointer-events: none; }
+
+  #bb-{{ bb_id }} .bb-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+  #bb-{{ bb_id }} .bb-tile { position: relative; text-align: center; padding: 12px 10px 14px; border: 1px solid rgba(var(--color-foreground, 37 40 42), 0.12); border-radius: 10px; background: var(--bb-bg); transition: box-shadow 0.15s ease, border-color 0.15s ease; }
+  #bb-{{ bb_id }} .bb-tile.is-selected { border-color: var(--bb-fg); box-shadow: 4px 4px 0 var(--bb-fg); }
+  #bb-{{ bb_id }} .bb-tile.is-unavailable { opacity: 0.4; }
+  #bb-{{ bb_id }} .bb-tile__badge { position: absolute; top: -10px; right: -6px; background: {{ section.settings.badge_color }}; color: var(--bb-fg); font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; box-shadow: 2px 2px 0 var(--bb-fg); z-index: 1; }
+  #bb-{{ bb_id }} .bb-tile__club { position: absolute; top: 8px; left: 8px; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; background: rgba(var(--color-foreground, 37 40 42), 0.08); padding: 3px 6px; border-radius: 4px; }
+  #bb-{{ bb_id }} .bb-tile__media { height: 110px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+  #bb-{{ bb_id }} .bb-tile__media img { max-height: 100%; max-width: 100%; object-fit: contain; }
+  #bb-{{ bb_id }} .bb-tile__media-fallback { font-family: var(--font-accent-family, serif); font-style: italic; font-size: 42px; opacity: 0.25; }
+  #bb-{{ bb_id }} .bb-tile__name { font-family: var(--font-heading-family, serif); font-size: 16px; margin: 0 0 4px; }
+  #bb-{{ bb_id }} .bb-tile__desc { font-size: 12px; line-height: 1.4; opacity: 0.7; margin: 0 0 10px; min-height: 2.8em; }
+  #bb-{{ bb_id }} .bb-tile__select { width: 100%; display: inline-flex; justify-content: center; gap: 6px; align-items: center; padding: 9px 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: var(--bb-bg); color: var(--bb-fg); border: 1.5px solid var(--bb-fg); border-radius: 6px; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.1s ease; }
+  #bb-{{ bb_id }} .bb-tile__select:hover { box-shadow: 3px 3px 0 var(--bb-fg); transform: translate(-1px, -1px); }
+  #bb-{{ bb_id }} .bb-tile.is-selected .bb-tile__select { background: var(--bb-fg); color: var(--bb-bg); }
+  #bb-{{ bb_id }} .bb-tile__delta { font-weight: 700; }
+
+  #bb-{{ bb_id }} .bb-frequency { margin: 16px 0 0; padding: 14px; border: 1px solid rgba(var(--color-foreground, 37 40 42), 0.14); border-radius: 10px; }
+  #bb-{{ bb_id }} .bb-frequency__label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  #bb-{{ bb_id }} .bb-frequency__select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--bb-fg); border-radius: 6px; background: var(--bb-bg); color: var(--bb-fg); font-family: inherit; font-size: 14px; }
+  #bb-{{ bb_id }} .bb-frequency__note { font-size: 12px; opacity: 0.65; margin: 8px 0 0; }
+
+  #bb-{{ bb_id }} .bb-cta-wrap { position: sticky; bottom: 12px; margin-top: 20px; z-index: 4; }
+  #bb-{{ bb_id }} .bb-cta { width: 100%; display: flex; justify-content: center; align-items: baseline; gap: 12px; padding: var(--global-button-padding-y, 16px) 24px; font-size: var(--global-button-font-size, 16px); font-weight: var(--global-button-font-weight, 500); letter-spacing: 0.04em; text-transform: uppercase; font-family: var(--font-body-family, sans-serif); background: var(--global-button-bg-color, #25282a); color: var(--global-button-text-color, #ffffff); border: none; border-radius: var(--global-button-radius, 40px); cursor: pointer; box-shadow: 0 6px 18px rgba(18, 18, 18, 0.18); transition: filter 0.15s ease; }
+  #bb-{{ bb_id }} .bb-cta:hover:not(:disabled) { filter: brightness(var(--global-button-hover-brightness, 90%)); }
+  #bb-{{ bb_id }} .bb-cta:disabled { opacity: 0.55; cursor: not-allowed; }
+  #bb-{{ bb_id }} .bb-cta__compare { opacity: 0.6; font-weight: 400; margin-left: 6px; }
+  #bb-{{ bb_id }} .bb-cta__error { color: #b3261e; font-size: 13px; margin: 8px 0 0; text-align: center; }
+  #bb-{{ bb_id }} .bb-delivery { text-align: center; font-size: 13px; opacity: 0.65; margin: 10px 0 0; }
+
+  #bb-{{ bb_id }} .bb-marquee { overflow: hidden; background: var(--bb-fg); color: var(--bb-bg); margin-top: 36px; padding: 12px 0; }
+  #bb-{{ bb_id }} .bb-marquee__track { display: inline-flex; align-items: center; gap: 18px; white-space: nowrap; animation: bb-marquee-{{ bb_id }} 28s linear infinite; }
+  #bb-{{ bb_id }} .bb-marquee__item { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  #bb-{{ bb_id }} .bb-marquee__sep { opacity: 0.5; }
+  @keyframes bb-marquee-{{ bb_id }} { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  @media screen and (max-width: 900px) {
+    #bb-{{ bb_id }} .bb-layout { grid-template-columns: 1fr; gap: 20px; }
+    #bb-{{ bb_id }} .bb-gallery { position: static; }
+    #bb-{{ bb_id }} .bb-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #bb-{{ bb_id }} .bb-cta-wrap { position: sticky; bottom: 8px; }
+  }
+{%- endstyle -%}
+
+<script>
+  (function () {
+    var root = document.getElementById('bb-{{ bb_id }}');
+    if (!root || root.dataset.bbInit) return;
+    var variantsEl = root.querySelector('[data-bb-variants]');
+    var configEl = root.querySelector('[data-bb-config]');
+    if (!variantsEl || !configEl) return;
+    root.dataset.bbInit = '1';
+
+    var VARIANTS = JSON.parse(variantsEl.textContent);
+    var CFG = JSON.parse(configEl.textContent);
+    var optionCount = CFG.optionNames.length;
+    var sel = new Array(optionCount).fill(null);
+
+    var steps = Array.prototype.slice.call(root.querySelectorAll('[data-bb-step]'));
+    var tiles = Array.prototype.slice.call(root.querySelectorAll('[data-bb-tile]'));
+    var cta = root.querySelector('[data-bb-cta]');
+    var ctaLabel = root.querySelector('[data-bb-cta-label]');
+    var ctaPrice = root.querySelector('[data-bb-cta-price]');
+    var ctaCompare = root.querySelector('[data-bb-cta-compare]');
+    var errEl = root.querySelector('[data-bb-error]');
+    var freqWrap = root.querySelector('[data-bb-frequency]');
+    var freqSelect = root.querySelector('[data-bb-frequency-select]');
+
+    function money(cents) {
+      if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
+        return window.Shopify.formatMoney(cents);
+      }
+      return '$' + (cents / 100).toFixed(2);
+    }
+
+    function matches(v, selection, overrideIdx, overrideVal) {
+      for (var i = 0; i < optionCount; i++) {
+        var want = i === overrideIdx ? overrideVal : selection[i];
+        if (want !== null && want !== undefined && v.o[i] !== want) return false;
+      }
+      return true;
+    }
+
+    // Cheapest AVAILABLE completion under the given constraints.
+    function cheapest(selection, overrideIdx, overrideVal) {
+      var best = null;
+      for (var i = 0; i < VARIANTS.length; i++) {
+        var v = VARIANTS[i];
+        if (!v.av) continue;
+        if (!matches(v, selection, overrideIdx, overrideVal)) continue;
+        if (!best || v.price < best.price) best = v;
+      }
+      return best;
+    }
+
+    function exactVariant(selection) {
+      for (var i = 0; i < VARIANTS.length; i++) {
+        if (matches(VARIANTS[i], selection)) return VARIANTS[i];
+      }
+      return null;
+    }
+
+    function allSelected() {
+      for (var i = 0; i < optionCount; i++) if (sel[i] === null) return false;
+      return true;
+    }
+
+    function firstUnselected() {
+      for (var i = 0; i < optionCount; i++) if (sel[i] === null) return i;
+      return -1;
+    }
+
+    function clubSelected() {
+      if (!CFG.marker) return false;
+      for (var i = 0; i < optionCount; i++) {
+        if (sel[i] && sel[i].indexOf(CFG.marker) !== -1) return true;
+      }
+      return false;
+    }
+
+    function render() {
+      var base = cheapest(sel);
+
+      tiles.forEach(function (tile) {
+        var idx = parseInt(tile.dataset.optionIndex, 10);
+        var value = tile.dataset.value;
+        var isSelected = sel[idx] === value;
+        var withTile = cheapest(sel, idx, value);
+
+        tile.classList.toggle('is-selected', isSelected);
+        tile.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        tile.classList.toggle('is-unavailable', !withTile);
+
+        var deltaEl = tile.querySelector('[data-bb-delta]');
+        var labelEl = tile.querySelector('[data-bb-select-label]');
+        if (labelEl) labelEl.textContent = isSelected ? CFG.selectedLabel : CFG.selectLabel;
+        if (deltaEl) {
+          if (!withTile || !base) {
+            deltaEl.textContent = '';
+          } else {
+            var diff = withTile.price - base.price;
+            var delta = Math.floor(Math.abs(diff) / 100);
+            deltaEl.textContent = (diff >= 0 ? '+$' : '-$') + delta;
+          }
+        }
+      });
+
+      // Step locking: step i is unlocked when every prior step has a selection.
+      steps.forEach(function (step, i) {
+        var locked = false;
+        for (var j = 0; j < i; j++) if (sel[j] === null) locked = true;
+        step.classList.toggle('is-locked', locked);
+        step.classList.toggle('is-done', sel[i] !== null);
+      });
+
+      // Frequency dropdown visibility.
+      if (freqWrap) freqWrap.hidden = !clubSelected();
+
+      // CTA state.
+      errEl.hidden = true;
+      if (allSelected()) {
+        var exact = exactVariant(sel);
+        if (!exact || !exact.av) {
+          cta.disabled = true;
+          ctaLabel.textContent = CFG.soldOutLabel;
+          ctaPrice.textContent = '';
+          ctaCompare.hidden = true;
+          return;
+        }
+        cta.disabled = false;
+        ctaLabel.textContent = CFG.addLabel;
+        ctaPrice.textContent = money(exact.price);
+        if (exact.cap > exact.price) {
+          ctaCompare.textContent = money(exact.cap);
+          ctaCompare.hidden = false;
+        } else {
+          ctaCompare.hidden = true;
+        }
+      } else {
+        var nextIdx = firstUnselected();
+        cta.disabled = true;
+        ctaLabel.textContent = CFG.stepVerb + ' ' + CFG.optionNames[nextIdx].toLowerCase();
+        if (base) {
+          ctaPrice.textContent = money(base.price);
+          if (base.cap > base.price) {
+            ctaCompare.textContent = money(base.cap);
+            ctaCompare.hidden = false;
+          } else {
+            ctaCompare.hidden = true;
+          }
+        } else {
+          ctaPrice.textContent = '';
+          ctaCompare.hidden = true;
+        }
+      }
+    }
+
+    tiles.forEach(function (tile) {
+      var handler = function () {
+        var idx = parseInt(tile.dataset.optionIndex, 10);
+        for (var j = 0; j < idx; j++) if (sel[j] === null) return; // locked
+        sel[idx] = sel[idx] === tile.dataset.value ? null : tile.dataset.value;
+        // Clearing a step keeps later selections only if still coherent; simplest: keep them.
+        render();
+      };
+      tile.querySelector('[data-bb-select]').addEventListener('click', handler);
+    });
+
+    // Optional step preselect (e.g. "None" accessory) so the CTA walk is device then pack then add.
+    if (CFG.preselectNone && CFG.optionalStep && CFG.noneValue) {
+      var optIdx = CFG.optionNames.indexOf(CFG.optionalStep);
+      if (optIdx !== -1) {
+        var noneTile = tiles.filter(function (t) {
+          return parseInt(t.dataset.optionIndex, 10) === optIdx && t.dataset.value.indexOf(CFG.noneValue) !== -1;
+        })[0];
+        if (noneTile) sel[optIdx] = noneTile.dataset.value;
+      }
+    }
+
+    // Gallery thumbs.
+    var mainImg = root.querySelector('[data-bb-main-image]');
+    Array.prototype.slice.call(root.querySelectorAll('[data-bb-thumb]')).forEach(function (thumb) {
+      thumb.addEventListener('click', function () {
+        if (mainImg) mainImg.src = thumb.dataset.full;
+        Array.prototype.slice.call(root.querySelectorAll('[data-bb-thumb]')).forEach(function (t) {
+          t.classList.toggle('is-active', t === thumb);
+        });
+      });
+    });
+
+    // Add to cart via this theme's cart drawer contract.
+    cta.addEventListener('click', function () {
+      if (!allSelected()) return;
+      var exact = exactVariant(sel);
+      if (!exact || !exact.av) return;
+
+      cta.disabled = true;
+      var prevLabel = ctaLabel.textContent;
+      ctaLabel.textContent = '...';
+
+      var formData = new FormData();
+      formData.append('id', exact.id);
+      formData.append('quantity', 1);
+      if (clubSelected() && freqSelect && freqSelect.value) {
+        formData.append('selling_plan', freqSelect.value);
+      }
+      formData.append('sections', 'cart-drawer,cart-icon-bubble');
+      formData.append('sections_url', window.location.pathname);
+
+      fetch(CFG.cartAddUrl, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (response) {
+          if (response.status) {
+            errEl.textContent = response.description || 'Could not add to cart. Please try again.';
+            errEl.hidden = false;
+            return;
+          }
+          var drawer = document.querySelector('cart-drawer');
+          if (drawer && typeof drawer.renderContents === 'function') {
+            drawer.renderContents(response);
+          } else {
+            window.location.href = CFG.cartUrl;
+          }
+        })
+        .catch(function () {
+          window.location.href = CFG.cartUrl;
+        })
+        .finally(function () {
+          ctaLabel.textContent = prevLabel;
+          render();
+        });
+    });
+
+    render();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Bundle Builder",
+  "tag": "section",
+  "class": "section-bundle-builder",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Build your"
+    },
+    {
+      "type": "text",
+      "id": "title_accent",
+      "label": "Highlighted word",
+      "default": "Elaren routine"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Pick your device, choose your refills, and save when you subscribe."
+    },
+    {
+      "type": "header",
+      "content": "Builder behaviour"
+    },
+    {
+      "type": "text",
+      "id": "club_marker",
+      "label": "Subscription marker in option values",
+      "info": "Option values containing this text are treated as subscription tiles and attach a selling plan.",
+      "default": "(Club)"
+    },
+    {
+      "type": "text",
+      "id": "club_badge_label",
+      "label": "Subscription tile badge",
+      "default": "Subscribe and save"
+    },
+    {
+      "type": "text",
+      "id": "optional_step_name",
+      "label": "Optional step (option name)",
+      "default": "Accessories"
+    },
+    {
+      "type": "text",
+      "id": "optional_none_value",
+      "label": "None value in the optional step",
+      "default": "None"
+    },
+    {
+      "type": "checkbox",
+      "id": "preselect_none",
+      "label": "Preselect the None value on the optional step",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "optional_label",
+      "label": "Optional step chip",
+      "default": "Optional"
+    },
+    {
+      "type": "header",
+      "content": "Labels"
+    },
+    {
+      "type": "text",
+      "id": "step_verb",
+      "label": "Step verb",
+      "default": "Select"
+    },
+    {
+      "type": "text",
+      "id": "select_label",
+      "label": "Tile button label",
+      "default": "Select"
+    },
+    {
+      "type": "text",
+      "id": "selected_label",
+      "label": "Selected tile label",
+      "default": "Selected"
+    },
+    {
+      "type": "text",
+      "id": "add_label",
+      "label": "Add to cart label",
+      "default": "Add to cart"
+    },
+    {
+      "type": "text",
+      "id": "sold_out_label",
+      "label": "Sold out label",
+      "default": "Sold out. Try another combination"
+    },
+    {
+      "type": "text",
+      "id": "frequency_label",
+      "label": "Frequency dropdown label",
+      "default": "Delivery frequency"
+    },
+    {
+      "type": "text",
+      "id": "frequency_note",
+      "label": "Frequency note",
+      "default": "No lock-in. Skip, pause or cancel anytime from your account."
+    },
+    {
+      "type": "text",
+      "id": "delivery_note",
+      "label": "Delivery note",
+      "default": "3 to 7 days delivery, Australia wide"
+    },
+    {
+      "type": "header",
+      "content": "Marquee strip"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_marquee",
+      "label": "Show marquee strip",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "marquee_text",
+      "label": "Marquee items (comma separated)",
+      "default": "Hands-free whitening, Enamel-safe, Alcohol-free, Skip pause or cancel anytime"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Tile badge colour",
+      "default": "#d9ecfc"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile details",
+      "settings": [
+        {
+          "type": "text",
+          "id": "option_value",
+          "label": "Option value (exact match)",
+          "info": "Must match the product option value exactly, including any subscription marker.",
+          "default": "Value name"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Tile image"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Tile description",
+          "default": "Short description of this choice"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge",
+          "info": "Optional corner badge on the tile. Clear the text to hide it.",
+          "default": "New"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bundle Builder"
+    }
+  ]
+}
+{% endschema %}
