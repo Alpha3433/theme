@@ -1,5 +1,5 @@
 {%- liquid
-  assign title_text = title_text | default: 'BUNDLE & SAVE'
+  assign title_text = title_text | default: 'Pick your plan'
   assign show_title = show_title | default: false
   assign hide_images = hide_images | default: false
   assign hide_quantity_break_variant_images = hide_quantity_break_variant_images | default: false
@@ -1346,7 +1346,7 @@
     }
     
     // Get button text and format money function from global scope or define defaults
-    var addToCartButtonText = (typeof window.addToCartButtonText !== 'undefined') ? window.addToCartButtonText : 'Add to Cart';
+    var addToCartButtonText = (typeof window.addToCartButtonText !== 'undefined') ? window.addToCartButtonText : 'Get the Complete Kit';
     function formatMoneyWithoutSuffix(amount) {
       if (typeof window.formatMoneyWithoutSuffix === 'function') {
         return window.formatMoneyWithoutSuffix(amount);
@@ -2238,7 +2238,7 @@ function updateAllQuantityBreakDisplays(quantityOption) {
                 if (hasTextOverride && persistentText) {
                   buttonText = persistentText;
                 } else {
-                  buttonText = addToCartButtonText || 'Add to Cart';
+                  buttonText = addToCartButtonText || 'Get the Complete Kit';
                 }
                 
                 let newButtonText = buttonText;
@@ -2333,7 +2333,7 @@ function updateAllQuantityBreakDisplays(quantityOption) {
               var hasTextOverride = submitButton && submitButton.dataset.textOverride === 'true';
               var persistentText = submitButton && submitButton.dataset.persistentText;
               var showPriceInButton = submitButton && submitButton.dataset.showPrice === 'true' || (typeof window.showPriceButton !== 'undefined' && window.showPriceButton);
-              var buttonText = (hasTextOverride && persistentText) ? persistentText : (addToCartButtonText || 'Add to Cart');
+              var buttonText = (hasTextOverride && persistentText) ? persistentText : (addToCartButtonText || 'Get the Complete Kit');
               if (showPriceInButton && priceEl) {
                 buttonText += ' - ' + (typeof formatMoneyWithoutSuffix === 'function' ? formatMoneyWithoutSuffix(priceEl.textContent.replace(/[^0-9.,]/g, '')) : priceEl.textContent);
                 if (compareEl && result.compareAtPrice > result.price) {

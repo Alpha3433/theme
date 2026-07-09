@@ -737,7 +737,7 @@ padding: {{ section.settings.mobile_content_padding }}px;
                {%- if section.settings.badge_richtext != blank -%}
                  {{ section.settings.badge_richtext }}
                {%- else -%}
-                 {{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On TikTok' }}
+                 {{ section.settings.badge_text | default: 'Featured in ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: ' real customer videos' }}
                {%- endif -%}
              </span>
            </div>
@@ -757,7 +757,7 @@ padding: {{ section.settings.mobile_content_padding }}px;
                {%- if section.settings.badge_richtext != blank -%}
                  {{ section.settings.badge_richtext }}
                {%- else -%}
-                 {{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On Instagram' }}
+                 {{ section.settings.badge_text | default: 'Featured in ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: ' real customer videos' }}
                {%- endif -%}
              </span>
            </div>
@@ -770,7 +770,7 @@ padding: {{ section.settings.mobile_content_padding }}px;
                {%- if section.settings.badge_richtext != blank -%}
                  {{ section.settings.badge_richtext }}
                {%- else -%}
-                 {{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On Facebook' }}
+                 {{ section.settings.badge_text | default: 'Featured in ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: ' real customer videos' }}
                {%- endif -%}
              </span>
            </div>
@@ -1403,13 +1403,13 @@ document.addEventListener('DOMContentLoaded', function() {
       "type": "text",
       "id": "heading_regular",
       "label": "Heading (Regular Text)",
-      "default": "Real Customer"
+      "default": "Real people,"
     },
     {
       "type": "text",
       "id": "heading_accent",
       "label": "Heading (Accent Text)",
-      "default": "Success Stories"
+      "default": "real results"
     },
     {
       "type": "header",
@@ -1613,7 +1613,7 @@ document.addEventListener('DOMContentLoaded', function() {
       "type": "textarea",
       "id": "subtitle",
       "label": "Subtitle",
-      "default": "Watch authentic testimonials from customers who transformed their lives"
+      "default": "Unfiltered clips from the Elaren community, filmed at home."
     },
 
     {
@@ -1838,7 +1838,7 @@ document.addEventListener('DOMContentLoaded', function() {
       "type": "richtext",
       "id": "badge_richtext",
       "label": "Badge Text (Rich Text)",
-      "default": "<p>Over <strong>56M</strong> Views On Instagram</p>",
+      "default": "<p>Featured in <strong>real customer videos</strong></p>",
       "info": "Use bold for emphasis. If filled, this overrides the prefix/suffix fields below."
     },
     {
@@ -1852,14 +1852,14 @@ document.addEventListener('DOMContentLoaded', function() {
       "type": "text",
       "id": "badge_text",
       "label": "Badge prefix text",
-      "default": "Over ",
+      "default": "Featured in ",
       "info": "Only used if Badge Text (Rich Text) is empty"
     },
     {
       "type": "text",
       "id": "badge_suffix",
       "label": "Badge suffix text",
-      "default": "M Views On Instagram",
+      "default": " real customer videos",
       "info": "Only used if Badge Text (Rich Text) is empty"
     },
     {
@@ -2311,7 +2311,7 @@ document.addEventListener('DOMContentLoaded', function() {
           "type": "text",
           "id": "title",
           "label": "Review Title",
-          "default": "Amazing Results!"
+          "default": "Day 7"
         },
         {
           "type": "checkbox",
@@ -2324,14 +2324,14 @@ document.addEventListener('DOMContentLoaded', function() {
           "type": "text",
           "id": "instagram_name",
           "label": "Instagram Username",
-          "default": "@username",
+          "default": "@chloe.rose",
           "info": "Enter Instagram username (with or without @)"
         },
         {
           "type": "textarea",
           "id": "description",
           "label": "Review Description",
-          "default": "This product completely transformed my results and exceeded all expectations."
+          "default": "Two weeks in"
         },
         {
           "type": "color_background",
@@ -2373,8 +2373,8 @@ document.addEventListener('DOMContentLoaded', function() {
         {
           "type": "video_card",
           "settings": {
-            "title": "Incredible Transformation",
-            "description": "See how this customer achieved amazing results!",
+            "title": "Day 3",
+            "description": "First few days in",
             "card_background": "linear-gradient(135deg, #6EE4FF 0%, #19bdff 100%)",
             "card_text_color": "#FFFFFF"
           }
@@ -2382,8 +2382,8 @@ document.addEventListener('DOMContentLoaded', function() {
         {
           "type": "video_card",
           "settings": {
-            "title": "Life-Changing Results",
-            "description": "Another success story from our community.",
+            "title": "Day 7",
+            "description": "One week update",
             "card_background": "linear-gradient(135deg, #6EE4FF 0%, #19bdff 100%)",
             "card_text_color": "#FFFFFF"
           }
@@ -2392,8 +2392,8 @@ document.addEventListener('DOMContentLoaded', function() {
           "type": "video_card",
           "settings": {
             "show_as_instagram_name": true,
-            "instagram_name": "@happycustomer",
-            "description": "Love this product! Highly recommend to everyone.",
+            "instagram_name": "@jack.t",
+            "description": "Two weeks in",
             "card_background": "linear-gradient(135deg, #6EE4FF 0%, #19bdff 100%)",
             "card_text_color": "#FFFFFF"
           }
@@ -2401,8 +2401,8 @@ document.addEventListener('DOMContentLoaded', function() {
         {
           "type": "video_card",
           "settings": {
-            "title": "Outstanding Progress",
-            "description": "Watch this amazing transformation journey.",
+            "title": "Day 21",
+            "description": "Three weeks in",
             "card_background": "linear-gradient(135deg, #6EE4FF 0%, #19bdff 100%)",
             "card_text_color": "#FFFFFF"
           }

@@ -106,7 +106,7 @@
     padding: 0 !important;
   }
 
-  /* Subheading — below heading + accent */
+  /* Subheading: below heading + accent */
   .section-id-{{ section.id }} .si-subheading-{{ section.id }} {
     font-family: {{ section.settings.body_font.family }}, {{ section.settings.body_font.fallback_families }} !important;
     color: {{ section.settings.subheading_color | default: '#666666' }} !important;
@@ -119,7 +119,7 @@
     display: block;
   }
 
-  /* Heading — all typography with !important. Text sits directly in <h2> (p tags stripped in Liquid) */
+  /* Heading: all typography with !important. Text sits directly in <h2> (p tags stripped in Liquid) */
   .section-id-{{ section.id }} h2.si-heading-{{ section.id }},
   .section-id-{{ section.id }} .si-heading-{{ section.id }} {
     font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }} !important;
@@ -132,7 +132,7 @@
     margin: 0 !important;
     padding: 0 !important;
   }
-  /* Heading bold/italic — <strong>/<em> sit directly in <h2>, inherit everything except their own trait */
+  /* Heading bold/italic: <strong>/<em> sit directly in <h2>, inherit everything except their own trait */
   .section-id-{{ section.id }} .si-heading-{{ section.id }} > strong,
   .section-id-{{ section.id }} .si-heading-{{ section.id }} > b {
     font-weight: bold !important;
@@ -152,7 +152,7 @@
     color: inherit !important;
   }
 
-  /* 5. Accent text — inline with heading, own font/size/weight/spacing/color */
+  /* 5. Accent text: inline with heading, own font/size/weight/spacing/color */
   .si-accent-{{ section.id }},
   .si-accent-{{ section.id }} p,
   .si-accent-{{ section.id }} span,
@@ -175,7 +175,7 @@
       -webkit-text-fill-color: {{ section.settings.accent_color }} !important;
     {% endif %}
   }
-  /* Accent weight/style on parent + p/span only — not on strong/em so bold/italic work */
+  /* Accent weight/style on parent + p/span only, not on strong/em so bold/italic work */
   .si-accent-{{ section.id }},
   .si-accent-{{ section.id }} p,
   .si-accent-{{ section.id }} span {
@@ -505,7 +505,7 @@
     color: inherit !important;
   }
 
-  /* Mobile overrides for card title/desc — must appear after stubborn rules to win */
+  /* Mobile overrides for card title/desc: must appear after stubborn rules to win */
   @media (max-width: 768px) {
     #si-slider-{{ section.id }} h3.si-card-title-{{ section.id }},
     .section-id-{{ section.id }} .si-card-{{ section.id }} h3.si-card-title-{{ section.id }},
@@ -520,7 +520,7 @@
     }
   }
 
-  /* Stubborn accent override — last rule in stylesheet, wins at equal specificity */
+  /* Stubborn accent override: last rule in stylesheet, wins at equal specificity */
   .si-accent-{{ section.id }},
   .si-accent-{{ section.id }} p,
   .si-accent-{{ section.id }} span,
@@ -556,7 +556,7 @@
     font-style: italic !important;
   }
 
-  /* Mobile accent override — MUST be last to beat the desktop stubborn rule above */
+  /* Mobile accent override: MUST be last to beat the desktop stubborn rule above */
   @media (max-width: 768px) {
     .si-accent-{{ section.id }},
     .si-accent-{{ section.id }} p,
@@ -756,7 +756,7 @@
 
         /* How far did the user drag (positive = swiped toward next) */
         var totalDrag = slider.scrollLeft - scrollStart;
-        /* 30px threshold — a small intentional swipe triggers navigation */
+        /* 30px threshold: a small intentional swipe triggers navigation */
         var threshold = 30;
 
         var startIdx = Math.round(scrollStart / scrollAmount);
@@ -972,7 +972,7 @@
       "type": "richtext",
       "id": "heading",
       "label": "Heading",
-      "default": "<p>Key Ingredients</p>"
+      "default": "<p>Inside the Elaren</p>"
     },
     {
       "type": "color",
@@ -1036,7 +1036,7 @@
       "type": "richtext",
       "id": "accent_text",
       "label": "Accent Text",
-      "default": "<p>Inside</p>"
+      "default": "<p>Routine</p>"
     },
     {
       "type": "color",
@@ -1527,13 +1527,13 @@
           "type": "text",
           "id": "title",
           "label": "Title",
-          "default": "Ingredient Name"
+          "default": "Purple Colour-Correcting Pigments"
         },
         {
           "type": "richtext",
           "id": "description",
           "label": "Description",
-          "default": "<p>Brief description of the ingredient and its benefits.</p>"
+          "default": "<p>Purple sits opposite yellow on the colour wheel, so it visually cancels yellow tones the moment you rinse. Alcohol-free, fresh mint and gentle enough for every day.</p>"
         }
       ]
     }
