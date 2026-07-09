@@ -75,8 +75,11 @@
     --newsletter-input-height: {{ section.settings.newsletter_input_height | default: 48 }}px;
     --newsletter-input-bg-color: {{ section.settings.newsletter_input_bg_color | default: '#FFFFFF' }};
     --newsletter-input-text-color: {{ section.settings.newsletter_input_text_color | default: '#000000' }};
+    --newsletter-button-bg-color: {{ section.settings.newsletter_button_bg_color | default: newsletter_button_color }};
+    --newsletter-button-text-color: {{ section.settings.newsletter_button_text_color | default: '#ffffff' }};
+    --newsletter-button-border-radius: {{ section.settings.newsletter_button_border_radius | default: 4 }}px;
   }
-  
+
   {% if section.settings.use_theme_colors %}
   /* Use global footer color when theme colors are enabled */
   .custom-footer .footer-main {
@@ -112,7 +115,13 @@
   .custom-footer .footer-description a:hover {
     color: var(--footer-link-hover-color) !important;
   }
-
+  .custom-footer .footer__localization a,
+  .custom-footer .footer__localization a:hover,
+  .custom-footer .footer__localization .disclosure__link,
+  .custom-footer .footer__localization .localization-form__select {
+    text-decoration: none !important;
+    color: var(--footer-text-color) !important;
+  }
   /* Footer top border */
   {% if section.settings.enable_section_top_border %}
     .custom-footer .footer-main {
@@ -169,15 +178,15 @@
     top: calc(var(--newsletter-input-border-width) + 5px) !important;
     right: calc(var(--newsletter-input-border-width) + 5px) !important;
     z-index: 2 !important;
-    
+
     /* Display for icon centering */
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    
+
     /* Override global button styling - single color, no gradient, no border */
-    background: var(--newsletter-button-color) !important;
-    background-color: var(--newsletter-button-color) !important;
+    background: var(--newsletter-button-bg-color, var(--newsletter-button-color)) !important;
+    background-color: var(--newsletter-button-bg-color, var(--newsletter-button-color)) !important;
     background-image: none !important;
     border: none !important;
     border-left: none !important;
@@ -186,8 +195,9 @@
     border-bottom: none !important;
     box-shadow: none !important;
     outline: none !important;
-    color: #ffffff !important;
-    
+    color: var(--newsletter-button-text-color, #ffffff) !important;
+    border-radius: var(--newsletter-button-border-radius) !important;
+
     /* Remove transforms and transitions from global button effects */
     transform: none !important;
     transition: opacity 0.3s ease !important;
@@ -197,13 +207,14 @@
   .custom-footer button.newsletter-form__button:hover,
   .custom-footer .newsletter-form__button.field__button:hover,
   .custom-footer button.newsletter-form__button.field__button:hover {
-    background: var(--newsletter-button-color) !important;
-    background-color: var(--newsletter-button-color) !important;
+    background: var(--newsletter-button-bg-color, var(--newsletter-button-color)) !important;
+    background-color: var(--newsletter-button-bg-color, var(--newsletter-button-color)) !important;
     background-image: none !important;
     opacity: 0.85 !important;
     border: none !important;
     box-shadow: none !important;
     transform: none !important;
+    color: var(--newsletter-button-text-color, #ffffff) !important;
   }
 
   /* Remove gradient and border pseudo-elements */
@@ -214,7 +225,7 @@
     display: none !important;
     content: none !important;
   }
- 
+
   /* RTL button positioning */
   [dir="rtl"] .custom-footer .newsletter-form__button,
   [dir="rtl"] .custom-footer button.newsletter-form__button,
@@ -235,8 +246,25 @@
   }
 
   .custom-footer .newsletter-form__button svg {
-    fill: #ffffff !important;
-    stroke: #ffffff !important;
+    fill: var(--newsletter-button-text-color, #ffffff) !important;
+    stroke: var(--newsletter-button-text-color, #ffffff) !important;
+  }
+
+  /* Button text styling (when show_button_text is enabled) */
+  .custom-footer .newsletter-form__button .newsletter-button-text {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: var(--newsletter-button-text-color, #ffffff) !important;
+    white-space: nowrap !important;
+    letter-spacing: var(--letter-spacing-body) !important;
+  }
+
+  /* When button has text, make it wider */
+  .custom-footer .newsletter-form__button:has(.newsletter-button-text),
+  .custom-footer button.newsletter-form__button:has(.newsletter-button-text) {
+    width: auto !important;
+    min-width: calc(var(--newsletter-input-height) - 10px) !important;
+    padding: 0 16px !important;
   }
 
   /* RTL input padding - space for button on left side */
@@ -272,29 +300,6 @@
     }
   }
 
-  /* Load-in animation */
-  .page-fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Add slight delay for staggered effect on multiple sections */
-  .page-fade-in:nth-child(2) { animation-delay: 0.1s; }
-  .page-fade-in:nth-child(3) { animation-delay: 0.2s; }
-  .page-fade-in:nth-child(4) { animation-delay: 0.3s; }
-
   /* Mobile column customization */
   @media screen and (max-width: 749px) {
     {% if section.settings.mobile_columns == '1' %}
@@ -302,7 +307,7 @@
       .footer-content--5-col {
         grid-template-columns: 1fr !important;
       }
-      
+
       .footer-column:first-child {
         grid-column: 1 !important;
         margin-bottom: 2rem;
@@ -311,16 +316,26 @@
   }
 </style>
 
-<div class="custom-footer page-fade-in">
+<div class="custom-footer {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
   {%- if section.settings.show_newsletter -%}
     <!-- Newsletter Section -->
     <section class="newsletter-section">
       <div class="newsletter-container">
         {%- if section.settings.newsletter_title != blank -%}
-          <h2 class="newsletter-title">{{ section.settings.newsletter_title }}</h2>
+          <h2
+            class="newsletter-title"
+            style="text-align: {{ section.settings.newsletter_title_alignment | default: 'center' }};{% if section.settings.newsletter_title_color != blank %} color: {{ section.settings.newsletter_title_color }} !important;{% endif %}"
+          >
+            {{ section.settings.newsletter_title }}
+          </h2>
         {%- endif -%}
         {%- if section.settings.newsletter_subtitle != blank -%}
-          <p class="newsletter-subtitle">{{ section.settings.newsletter_subtitle }}</p>
+          <p
+            class="newsletter-subtitle"
+            style="text-align: {{ section.settings.newsletter_subtitle_alignment | default: 'center' }};{% if section.settings.newsletter_subtitle_color != blank %} color: {{ section.settings.newsletter_subtitle_color }} !important;{% endif %} margin-top: {{ section.settings.newsletter_subtitle_margin_top | default: 16 }}px;"
+          >
+            {{ section.settings.newsletter_subtitle }}
+          </p>
         {%- endif -%}
         {%- form 'customer', class: 'newsletter-form' -%}
           <input type="hidden" name="contact[tags]" value="newsletter">
@@ -356,15 +371,21 @@
                 id="Subscribe"
                 aria-label="{{ section.settings.newsletter_button_text | default: 'Subscribe' }}"
               >
-                <span class="svg-wrapper">
-                  {{- 'icon-arrow.svg' | inline_asset_content -}}
-                </span>
+                {% if section.settings.show_button_text %}
+                  <span class="newsletter-button-text">
+                    {{- section.settings.newsletter_button_text | default: 'Subscribe' -}}
+                  </span>
+                {% else %}
+                  <span class="svg-wrapper">
+                    {{- 'icon-arrow.svg' | inline_asset_content -}}
+                  </span>
+                {% endif %}
               </button>
             </div>
             {%- if form.errors -%}
               <small class="newsletter-form__message form__message" id="Newsletter-error--{{ section.id }}">
                 <span class="svg-wrapper">
-                  {%- render 'icon-error' -%}
+                  {{- 'icon-error.svg' | inline_asset_content -}}
                 </span>
                 {{- form.errors.translated_fields.email | capitalize }}
                 {{ form.errors.messages.email -}}
@@ -397,12 +418,26 @@
           <!-- Brand Column -->
           <div class="footer-brand">
             {%- if section.settings.logo != blank -%}
+              {%- assign logo_width = section.settings.logo_width | default: 150 -%}
+              {%- assign logo_width_2x = logo_width | times: 2 -%}
+              {%- comment -%} Request at least 900px or original image width for maximum sharpness {%- endcomment -%}
+              {%- assign logo_max_width = section.settings.logo.width | default: 900 -%}
+              {%- if logo_max_width < 900 -%}
+                {%- assign logo_max_width = 900 -%}
+              {%- endif -%}
               <img
-                src="{{ section.settings.logo | image_url: width: 200 }}"
+                src="{{ section.settings.logo | image_url: width: logo_max_width }}"
+                srcset="
+                  {{ section.settings.logo | image_url: width: logo_width }} {{ logo_width }}w,
+                  {{ section.settings.logo | image_url: width: logo_width_2x }} {{ logo_width_2x }}w,
+                  {{ section.settings.logo | image_url: width: logo_max_width }} {{ logo_max_width }}w
+                "
+                sizes="(max-width: {{ logo_width }}px) 100vw, {{ logo_width }}px"
                 alt="{{ shop.name }}"
                 class="footer-logo-image"
-                width="{{ section.settings.logo_width | default: 150 }}"
+                width="{{ logo_width }}"
                 height="auto"
+                loading="lazy"
               >
             {%- else -%}
               <div class="footer-logo">{{ section.settings.brand_name | default: shop.name }}</div>
@@ -477,14 +512,42 @@
               {%- comment -%} Social column will be rendered outside the grid {%- endcomment -%}
 
             {%- when 'text_column' -%}
-              <div class="footer-column" {{ block.shopify_attributes }}>
+              <div
+                class="footer-column footer-text-column footer-text-column-{{ block.id }}"
+                {{ block.shopify_attributes }}
+                style="{% if block.settings.margin_top > 0 %}margin-top: {{ block.settings.margin_top }}px;{% endif %}{% if block.settings.margin_bottom > 0 %}margin-bottom: {{ block.settings.margin_bottom }}px;{% endif %}"
+              >
                 {%- if block.settings.heading != blank -%}
-                  <h3>{{ block.settings.heading }}</h3>
+                  <h3
+                    class="footer-text-column__heading"
+                    style="{% if block.settings.heading_font_size %}font-size: {{ block.settings.heading_font_size }}px;{% endif %}{% if block.settings.heading_color != blank %}color: {{ block.settings.heading_color }};{% endif %}{% if block.settings.heading_margin_bottom %}margin-bottom: {{ block.settings.heading_margin_bottom }}px;{% endif %}"
+                  >
+                    {{ block.settings.heading }}
+                  </h3>
                 {%- endif -%}
                 {%- if block.settings.text != blank -%}
-                  <div class="footer-text">{{ block.settings.text }}</div>
+                  <div
+                    class="footer-text footer-text--custom"
+                    style="{% if block.settings.text_font_size %}font-size: {{ block.settings.text_font_size }}px;{% endif %}{% if block.settings.text_line_height %}line-height: {{ block.settings.text_line_height }};{% endif %}{% if block.settings.text_color != blank %}color: {{ block.settings.text_color }};{% endif %}"
+                  >
+                    {{ block.settings.text }}
+                  </div>
                 {%- endif -%}
               </div>
+              <style>
+                .footer-text-column-{{ block.id }} .footer-text--custom,
+                .footer-text-column-{{ block.id }} .footer-text--custom p,
+                .footer-text-column-{{ block.id }} .footer-text--custom span,
+                .footer-text-column-{{ block.id }} .footer-text--custom * {
+                  {% if block.settings.text_font_size %}font-size: {{ block.settings.text_font_size }}px !important;{% endif %}
+                  {% if block.settings.text_line_height %}line-height: {{ block.settings.text_line_height }} !important;{% endif %}
+                  {% if block.settings.text_color != blank %}color: {{ block.settings.text_color }} !important; -webkit-text-fill-color: {{ block.settings.text_color }} !important;{% endif %}
+                }
+                .footer-text-column-{{ block.id }} .footer-text--custom a,
+                .footer-text-column-{{ block.id }} .footer-text--custom a * {
+                  {% if block.settings.link_color != blank %}color: {{ block.settings.link_color }} !important; -webkit-text-fill-color: {{ block.settings.link_color }} !important;{% endif %}
+                }
+              </style>
           {%- endcase -%}
         {%- endfor -%}
       </div>
@@ -493,12 +556,53 @@
       {%- if section.settings.show_social -%}
         {%- for block in section.blocks -%}
           {%- if block.type == 'social_column' -%}
-            <div class="footer-social-section" {{ block.shopify_attributes }}>
+            <div class="footer-social-section footer-social-section-{{ block.id }}" {{ block.shopify_attributes }}>
               {%- if block.settings.heading != blank -%}
-                <h3 class="footer-social-heading">{{ block.settings.heading }}</h3>
+                <h3
+                  class="footer-social-heading"
+                  style="{% if block.settings.heading_color != blank %}color: {{ block.settings.heading_color }};{% endif %}{% if block.settings.heading_font_size %}font-size: {{ block.settings.heading_font_size }}px;{% endif %}{% if block.settings.heading_margin_bottom %}margin-bottom: {{ block.settings.heading_margin_bottom }}px;{% endif %}"
+                >
+                  {{ block.settings.heading }}
+                </h3>
               {%- endif -%}
               {%- render 'social-icons', class: 'footer__list-social footer__list-social--full-width' -%}
             </div>
+            <style>
+              .footer-social-section-{{ block.id }} .footer__list-social {
+                gap: {{ block.settings.icon_spacing | default: 16 }}px !important;
+              }
+              .footer-social-section-{{ block.id }} .footer__list-social li a,
+              .footer-social-section-{{ block.id }} .footer__list-social .social-icons__link {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+              }
+              .footer-social-section-{{ block.id }} .footer__list-social svg,
+              .footer-social-section-{{ block.id }} .footer__list-social .icon {
+                width: {{ block.settings.icon_size | default: 24 }}px !important;
+                height: {{ block.settings.icon_size | default: 24 }}px !important;
+                fill: {{ block.settings.icon_color | default: '#ffffff' }} !important;
+                color: {{ block.settings.icon_color | default: '#ffffff' }} !important;
+                transition: fill 0.3s ease, color 0.3s ease !important;
+              }
+              .footer-social-section-{{ block.id }} .footer__list-social svg path,
+              .footer-social-section-{{ block.id }} .footer__list-social .icon path {
+                fill: {{ block.settings.icon_color | default: '#ffffff' }} !important;
+              }
+              .footer-social-section-{{ block.id }} .footer__list-social li a:hover svg,
+              .footer-social-section-{{ block.id }} .footer__list-social .social-icons__link:hover svg,
+              .footer-social-section-{{ block.id }} .footer__list-social li a:hover .icon,
+              .footer-social-section-{{ block.id }} .footer__list-social .social-icons__link:hover .icon {
+                fill: {{ block.settings.icon_hover_color | default: '#cccccc' }} !important;
+                color: {{ block.settings.icon_hover_color | default: '#cccccc' }} !important;
+              }
+              .footer-social-section-{{ block.id }} .footer__list-social li a:hover svg path,
+              .footer-social-section-{{ block.id }} .footer__list-social .social-icons__link:hover svg path,
+              .footer-social-section-{{ block.id }} .footer__list-social li a:hover .icon path,
+              .footer-social-section-{{ block.id }} .footer__list-social .social-icons__link:hover .icon path {
+                fill: {{ block.settings.icon_hover_color | default: '#cccccc' }} !important;
+              }
+            </style>
             {%- break -%}
           {%- endif -%}
         {%- endfor -%}
@@ -562,6 +666,7 @@
 {% schema %}
 {
   "name": "Custom Footer",
+  "tag": "section",
   "class": "section-custom-footer",
   "max_blocks": 10,
   "settings": [
@@ -589,10 +694,54 @@
       "default": "Join Elaren"
     },
     {
+      "type": "select",
+      "id": "newsletter_title_alignment",
+      "label": "Title alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "newsletter_title_color",
+      "label": "Newsletter title color",
+      "info": "Leave blank to use the newsletter text color"
+    },
+    {
       "type": "text",
       "id": "newsletter_subtitle",
       "label": "Newsletter subtitle",
       "default": "Whitening tips and subscriber-only offers. No spam, unsubscribe anytime."
+    },
+    {
+      "type": "select",
+      "id": "newsletter_subtitle_alignment",
+      "label": "Subtitle alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "newsletter_subtitle_color",
+      "label": "Newsletter subtitle color",
+      "info": "Leave blank to use the newsletter text color"
+    },
+    {
+      "type": "range",
+      "id": "newsletter_subtitle_margin_top",
+      "label": "Subtitle margin top",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 16
     },
     {
       "type": "text",
@@ -607,6 +756,36 @@
       "default": "Subscribe"
     },
     {
+      "type": "checkbox",
+      "id": "show_button_text",
+      "label": "Show button text instead of arrow icon",
+      "default": false,
+      "info": "When enabled, displays the button text instead of the arrow icon"
+    },
+    {
+      "type": "color",
+      "id": "newsletter_button_bg_color",
+      "label": "Button background color",
+      "info": "Leave blank to use the theme accent color"
+    },
+    {
+      "type": "color",
+      "id": "newsletter_button_text_color",
+      "label": "Button text/icon color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "newsletter_button_border_radius",
+      "label": "Button border radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 4,
+      "info": "Corner radius of the button"
+    },
+    {
       "type": "header",
       "content": "Brand Column"
     },
@@ -619,7 +798,8 @@
     {
       "type": "image_picker",
       "id": "logo",
-      "label": "Logo image"
+      "label": "Logo image",
+      "info": "For best quality, upload a logo at least 600px wide (or 2x your max display width)"
     },
     {
       "type": "range",
@@ -1207,6 +1387,71 @@
         {
           "type": "paragraph",
           "content": "Social media links are managed in Theme settings > Social media"
+        },
+        {
+          "type": "header",
+          "content": "Icon Styling"
+        },
+        {
+          "type": "color",
+          "id": "icon_color",
+          "label": "Icon Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "icon_hover_color",
+          "label": "Icon Hover Color",
+          "default": "#cccccc"
+        },
+        {
+          "type": "range",
+          "id": "icon_size",
+          "min": 16,
+          "max": 48,
+          "step": 2,
+          "unit": "px",
+          "label": "Icon Size",
+          "default": 24
+        },
+        {
+          "type": "range",
+          "id": "icon_spacing",
+          "min": 8,
+          "max": 32,
+          "step": 2,
+          "unit": "px",
+          "label": "Icon Spacing",
+          "default": 16
+        },
+        {
+          "type": "header",
+          "content": "Heading Styling"
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading Color"
+        },
+        {
+          "type": "range",
+          "id": "heading_font_size",
+          "min": 12,
+          "max": 28,
+          "step": 1,
+          "unit": "px",
+          "label": "Heading Font Size",
+          "default": 16
+        },
+        {
+          "type": "range",
+          "id": "heading_margin_bottom",
+          "min": 0,
+          "max": 30,
+          "step": 2,
+          "unit": "px",
+          "label": "Heading Bottom Margin",
+          "default": 12
         }
       ]
     },
@@ -1223,6 +1468,92 @@
           "type": "richtext",
           "id": "text",
           "label": "Text"
+        },
+        {
+          "type": "header",
+          "content": "Text Styling"
+        },
+        {
+          "type": "range",
+          "id": "text_font_size",
+          "min": 10,
+          "max": 20,
+          "step": 1,
+          "unit": "px",
+          "label": "Text Font Size",
+          "default": 14
+        },
+        {
+          "type": "range",
+          "id": "text_line_height",
+          "min": 1,
+          "max": 2,
+          "step": 0.1,
+          "label": "Text Line Height",
+          "default": 1.5
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text Color"
+        },
+        {
+          "type": "color",
+          "id": "link_color",
+          "label": "Link Color"
+        },
+        {
+          "type": "header",
+          "content": "Heading Styling"
+        },
+        {
+          "type": "range",
+          "id": "heading_font_size",
+          "min": 12,
+          "max": 28,
+          "step": 1,
+          "unit": "px",
+          "label": "Heading Font Size",
+          "default": 16
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading Color"
+        },
+        {
+          "type": "range",
+          "id": "heading_margin_bottom",
+          "min": 0,
+          "max": 30,
+          "step": 2,
+          "unit": "px",
+          "label": "Heading Bottom Margin",
+          "default": 12
+        },
+        {
+          "type": "header",
+          "content": "Spacing"
+        },
+        {
+          "type": "range",
+          "id": "margin_top",
+          "min": 0,
+          "max": 60,
+          "step": 4,
+          "unit": "px",
+          "label": "Top Margin",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "margin_bottom",
+          "min": 0,
+          "max": 60,
+          "step": 4,
+          "unit": "px",
+          "label": "Bottom Margin",
+          "default": 0
         }
       ]
     }

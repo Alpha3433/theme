@@ -1,76 +1,68 @@
 /**
  * * end of cart upsell block part
  */
-$(document).ready(function () {
+document.addEventListener("DOMContentLoaded", function () {
   const amountFreeProduct = document.querySelector("[data-treshold-product]")
     ? document.querySelector("[data-treshold-product]").getAttribute("data-treshold-product")
     : null;
 
-  var cart_total = $(".gb-totals-total-value").first().text();
+  var cartTotalEl = document.querySelector(".gb-totals-total-value");
+  var cart_total = cartTotalEl ? (cartTotalEl.textContent || "").trim() : "";
   if (amountFreeProduct > 0 && show_progress_bar) {
-    // Check if premium-attachment-kit block is present (handles free gifts separately)
-    const hasPremiumKit = document.querySelector('.premium-attachment-kit') !== null;
-    
+    const hasPremiumKit = document.querySelector(".premium-attachment-kit") !== null;
     if (hasPremiumKit) {
       console.log("Premium kit detected - skipping auto free gift trigger");
       return;
     }
-    
-    /*GB! free product added STARTS*/
     setTimeout(function () {
-      var cart_total = $(".gb-totals-total-value").first().text();
+      var el = document.querySelector(".gb-totals-total-value");
+      var cart_total = el ? (el.textContent || "").trim() : "";
       if (cart_total >= amountFreeProduct) {
-        if ($(".cart-item").hasClass("gb-find-remove-product")) {
+        if (document.querySelector(".cart-item.gb-find-remove-product")) {
           console.log("Free product already in cart");
         } else {
           console.log("Adding free product");
-          $(".gb-free-product-trigger").trigger("click");
+          var trigger = document.querySelector(".gb-free-product-trigger");
+          if (trigger) trigger.click();
         }
       } else {
         console.log("Removing free product - under threshold");
-        $(".gb-remove-product").trigger("click");
+        var removeBtn = document.querySelector(".gb-remove-product");
+        if (removeBtn) removeBtn.click();
       }
     }, 3000);
-    $("body").on("click", ".gb-sumbit-free", function () {
+
+    document.body.addEventListener("click", function (e) {
+      if (!e.target.closest(".gb-sumbit-free")) return;
       setTimeout(function () {
+        var el = document.querySelector(".gb-totals-total-value");
+        var cart_total = el ? (el.textContent || "").trim() : "";
         if (cart_total >= amountFreeProduct) {
-          if ($(".cart-item").hasClass("gb-find-remove-product")) {
-          } else {
-            $(".gb-free-product-trigger").trigger("click");
+          if (!document.querySelector(".cart-item.gb-find-remove-product")) {
+            var trigger = document.querySelector(".gb-free-product-trigger");
+            if (trigger) trigger.click();
           }
         } else {
-          $(".gb-remove-product").trigger("click");
+          var removeBtn = document.querySelector(".gb-remove-product");
+          if (removeBtn) removeBtn.click();
         }
       }, 3000);
     });
-
-    // $("body").on("click", ".shop-add-to-cart-button", function () {
-    //   setTimeout(function () {
-    //     var cart_total = $(".gb-totals-total-value").first().text();
-    //     if (cart_total >= amount_free_product) {
-    //       if ($(".cart-item").hasClass("gb-find-remove-product")) {
-    //       } else {
-    //         $(".gb-free-product-trigger").trigger("click");
-    //       }
-    //     } else {
-    //       $(".gb-remove-product").trigger("click");
-    //     }
-    //   }, 3000);
-    // });
   }
 
-  $("body").on("click", ".gb-shipping-protection-button label.switch", async (e) => {
-    if (e.target.tagName == "INPUT") return;
+  document.body.addEventListener("click", async function (e) {
+    var label = e.target.closest && e.target.closest(".gb-shipping-protection-button label.switch");
+    if (!label) return;
+    if (e.target.tagName === "INPUT") return;
     const curElem = document.querySelector(".gb-shipping-protection-button label.switch");
     const curInputElem = document.querySelector(".gb-shipping-protection-button label.switch input");
     const spinAnim = document.querySelector(".gb-shipping-protection-button .spin-animation");
     const checkElem = document.querySelector(".gb-shipping-protection-button .complete-check");
-    const wasChecked = curElem.classList.contains("checked");
+    const wasChecked = curElem && curElem.classList.contains("checked");
 
     if (!wasChecked) {
-      if (spinAnim.style.display == "block" || curInputElem.checked) return;
-
-      // $(".gb-product-shipping-protection-product-tirgger").trigger("click");
+      if (!curElem || !curInputElem || !spinAnim || !checkElem) return;
+      if (spinAnim.style.display === "block" || curInputElem.checked) return;
       const form = document.querySelector("form.shipping-protection-form");
 
       const formData = new FormData(form);
@@ -168,13 +160,18 @@ $(document).ready(function () {
     }
   });
 
-  $("body").on("change", ".gb-change-variant_id", function () {
-    var id_change = $(this).find(":selected").attr("data-variant-id");
+  document.body.addEventListener("change", function (e) {
+    var select = e.target.closest && e.target.closest(".gb-change-variant_id");
+    if (!select) return;
+    var opt = select.options[select.selectedIndex];
+    var id_change = opt ? opt.getAttribute("data-variant-id") : null;
     if (!id_change) {
       console.error("No data-variant-id found on selected option");
       return;
     }
-    $(this).closest(".gb-get-main-freq-pro").find(".product-variant-id").val(id_change);
+    var block = select.closest(".gb-get-main-freq-pro");
+    var input = block ? block.querySelector(".product-variant-id") : null;
+    if (input) input.value = id_change;
   });
 });
 
@@ -214,145 +211,304 @@ document.addEventListener("change", function (e) {
   }
 });
 
-// Add validation for form submissions to ensure ID parameter is present
+// Add validation for form submissions: require id when in single-variant mode; skip when form has items[] (bundles / premium kit)
 document.addEventListener("submit", function (e) {
-  if (e.target.action && e.target.action.includes("/cart/add")) {
-    const idInput = e.target.querySelector('[name="id"]');
-    if (!idInput || !idInput.value) {
-      console.log("Preventing submission - missing id parameter");
-      e.preventDefault();
-      return false;
+  if (typeof Elixir_ProductFormExists !== 'function' || !Elixir_ProductFormExists()) return;
+  if (typeof Elixir_GetProductForm !== 'function' || Elixir_GetProductForm() !== e.target) return;
+  if (typeof Elixir_GetProductFormVariantId !== 'function') return;
+  if (typeof Elixir_ProductFormHasItemsInputs === 'function' && Elixir_ProductFormHasItemsInputs()) return;
+  const variantId = Elixir_GetProductFormVariantId();
+  if (!variantId) {
+    console.log("Preventing submission - missing id parameter (single-product form has no variant id)");
+    e.preventDefault();
+    if (window.ThemeEditorToast && typeof window.ThemeEditorToast.show === 'function') {
+      window.ThemeEditorToast.show('Add to cart failed: missing variant ID on product form.', { type: 'error', duration: 5000 });
     }
+    return false;
   }
 });
 
-// Improve cart quantity handlers
-$(document).ready(function () {
-  // Ensure all cart quantity changes include product ID
-  $(".cart-item .quantity__button, .cart-item .quantity__input").on("click change input", function () {
-    const cartItem = $(this).closest(".cart-item");
-    const variantId = $(this).closest(".quantity-input").find(".quantity__input").data("quantity-variant-id");
+document.addEventListener("DOMContentLoaded", function () {
+  function handleCartQuantityChange(e) {
+    var cartItem = e.target.closest(".cart-item");
+    if (!cartItem) return;
+    var trigger =
+      e.target.closest(".quantity__button") ||
+      e.target.closest(".quantity__input") ||
+      (e.target.matches && e.target.matches(".quantity__input") ? e.target : null);
+    if (!trigger) return;
+    var quantityInputWrap = trigger.closest(".quantity-input");
+    var qtyInput = quantityInputWrap ? quantityInputWrap.querySelector(".quantity__input") : null;
+    var variantId = qtyInput ? qtyInput.getAttribute("data-quantity-variant-id") : null;
+    var form = trigger.closest("form");
+    if (!form) return;
+    var idInput = form.querySelector('input[name="id"]');
+    if (!idInput && variantId) {
+      console.log("Adding missing ID input to cart form");
+      var newIdInput = document.createElement("input");
+      newIdInput.type = "hidden";
+      newIdInput.name = "id";
+      newIdInput.value = variantId;
+      form.appendChild(newIdInput);
+    } else if (idInput && variantId) {
+      idInput.value = variantId;
+    }
+  }
+  document.addEventListener("click", handleCartQuantityChange);
+  document.addEventListener("change", handleCartQuantityChange);
+  document.addEventListener("input", handleCartQuantityChange);
 
-    // If this is a form submission, ensure the ID is included
-    if ($(this).closest("form").length > 0) {
-      let idInput = $(this).closest("form").find('input[name="id"]');
-      if (idInput.length === 0 && variantId) {
-        console.log("Adding missing ID input to cart form");
-        $("<input>")
-          .attr({
-            type: "hidden",
-            name: "id",
-            value: variantId,
-          })
-          .appendTo($(this).closest("form"));
-      } else if (idInput.length > 0 && variantId) {
-        idInput.val(variantId);
+  var checkoutBtn = document.getElementById("CartDrawer-Checkout");
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener("click", function (e) {
+      var form = document.getElementById("CartDrawer-Form");
+      if (!form) return;
+      var cartItems = form.querySelectorAll(".cart-item");
+      if (cartItems.length === 0) {
+        console.log("No items in cart, preventing checkout");
+        e.preventDefault();
+        return false;
       }
-    }
-  });
+      console.log("Cart checkout with", cartItems.length, "items");
+    });
+  }
 
-  // Add validation for cart drawer checkout button
-  $("#CartDrawer-Checkout").on("click", function (e) {
-    const form = $("#CartDrawer-Form");
-    if (form.length === 0) return;
-
-    // Check if there are any items in the cart
-    const cartItems = form.find(".cart-item");
-    if (cartItems.length === 0) {
-      console.log("No items in cart, preventing checkout");
-      e.preventDefault();
-      return false;
-    }
-
-    console.log("Cart checkout with", cartItems.length, "items");
-  });
-
-  /**
-   * * Prevent redirecting to checkout when pressing enter at quantity input
-   */
-  $(document).on("keydown", ".quantity__input", function (e) {
+  document.addEventListener("keydown", function (e) {
+    var input =
+      (e.target.matches && e.target.matches(".quantity__input")
+        ? e.target
+        : e.target.closest && e.target.closest(".quantity__input")) || null;
+    if (!input) return;
     if (e.key === "Enter" || e.keyCode === 13) {
       e.preventDefault();
-      $(this).trigger("blur");
+      input.blur();
     }
   });
-  // * End of handler
 });
 
-// Fix for frequently bought products add to cart
-$(document).ready(function () {
-  // Find all frequently bought product forms or buttons
-  $(
-    ".gbfrequently-bought-with-main-whole button, .gbfrequently-bought-with-main-whole .gb-sumbit-free, .gb-free-product-trigger, .gb-product-shipping-protection-product-tirgger, .gb-product-sticky-add-to-cart-form",
-  ).on("click", function (e) {
-    const parentBlock = $(this).closest(".gb-get-main-freq-pro, form");
+document.addEventListener("DOMContentLoaded", function () {
+  document.body.addEventListener("click", function (e) {
+    var btn =
+      e.target.closest(".gbfrequently-bought-with-main-whole button") ||
+      e.target.closest(".gbfrequently-bought-with-main-whole .gb-sumbit-free") ||
+      e.target.closest(".gb-free-product-trigger") ||
+      e.target.closest(".gb-product-shipping-protection-product-tirgger") ||
+      e.target.closest(".gb-product-sticky-add-to-cart-form");
+    if (!btn) return;
+    var parentBlock = btn.closest(".gb-get-main-freq-pro") || btn.closest("form");
     if (!parentBlock) {
       console.error("Could not find parent block for frequently bought product");
       return;
     }
-
-    // Find the product ID input or data attribute
-    let productId = null;
-
-    // Check for direct ID input
-    const idInput = parentBlock.find('input[name="id"]');
-    if (idInput.length > 0 && idInput.val()) {
-      productId = idInput.val();
-    }
-    // Check for variant ID on select
-    else if (parentBlock.find(".gb-change-variant_id").length > 0) {
-      const selectedOption = parentBlock.find(".gb-change-variant_id option:selected");
-      if (selectedOption.length > 0) {
-        productId = selectedOption.data("variant-id");
+    var productId = null;
+    var idInput = parentBlock.querySelector('input[name="id"]');
+    if (idInput && idInput.value) {
+      productId = idInput.value;
+    } else if (parentBlock.querySelector(".gb-change-variant_id")) {
+      var select = parentBlock.querySelector(".gb-change-variant_id");
+      var opt = select && select.options[select.selectedIndex];
+      if (opt) {
+        productId = opt.getAttribute("data-variant-id");
       }
+    } else if (parentBlock.querySelector(".product-variant-id")) {
+      var variantInput = parentBlock.querySelector(".product-variant-id");
+      productId = variantInput ? variantInput.value : null;
+    } else if (btn.getAttribute("data-variant-id")) {
+      productId = btn.getAttribute("data-variant-id");
     }
-    // Check for product-variant-id input
-    else if (parentBlock.find(".product-variant-id").length > 0) {
-      productId = parentBlock.find(".product-variant-id").val();
-    }
-    // Check for data attributes on the button itself
-    else if ($(this).data("variant-id")) {
-      productId = $(this).data("variant-id");
-    }
-
     console.log("Frequently bought product add to cart - ID:", productId);
-
-    if (this.classList.contains("gb-free-product-trigger") && !show_progress_bar) return;
-
-    // If no product ID found, prevent submission
+    if (btn.classList.contains("gb-free-product-trigger") && !show_progress_bar) return;
     if (!productId) {
       console.error("Missing product ID for frequently bought product");
       e.preventDefault();
       return false;
     }
-
-    // Update or create the ID input
-    if (idInput.length === 0) {
+    if (!idInput) {
       console.log("Adding missing ID input to frequently bought product form");
-      $("<input>")
-        .attr({
-          type: "hidden",
-          name: "id",
-          value: productId,
-        })
-        .appendTo(parentBlock);
+      var newIdInput = document.createElement("input");
+      newIdInput.type = "hidden";
+      newIdInput.name = "id";
+      newIdInput.value = productId;
+      parentBlock.appendChild(newIdInput);
     } else {
-      idInput.val(productId);
+      idInput.value = productId;
     }
-
-    // Ensure quantity is included
-    let quantityInput = parentBlock.find('input[name="quantity"]');
-    if (quantityInput.length === 0) {
+    var quantityInput = parentBlock.querySelector('input[name="quantity"]');
+    if (!quantityInput) {
       console.log("Adding default quantity input to frequently bought product form");
-      $("<input>")
-        .attr({
-          type: "hidden",
-          name: "quantity",
-          value: 1,
-        })
-        .appendTo(parentBlock);
-    } else if (!quantityInput.val() || quantityInput.val() < 1) {
-      quantityInput.val(1);
+      var newQtyInput = document.createElement("input");
+      newQtyInput.type = "hidden";
+      newQtyInput.name = "quantity";
+      newQtyInput.value = "1";
+      parentBlock.appendChild(newQtyInput);
+    } else if (!quantityInput.value || parseFloat(quantityInput.value, 10) < 1) {
+      quantityInput.value = "1";
     }
   });
 });
+
+// Kaching showing Price(Compare Price) Text in ATC fix
+
+const KachingApp = () => {
+  const isProductPage = document.querySelector('.shopify-section.shop-product-section');
+  if (!isProductPage) return;
+
+  let buttonObserver = null;
+
+  const createElement = (tag, cls, content) => {
+    const el = document.createElement(tag);
+    el.classList.add(...cls.split(' '));
+    el.textContent = content;
+    return el;
+  };
+
+  const updateAddToCartButton = (bundle) => {
+    const addToCartButton = document.querySelector('.shop-add-to-cart-button');
+    if (!addToCartButton || !bundle) return;
+
+    const buttonTextEl = addToCartButton.querySelector('.button-text');
+    if (!buttonTextEl) return;
+
+    const bundlePriceEl = bundle.querySelector('.kaching-bundles__bar-price');
+    const bundleComparePriceEl = bundle.querySelector('.kaching-bundles__bar-full-price');
+
+    if (bundlePriceEl) {
+      const price = bundlePriceEl.textContent.trim();
+      const comparePrice = bundleComparePriceEl ? bundleComparePriceEl.textContent.trim() : '';
+
+      // Get the persistent text (e.g., "Buy Now")
+      const persistentText = addToCartButton.getAttribute('data-persistent-text') || 'Buy Now';
+
+      // Update button text with actual values
+      if (comparePrice) {
+        buttonTextEl.innerHTML = `${persistentText} - ${price}<span class="compare-price">(${comparePrice})</span>`;
+      } else {
+        buttonTextEl.innerHTML = `${persistentText} - ${price}`;
+      }
+
+      // Store current bundle reference for observer
+      addToCartButton.dataset.currentBundlePrice = price;
+      addToCartButton.dataset.currentBundleComparePrice = comparePrice || '';
+    }
+  };
+
+  const forceUpdateButton = () => {
+    const addToCartButton = document.querySelector('.shop-add-to-cart-button');
+    const buttonTextEl = addToCartButton?.querySelector('.button-text');
+    
+    if (!buttonTextEl) return;
+
+    const price = addToCartButton.dataset.currentBundlePrice;
+    const comparePrice = addToCartButton.dataset.currentBundleComparePrice;
+    const persistentText = addToCartButton.getAttribute('data-persistent-text') || 'Buy Now';
+
+    // Check if button shows placeholders
+    if (buttonTextEl.textContent.includes('[price]') || buttonTextEl.textContent.includes('[comparePrice]')) {
+      if (price) {
+        if (comparePrice) {
+          buttonTextEl.innerHTML = `${persistentText} - ${price}<span class="compare-price">(${comparePrice})</span>`;
+        } else {
+          buttonTextEl.innerHTML = `${persistentText} - ${price}`;
+        }
+      }
+    }
+  };
+
+  const setupButtonObserver = () => {
+    const addToCartButton = document.querySelector('.shop-add-to-cart-button');
+    if (!addToCartButton) return;
+
+    // Disconnect existing observer if any
+    if (buttonObserver) {
+      buttonObserver.disconnect();
+    }
+
+    // Create new observer to watch for button text changes
+    buttonObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList' || mutation.type === 'characterData') {
+          // Use setTimeout to let the other script finish, then override
+          setTimeout(forceUpdateButton, 0);
+        }
+      });
+    });
+
+    // Observe the button and its children for any changes
+    buttonObserver.observe(addToCartButton, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      characterDataOldValue: true
+    });
+  };
+
+  const updatePriceBlock = (bundle) => {
+    const priceBlock = document.querySelector('.shop-product-price-container');
+    if (!priceBlock || !bundle) return;
+
+    const priceEl = priceBlock.querySelector('.shop-product-price-block');
+    const comparePriceEl = priceBlock.querySelector('.shop-compare-price');
+
+    const bundlePriceEl = bundle.querySelector('.kaching-bundles__bar-price');
+    const bundleComparePriceEl = bundle.querySelector('.kaching-bundles__bar-full-price');
+
+    if (priceEl && bundlePriceEl) priceEl.textContent = bundlePriceEl.textContent;
+
+    if (bundleComparePriceEl) {
+      if (comparePriceEl) {
+        comparePriceEl.textContent = bundleComparePriceEl.textContent;
+      } else {
+        priceBlock.appendChild(
+          createElement('span', 'shop-compare-price', bundleComparePriceEl.textContent)
+        );
+      }
+    }
+  };
+
+  const updateAllPrices = (bundle) => {
+    updatePriceBlock(bundle);
+    updateAddToCartButton(bundle);
+    
+    // Force update again after a short delay to override any competing scripts
+    setTimeout(() => forceUpdateButton(), 50);
+    setTimeout(() => forceUpdateButton(), 200);
+  };
+
+  const initApp = (app) => {
+    const applyFirstCheckedBundle = () => {
+      const selectedBundle = app.querySelector('.kaching-bundles__bar:has(input:checked)');
+      if (selectedBundle) {
+        updateAllPrices(selectedBundle);
+      }
+    };
+
+    const initAppFunctions = () => {
+      const interval = setInterval(() => {
+        const selectedBundle = app.querySelector('.kaching-bundles__bar:has(input:checked)');
+        if (selectedBundle) {
+          clearInterval(interval);
+          updateAllPrices(selectedBundle);
+          setupButtonObserver();
+        }
+      }, 300);
+    };
+
+    app.addEventListener('change', () => {
+      const selectedBundle = app.querySelector('.kaching-bundles__bar:has(input:checked)');
+      updateAllPrices(selectedBundle);
+    });
+
+    applyFirstCheckedBundle();
+    initAppFunctions();
+  };
+
+  const interval = setInterval(() => {
+    const app = document.querySelector('kaching-bundle');
+    if (app) {
+      clearInterval(interval);
+      initApp(app);
+    }
+  }, 300);
+};
+
+window.addEventListener('DOMContentLoaded', KachingApp);

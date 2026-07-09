@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
       console.warn("Sticky Add to Cart: Element not found");
       return;
     }
+    const triggerBehavior = stickyElement.dataset.triggerBehavior || 'atc_button';
+    const scrollPercentageTrigger = parseFloat(stickyElement.dataset.scrollPercentage || 25);
     const addToCartSelectors = [
       '.shop-add-to-cart-button',
       'button.shop-add-to-cart-button',
@@ -30,15 +32,15 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
       }
     }
+    setupScrollHandler();
+
     if (!addToCartButton) {
       const observer = new MutationObserver(function (mutations) {
         for (const selector of addToCartSelectors) {
           const button = document.querySelector(selector);
-          // Skip shipping protection buttons
           if (button && !button.id.includes('shipping_protection') && !button.classList.contains('gb-product-shipping-protection-product-tirgger')) {
             addToCartButton = button;
             observer.disconnect();
-            setupScrollHandler();
             break;
           }
         }
@@ -47,8 +49,6 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(function () {
         observer.disconnect();
       }, 10000);
-    } else {
-      setupScrollHandler();
     }
     function setupScrollHandler() {
       const scrollThreshold = -100;
@@ -57,8 +57,14 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Sticky Add to Cart: Scroll handler initialized", { addToCartButton });
       function handleScroll() {
         if (!addToCartButton) {
-          console.warn("Sticky Add to Cart: Add to cart button not found");
-          return;
+          if (triggerBehavior === 'always_except_atc') {
+            showStickyButton();
+            return;
+          }
+          if (triggerBehavior === 'atc_button') {
+            console.warn("Sticky Add to Cart: Add to cart button not found");
+            return;
+          }
         }
         const desktopShipping = document.querySelector(".sticky-add-to-cart__shipping");
         const mobileShipping = document.querySelector(".mobile-shipping-info");
@@ -91,18 +97,35 @@ document.addEventListener("DOMContentLoaded", function () {
           hideStickyButton();
           return;
         }
-        const addToCartRect = addToCartButton.getBoundingClientRect();
-        const buttonBottom = addToCartRect.bottom;
-        const shouldBeVisible = buttonBottom < scrollThreshold;
+
+        let shouldBeVisible = false;
+
+        if (triggerBehavior === 'scroll_percentage') {
+          const scrollTop = window.scrollY || document.documentElement.scrollTop;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          const scrollPercent = (scrollTop / docHeight) * 100;
+          shouldBeVisible = scrollPercent >= scrollPercentageTrigger;
+        } else if (triggerBehavior === 'always_except_atc') {
+          if (!addToCartButton) {
+            shouldBeVisible = true;
+          } else {
+            const addToCartRect = addToCartButton.getBoundingClientRect();
+            const isButtonInView = addToCartRect.bottom > 0 && addToCartRect.top < window.innerHeight;
+            shouldBeVisible = !isButtonInView;
+          }
+        } else {
+          if (!addToCartButton) return;
+          const addToCartRect = addToCartButton.getBoundingClientRect();
+          const buttonBottom = addToCartRect.bottom;
+          shouldBeVisible = buttonBottom < scrollThreshold;
+        }
         if (shouldBeVisible !== isVisible) {
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
             if (shouldBeVisible) {
               showStickyButton();
             } else {
-              if (buttonBottom > scrollThreshold + 150) {
-                hideStickyButton();
-              }
+              hideStickyButton();
             }
           }, 50);
         }
@@ -154,12 +177,50 @@ document.addEventListener("DOMContentLoaded", function () {
         drawerObserver.observe(drawer, { attributes: !0 });
       });
       setTimeout(handleScroll, 300);
-      setInterval(handleScroll, 2000);
     }
   }
 });
-function scrollToTop(event) {
+function scrollToSection(btn, event) {
   event.preventDefault();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  var behavior = btn.getAttribute('data-button-behavior');
+  
+  if (behavior === 'scroll_to_percentage') {
+    var percentage = parseInt(btn.getAttribute('data-scroll-to-percentage')) || 50;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var scrollPosition = (percentage / 100) * docHeight;
+    window.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+    return;
+  }
+  
+  var index = parseInt(btn.getAttribute('data-scroll-to-section')) - 1;
+  var sections = document.querySelectorAll('.shopify-section');
+  if (sections[index]) {
+    var offsetAttr = btn.getAttribute('data-scroll-offset');
+    var baseOffset = (offsetAttr !== null && offsetAttr !== '') ? parseInt(offsetAttr) : 0;
+    
+    var sectionHeader = document.querySelector('.section-header');
+    var headerWrapper = document.querySelector('.header-wrapper');
+    var headerOffset = 0;
+    var elementPosition = sections[index].getBoundingClientRect().top;
+    var targetPosition = elementPosition + window.pageYOffset - baseOffset;
+
+    if (sectionHeader) {
+      var stickyHeaderEl = document.querySelector('sticky-header');
+      var stickyType = stickyHeaderEl ? stickyHeaderEl.getAttribute('data-sticky-type') : null;
+      var headerHeight = headerWrapper ? headerWrapper.offsetHeight : sectionHeader.offsetHeight;
+
+      if (stickyType === 'always' || stickyType === 'reduce-logo-size') {
+        headerOffset = headerHeight;
+      } else if (stickyType === 'on-scroll-up') {
+        var currentScroll = window.pageYOffset;
+        if (targetPosition < currentScroll) {
+          headerOffset = headerHeight;
+        }
+      }
+    }
+
+    var offsetPosition = targetPosition - headerOffset;
+    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+  }
 }
-window.scrollToTop = scrollToTop;
+window.scrollToSection = scrollToSection;

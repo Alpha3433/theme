@@ -1,4 +1,5 @@
 {
+  "SAVE": "AHORRA",
   "ahorra": "Ahorra",
   "save": "Ahorra",
   "save_amount": "Ahorra {{ amount }}",

@@ -704,21 +704,6 @@
           </span>
         </button>
       </div>
-      {% comment %} Original Header Bar Removed - Replaced by Countdown Banner below {% endcomment %}
-
-      {% comment %} Countdown Cart Banner Start {% endcomment %}
-      {% comment %}
-        {% if settings.enable_countdown_banner and cart != empty %}
-          <div class="countdown-cart-banner drawer-cart-reservation"
-               style="background-color: {{ settings.countdown_banner_bg_color }}; color: {{ settings.countdown_banner_text_color }}; padding: 10px 15px; text-align: center; font-size: 14px;">
-            {{ settings.countdown_banner_text_before }}
-            <span id="cart-timer" class="cart-countdown-timer" style="font-weight: bold; color: {{ settings.countdown_banner_timer_color }};">{{ settings.countdown_duration_minutes }}:00</span>
-            {{ settings.countdown_banner_units_text }}
-            {{ settings.countdown_banner_text_after }}
-          </div>
-        {% endif %}
-      {% endcomment %}
-      {% comment %} Countdown Cart Banner End {% endcomment %}
 
       {% comment %} Discount Banner - Start {% endcomment %}
       {% if settings.show_discount_banner and cart != empty %}
@@ -1023,35 +1008,6 @@
             {%- if cart != empty -%}
               <div class="drawer__cart-items-wrapper">
                 <table class="cart-items" role="table">
-                  {% comment %}
-                    <thead role="rowgroup">
-                      <tr role="row">
-                        <th id="CartDrawer-ColumnProductImage" role="columnheader">
-                          <span class="visually-hidden">{{ 'sections.cart.headings.image' | t }}</span>
-                        </th>
-                        <th
-                          id="CartDrawer-ColumnProduct"
-                          class="caption-with-letter-spacing"
-                          scope="col"
-                          role="columnheader"
-                        >
-                          {{ 'sections.cart.headings.product' | t }}
-                        </th>
-                        <th
-                          id="CartDrawer-ColumnTotal"
-                          class="right caption-with-letter-spacing"
-                          scope="col"
-                          role="columnheader"
-                        >
-                          {{ 'sections.cart.headings.total' | t }}
-                        </th>
-                        <th id="CartDrawer-ColumnQuantity" role="columnheader">
-                          <span class="visually-hidden">{{ 'sections.cart.headings.quantity' | t }}</span>
-                        </th>
-                      </tr>
-                    </thead>
-                  {% endcomment %}
-
                   <tbody role="rowgroup">
                     {%- for item in cart.items -%}
                       <tr
@@ -1279,7 +1235,7 @@
                                       <span class="svg-wrapper content">
                                         {{- 'icon-minus.svg' | inline_asset_content -}}
                                       </span>
-                                      <div class="spin-animation border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600">
+										                  <div class="spin-animation">
                                         <span></span>
                                       </div>
                                     </button>
@@ -1313,7 +1269,7 @@
                                       <span class="svg-wrapper content">
                                         {{- 'icon-plus.svg' | inline_asset_content -}}
                                       </span>
-                                      <div class="spin-animation border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600">
+										<div class="spin-animation">
                                         <span></span>
                                       </div>
                                     </button>
@@ -1341,7 +1297,7 @@
                                           <path d="M3.9231 7.5H20.0767L19.1344 20.2216C19.0183 21.7882 17.7135 23 16.1426 23H7.85724C6.28636 23 4.98148 21.7882 4.86544 20.2216L3.9231 7.5Z" fill="currentColor"/>
                                         </svg>
                                       </span>
-                                      <div class="spin-animation border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600">
+										<div class="spin-animation">
                                         <span></span>
                                       </div>
                                     </button>
@@ -1687,7 +1643,7 @@
               <label class="switch {{ get_shipping_pro_id }}">
                 <input type="checkbox" {{ get_shipping_pro_id }}>
                 <span class="slider round"></span>
-                <div class="spin-animation border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600">
+				<div class="spin-animation">
                   <span></span>
                 </div>
                 <div class="complete-check">

@@ -43,6 +43,12 @@
       "default": "made for daily use"
     },
     {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "info": "Optional text displayed below the section title"
+    },
+    {
       "type": "image_picker",
       "id": "main_image",
       "label": "Main Image"
@@ -53,6 +59,35 @@
       "label": "Hide Main Image",
       "default": false,
       "info": "When enabled, the main image will be hidden and features will take full width"
+    },
+    {
+      "type": "checkbox",
+      "id": "side_heading_layout",
+      "label": "Side Heading Layout",
+      "default": false,
+      "info": "When Hide Main Image is on, places the section heading in a column beside the features instead of above them"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment_mobile",
+      "label": "Heading Alignment (Mobile)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment_desktop",
+      "label": "Heading Alignment (Desktop)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
     },
     {
       "type": "header",
@@ -165,6 +200,12 @@
       "id": "heading_color",
       "label": "Section Heading Color",
       "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#DDDDDD"
     },
     {
       "type": "color",
@@ -399,8 +440,32 @@
       "default": 8
     },
     {
+      "type": "select",
+      "id": "feature_image_object_fit",
+      "label": "Feature Image Fit",
+      "options": [
+        {
+          "value": "contain",
+          "label": "Contain (fit inside)"
+        },
+        {
+          "value": "cover",
+          "label": "Cover (fill container)"
+        }
+      ],
+      "default": "contain",
+      "info": "How the Feature Image fits within its container (does not affect icon images)"
+    },
+    {
       "type": "header",
       "content": "Typography"
+    },
+    {
+      "type": "checkbox",
+      "id": "bold_feature_title",
+      "label": "Bold Feature Title",
+      "default": false,
+      "info": "When enabled, feature titles use bold (700) font weight"
     },
     {
       "type": "range",
@@ -423,6 +488,42 @@
       "label": "Section Heading Size - Mobile",
       "default": 28,
       "info": "Font size for the section heading on mobile (767px and below)"
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height_desktop",
+      "min": 0.8,
+      "max": 2.0,
+      "step": 0.1,
+      "label": "Heading Line Height (Desktop)",
+      "default": 1.2
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height_mobile",
+      "min": 0.8,
+      "max": 2.0,
+      "step": 0.1,
+      "label": "Heading Line Height (Mobile)",
+      "default": 1.2
+    },
+    {
+      "type": "range",
+      "id": "subheading_line_height_desktop",
+      "min": 0.8,
+      "max": 2.5,
+      "step": 0.1,
+      "label": "Subheading Line Height (Desktop)",
+      "default": 1.5
+    },
+    {
+      "type": "range",
+      "id": "subheading_line_height_mobile",
+      "min": 0.8,
+      "max": 2.5,
+      "step": 0.1,
+      "label": "Subheading Line Height (Mobile)",
+      "default": 1.5
     },
     {
       "type": "range",

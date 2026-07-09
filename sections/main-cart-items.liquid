@@ -26,7 +26,7 @@
   .cart-items .cart-item__media img,
   .cart-items .cart-item__image,
   .cart-items .cart-item__image-container {
-    border-radius: {{ settings.cart_drawer_image_border_radius }}px !important;
+    border-radius: 8px !important;
   }
 
   /* Discount Banner Styles */
@@ -69,6 +69,34 @@
     background: transparent !important;
     background-image: none !important;
     opacity: 0.7;
+  }
+
+  .spin-animation {
+    display: block;
+    position: absolute;
+    height: 15px;
+    width: 15px;
+    border: solid;
+    border-radius: calc(infinity * 1px);
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0.3);
+    border-top-color: #fff;
+    /* animation: var(--animate-spin); */
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .cart-item__quantity .spin-animation {
+    display: none;
+  }
+
+  .quantity__button .spin-animation {
+    top: unset;
+    left: unset;
   }
 
   /* Custom Color Styling for Cart Page */
@@ -208,11 +236,18 @@
 
 <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
 
+{%- liquid
+  if section.settings.empty_cart_redirect_url != blank
+    assign continue_shopping_url = section.settings.empty_cart_redirect_url
+  else
+    assign continue_shopping_url = routes.all_products_collection_url
+  endif
+-%}
 <cart-items class="isolate{% if cart == empty %} is-empty{% else %} section-{{ section.id }}-padding{% endif %}" style="{% if section.settings.use_theme_colors %}background-color: {{ settings.global_section_background_color }}; color: {{ settings.global_section_text_color }};{% else %}background-color: {{ section.settings.section_background_color }}; color: {{ section.settings.section_text_color }};{% endif %}">
   <div class="page-width">
     <div class="title-wrapper-with-link">
       <h1 class="title title--primary">{{ 'sections.cart.title' | t }}</h1>
-      <a href="{{ routes.all_products_collection_url }}" class="underlined-link">
+      <a href="{{ continue_shopping_url }}" class="underlined-link">
         {{- 'general.continue_shopping' | t -}}
       </a>
     </div>
@@ -280,7 +315,7 @@
 
     <div class="cart__warnings">
       <h1 class="cart__empty-text">{{ 'sections.cart.empty' | t }}</h1>
-      <a href="{{ routes.all_products_collection_url }}" class="button">
+      <a href="{{ continue_shopping_url }}" class="button">
         {{ 'general.continue_shopping' | t }}
       </a>
 
@@ -354,27 +389,6 @@
 
                       <a href="{{ item.url }}" class="cart-item__name h4 break">{{ item.product.title | escape }}</a>
 
-                      {%- if item.original_price != item.final_price -%}
-                        <div class="cart-item__discounted-prices">
-                          <span class="visually-hidden">
-                            {{ 'products.product.price.regular_price' | t }}
-                          </span>
-                          <s class="cart-item__old-price product-option">
-                            {{- item.original_price | money -}}
-                          </s>
-                          <span class="visually-hidden">
-                            {{ 'products.product.price.sale_price' | t }}
-                          </span>
-                          <strong class="cart-item__final-price product-option">
-                            {{ item.final_price | money }}
-                          </strong>
-                        </div>
-                      {%- else -%}
-                        <div class="product-option">
-                          {{ item.original_price | money }}
-                        </div>
-                      {%- endif -%}
-
                       {%- if item.product.has_only_default_variant == false
                         or item.properties.size != 0
                         or item.selling_plan_allocation != null
@@ -411,41 +425,72 @@
                         <p class="product-option">{{ item.selling_plan_allocation.selling_plan.name }}</p>
                       {%- endif -%}
 
-                      <ul class="discounts list-unstyled" role="list" aria-label="{{ 'customer.order.discount' | t }}">
-                        {%- for discount in item.line_level_discount_allocations -%}
-                          <li class="discounts__discount">
-                            {{- 'icon-discount.svg' | inline_asset_content -}}
-                            {{ discount.discount_application.title | escape }}
-                          </li>
-                        {%- endfor -%}
-                      </ul>
+                      {%- if item.discount_allocations.size > 0 -%}
+                        <div class="cart-item__discount-allocations">
+                          {%- for discount in item.discount_allocations -%}
+                            <div class="discount-tag">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-tag-icon lucide-tag"
+                              >
+                                <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>
+                              </svg>
+                              <span class="discount-label">{{ discount.discount_application.title }}</span>
+                            </div>
+                          {%- endfor -%}
+                        </div>
+                      {%- endif -%}
                     </td>
 
                     <td class="cart-item__totals right medium-hide large-up-hide">
                       {%- render 'loading-spinner' -%}
                       <div class="cart-item__price-wrapper">
-                        {%- if item.original_line_price != item.final_line_price -%}
-                          <dl class="cart-item__discounted-prices">
-                            <dt class="visually-hidden">
-                              {{ 'products.product.price.regular_price' | t }}
-                            </dt>
-                            <dd>
-                              <s class="cart-item__old-price price price--end">
-                                {{ item.original_line_price | money }}
-                              </s>
-                            </dd>
-                            <dt class="visually-hidden">
-                              {{ 'products.product.price.sale_price' | t }}
-                            </dt>
-                            <dd class="price price--end">
+                       {% if item.variant.compare_at_price > item.variant.price %}
+                          <div class="cart-item__discounted-prices">
+                            <s class="cart-item__old-price product-option">
+                              {{- item.variant.compare_at_price | times: item.quantity | money -}}
+                            </s>
+                            <strong class="cart-item__final-price product-option eee">
                               {{ item.final_line_price | money }}
-                            </dd>
-                          </dl>
-                        {%- else -%}
-                          <span class="price price--end">
-                            {{ item.original_line_price | money }}
-                          </span>
-                        {%- endif -%}
+                            </strong>
+                          </div>
+                          {% assign total_saving = item.variant.compare_at_price
+                            | minus: item.final_price
+                            | times: item.quantity
+                          %}
+                        {% else %}
+                          <div class="product-option">
+                            {% if item.original_line_price != item.final_line_price %}
+                            <s class="cart-item__old-price">
+                              {{- item.original_line_price | money -}}
+                            </s>
+                            <strong class="cart-item__final-price">
+                              {% if item.final_line_price == 0 %}
+                                {{ 'general.cart.free' | t }}
+                              {% else %}
+                                {{ item.final_line_price | money }}
+                              {% endif %}
+                            </strong>
+                            {% else %}
+                              {{ item.final_line_price | money }}
+                            {% endif %}
+                          </div>
+                          {% assign total_saving = item.original_line_price | minus: item.final_line_price %}
+                        {% endif %}
+                        {% if total_saving != 0 %}
+                          <div class="gb-price-drawer-saving">
+                              {{ 'SAVE' | t }}
+                              {{ total_saving | abs | money_without_trailing_zeros }}
+                          </div>
+                        {% endif %}
 
                         {%- if item.variant.available and item.unit_price_measurement -%}
                           <div class="unit-price caption">
@@ -495,9 +540,12 @@
                                 <span class="visually-hidden">
                                   {{- 'products.product.quantity.decrease' | t: product: item.product.title | escape -}}
                                 </span>
-                                <span class="svg-wrapper">
+                                <span class="svg-wrapper content">
                                   {{- 'icon-minus.svg' | inline_asset_content -}}
                                 </span>
+                                <div class="spin-animation">
+                                  <span></span>
+                                </div>
                               </button>
                               <input
                                 class="quantity__input"
@@ -507,7 +555,7 @@
                                 value="{{ item.quantity }}"
                                 {% # theme-check-disable %}
                                 data-cart-quantity="{{ cart | item_count_for_variant: item.variant.id }}"
-                                min="0"
+                                min="1"
                                 data-min="{{ item.variant.quantity_rule.min }}"
                                 {% if item.variant.quantity_rule.max != null %}
                                   max="{{ item.variant.quantity_rule.max }}"
@@ -522,9 +570,12 @@
                                 <span class="visually-hidden">
                                   {{- 'products.product.quantity.increase' | t: product: item.product.title | escape -}}
                                 </span>
-                                <span class="svg-wrapper">
+                                <span class="svg-wrapper content">
                                   {{- 'icon-plus.svg' | inline_asset_content -}}
                                 </span>
+                                <div class="spin-animation">
+                                  <span></span>
+                                </div>
                               </button>
                             </quantity-input>
                           </div>
@@ -534,12 +585,24 @@
                           >
                             <a
                               href="{{ item.url_to_remove }}"
-                              class="button button--tertiary"
+                              class="button button--tertiary cart-remove-button"
                               aria-label="{{ 'sections.cart.remove_title' | t: title: item.title | escape }}"
                             >
-                              <span class="svg-wrapper">
-                                {{- 'icon-remove.svg' | inline_asset_content -}}
+                              <span class="svg-wrapper gb-cart-del-img content">
+                                <svg
+                                  width="15"
+                                  height="15"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path d="M8 1.5V2.5H3C2.44772 2.5 2 2.94772 2 3.5V4.5C2 5.05228 2.44772 5.5 3 5.5H21C21.5523 5.5 22 5.05228 22 4.5V3.5C22 2.94772 21.5523 2.5 21 2.5H16V1.5C16 0.947715 15.5523 0.5 15 0.5H9C8.44772 0.5 8 0.947715 8 1.5Z" fill="currentColor"/>
+                                  <path d="M3.9231 7.5H20.0767L19.1344 20.2216C19.0183 21.7882 17.7135 23 16.1426 23H7.85724C6.28636 23 4.98148 21.7882 4.86544 20.2216L3.9231 7.5Z" fill="currentColor"/>
+                                </svg>
                               </span>
+                              <div class="spin-animation">
+                                <span></span>
+                              </div>
                             </a>
                           </cart-remove-button>
                         </div>
@@ -640,28 +703,48 @@
                     <td class="cart-item__totals right small-hide">
                       {%- render 'loading-spinner' -%}
                       <div class="cart-item__price-wrapper">
-                        {%- if item.original_line_price != item.final_line_price -%}
-                          <dl class="cart-item__discounted-prices">
-                            <dt class="visually-hidden">
-                              {{ 'products.product.price.regular_price' | t }}
-                            </dt>
-                            <dd>
-                              <s class="cart-item__old-price price price--end">
-                                {{ item.original_line_price | money }}
-                              </s>
-                            </dd>
-                            <dt class="visually-hidden">
-                              {{ 'products.product.price.sale_price' | t }}
-                            </dt>
-                            <dd class="price price--end">
+                       {% if item.variant.compare_at_price > item.variant.price %}
+                          <div class="cart-item__discounted-prices">
+                            <s class="cart-item__old-price product-option">
+                              {{- item.variant.compare_at_price | times: item.quantity | money -}}
+                            </s>
+                            <strong class="cart-item__final-price product-option">
+                              {% if item.final_line_price == 0 %}
+                                {{ 'general.cart.free' | t }}
+                              {% else %}
+                                {{ item.final_line_price | money }}
+                              {% endif %}
+                            </strong>
+                          </div>
+                          {% assign total_saving = item.variant.compare_at_price
+                            | minus: item.final_price
+                            | times: item.quantity
+                          %}
+                        {% else %}
+                          <div class="product-option">
+                            {% if item.original_line_price != item.final_line_price %}
+                            <s class="cart-item__old-price">
+                              {{- item.original_line_price | money -}}
+                            </s>
+                            <strong class="cart-item__final-price">
+                              {% if item.final_line_price == 0 %}
+                                {{ 'general.cart.free' | t }}
+                              {% else %}
+                                {{ item.final_line_price | money }}
+                              {% endif %}
+                            </strong>
+                            {% else %}
                               {{ item.final_line_price | money }}
-                            </dd>
-                          </dl>
-                        {%- else -%}
-                          <span class="price price--end">
-                            {{ item.original_line_price | money }}
-                          </span>
-                        {%- endif -%}
+                            {% endif %}
+                          </div>
+                          {% assign total_saving = item.original_line_price | minus: item.final_line_price %}
+                        {% endif %}
+                        {% if total_saving != 0 %}
+                          <div class="gb-price-drawer-saving">
+                              {{ 'SAVE' | t }}
+                              {{ total_saving | abs | money_without_trailing_zeros }}
+                          </div>
+                        {% endif %}
 
                         {%- if item.variant.available and item.unit_price_measurement -%}
                           <div class="unit-price caption">
@@ -704,6 +787,7 @@
 {% schema %}
 {
   "name": "t:sections.main-cart-items.name",
+  "tag": "section",
   "settings": [
     {
       "type": "checkbox",
@@ -729,6 +813,16 @@
       "label": "Section Text Color",
       "default": "#000000",
       "info": "Applies when theme colors are disabled"
+    },
+    {
+      "type": "header",
+      "content": "Empty Cart Settings"
+    },
+    {
+      "type": "url",
+      "id": "empty_cart_redirect_url",
+      "label": "Continue Shopping Link",
+      "info": "URL for the 'Continue Shopping' button when cart is empty. Leave blank to use the default All Products collection page."
     },
     {
       "type": "header",

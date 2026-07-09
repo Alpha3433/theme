@@ -32,10 +32,20 @@ function initializeScrollAnimationTrigger(rootEl = document, isDesignModeEvent =
     return;
   }
 
-  const observer = new IntersectionObserver(onIntersection, {
-    rootMargin: "0px 0px -50px 0px",
+  animationTriggerElements.forEach((element) => {
+    // If element is taller than 50% of the viewport, use a tiny threshold
+    // Otherwise, keep the original 0.4 threshold.
+    const elementHeight = element.getBoundingClientRect().height;
+    const viewportHeight = window.innerHeight;
+    const threshold = elementHeight > viewportHeight * 0.5 ? 0.01 : 0.4;
+
+    const observer = new IntersectionObserver(onIntersection, {
+      rootMargin: "0px 0px -100px 0px",
+      threshold: threshold
+    });
+    
+    observer.observe(element);
   });
-  animationTriggerElements.forEach((element) => observer.observe(element));
 }
 
 // Zoom in animation logic
@@ -78,25 +88,79 @@ function percentageSeen(element) {
   const elementHeight = element.offsetHeight;
 
   if (elementPositionY > scrollY + viewportHeight) {
-    // If we haven't reached the image yet
     return 0;
   } else if (elementPositionY + elementHeight < scrollY) {
-    // If we've completely scrolled past the image
     return 100;
   }
 
-  // When the image is in the viewport
   const distance = scrollY + viewportHeight - elementPositionY;
   let percentage = distance / ((viewportHeight + elementHeight) / 100);
   return Math.round(percentage);
 }
 
+function initializeFadeUpSections() {
+  const body = document.body;
+  const revealOnScroll = body.getAttribute("data-animations-reveal-on-scroll");
+  
+  if (revealOnScroll !== "true") return;
+
+  const allSections = document.querySelectorAll("section.section");
+  const sectionsToAnimate = [];
+  
+  allSections.forEach((section) => {
+    if (section.classList.contains("scroll-trigger")) {
+      return;
+    }
+    
+    if (
+      section.closest(".shopify-section-group-header-group") ||
+      section.closest(".shopify-section-group-footer-group")
+    ) {
+      return;
+    }
+    
+    sectionsToAnimate.push(section);
+  });
+
+  function isAboveFold(element) {
+    const rect = element.getBoundingClientRect();
+    return rect.top < window.innerHeight && rect.bottom > 0;
+  }
+
+  sectionsToAnimate.forEach((section, index) => {
+    section.classList.add("scroll-trigger", "animate--fade-in"); //hardcoded effect, can be changed here. Referenced in the base.css file
+    section.setAttribute("data-cascade", "");
+    section.style.setProperty("--animation-order", index);
+    
+    const rect = section.getBoundingClientRect();
+    if (rect.top < 100) {
+        section.classList.remove(SCROLL_ANIMATION_OFFSCREEN_CLASSNAME);
+        return;
+    }
+
+    if (!isAboveFold(section)) {
+      section.classList.add(SCROLL_ANIMATION_OFFSCREEN_CLASSNAME);
+    }
+  });
+
+  if (sectionsToAnimate.length > 0) {
+    initializeScrollAnimationTrigger();
+  }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   initializeScrollAnimationTrigger();
   initializeScrollZoomAnimationTrigger();
+  initializeFadeUpSections();
 });
 
 if (Shopify.designMode) {
-  document.addEventListener("shopify:section:load", (event) => initializeScrollAnimationTrigger(event.target, true));
-  document.addEventListener("shopify:section:reorder", () => initializeScrollAnimationTrigger(document, true));
+  document.addEventListener("shopify:section:load", (event) => {
+    initializeScrollAnimationTrigger(event.target, true);
+    initializeFadeUpSections();
+  });
+  document.addEventListener("shopify:section:reorder", () => {
+    initializeScrollAnimationTrigger(document, true);
+    initializeFadeUpSections();
+  });
 }

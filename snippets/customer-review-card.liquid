@@ -34,6 +34,11 @@
 -%}
 {%- assign rating = rating | default: 5 -%}
 {%- assign avatar_url = avatar_url -%}
+{%- if show_avatar == false -%}
+  {%- assign show_avatar = false -%}
+{%- else -%}
+  {%- assign show_avatar = true -%}
+{%- endif -%}
 {%- assign background_color_start = background_color_start | default: '#f8f8f8' -%}
 {%- assign background_color_end = background_color_end | default: '#f2f2f2' -%}
 {%- assign text_color = text_color | default: '#333' -%}
@@ -54,42 +59,37 @@
 {%- assign margin_bottom = margin_bottom | default: 15 | append: 'px' -%}
 {%- assign margin_left = margin_left | default: 0 | append: 'px' -%}
 
-{%- assign unique_id = block.id | default: 'default' -%}
+{%- comment -%} Use card_id if provided, otherwise fall back to block.id {%- endcomment -%}
+{%- assign unique_id = card_id | default: block.id | default: 'default' -%}
 
 <div
   class="customer-review-card customer-review-{{ unique_id }}"
   {{ block.shopify_attributes }}
   style="margin: {{ margin_top }} {{ margin_right }} {{ margin_bottom }} {{ margin_left }};"
 >
-  <div class="customer-review-avatar-container">
-    <div class="customer-review-avatar">
-      {% if avatar_url != blank %}
-        {% comment %} Check if avatar_url is a Shopify image object or a URL string {% endcomment %}
-        {% if avatar_url contains 'cdn.shopify.com' or avatar_url contains 'http' %}
-          {% comment %} It's a URL string - use it directly {% endcomment %}
+  {%- if show_avatar -%}
+    <div class="customer-review-avatar-container">
+      <div class="customer-review-avatar">
+        {% if avatar_url != blank %}
+          {%- comment -%} 
+            avatar_url is a Shopify image object from image_picker
+            We use image_url filter to get the URL
+          {%- endcomment -%}
+          {%- assign avatar_src_60 = avatar_url | image_url: width: 60 -%}
+          {%- assign avatar_src_120 = avatar_url | image_url: width: 120 -%}
+          {%- assign avatar_src_180 = avatar_url | image_url: width: 180 -%}
           <img 
-            src="{{ avatar_url }}" 
+            src="{{ avatar_src_120 }}" 
+            srcset="{{ avatar_src_60 }} 1x, {{ avatar_src_120 }} 2x, {{ avatar_src_180 }} 3x" 
             alt="{{ reviewer_name }}" 
             loading="lazy" 
-            width="60" 
-            height="60" 
+            width="{{ avatar_size_desktop | default: 60 }}" 
+            height="{{ avatar_size_desktop | default: 60 }}" 
             style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; object-fit: cover;">
-        {% else %}
-          {% comment %} It's a Shopify image object - use image_url filter {% endcomment %}
-        <img 
-          src="{{ avatar_url | image_url: width: 120 }}" 
-          srcset="{{ avatar_url | image_url: width: 60 }} 1x, 
-                  {{ avatar_url | image_url: width: 120 }} 2x, 
-                  {{ avatar_url | image_url: width: 180 }} 3x" 
-          alt="{{ reviewer_name }}" 
-          loading="lazy" 
-          width="60" 
-          height="60" 
-          style="image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; object-fit: cover;">
         {% endif %}
-      {% endif %}
+      </div>
     </div>
-  </div>
+  {%- endif -%}
   <div class="customer-review-content">
     <div class="customer-review-header">
       <div class="customer-review-name">
@@ -152,6 +152,7 @@
     height: 100%;
   }
 
+  {%- if show_avatar -%}
   .customer-review-{{ unique_id }} .customer-review-avatar-container {
     position: relative;
     width: {{ avatar_size_desktop }}px;
@@ -192,6 +193,7 @@
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
+  {%- endif -%}
 
   .customer-review-{{ unique_id }} .customer-review-content {
     flex: 1;
@@ -205,7 +207,7 @@
     flex-direction: row;
     align-items: center;
     margin-bottom: clamp(4px, 1.5%, 8px);
-    gap: 12px;
+    gap: 0px;
     width: 100%;
   }
 
@@ -278,15 +280,17 @@
       gap: 8px;
     }
 
+    {%- if show_avatar -%}
     .customer-review-{{ unique_id }} .customer-review-avatar-container {
       width: {{ avatar_size_mobile }}px;
       /* The padding-top percentage in the ::before element
       ensures it remains square at all widths */
     }
+    {%- endif -%}
 
     .customer-review-{{ unique_id }} .customer-review-header {
       margin-bottom: 3px;
-      align-items: flex-start !important;
+      align-items: center !important;
       gap: 0px !important;
     }
 

@@ -2,17 +2,40 @@
   Product Upsell Block
   - Renders a product card for upselling within another product's details.
   - Customizable via block settings.
+  - Supports carousel mode when is_carousel_item is true.
 {%- endcomment -%}
 
 {%- liquid
-  assign upsell_product = block.settings.upsell_product
-  assign show_best_seller_tag = block.settings.show_best_seller_tag
-  assign best_seller_text = block.settings.best_seller_text
-  assign best_seller_tag_color = block.settings.best_seller_tag_color
-  assign best_seller_tag_text_color = block.settings.best_seller_tag_text_color | default: '#FFFFFF'
+  # When in carousel mode, use the upsell_item block for product data
+  if is_carousel_item and upsell_item != blank
+    assign upsell_product = upsell_item.settings.upsell_product
+    assign show_best_seller_tag = upsell_item.settings.show_best_seller_tag
+    assign best_seller_text = upsell_item.settings.best_seller_text
+    assign best_seller_tag_color = upsell_item.settings.best_seller_tag_color | default: '#e18942'
+    assign best_seller_tag_text_color = upsell_item.settings.best_seller_tag_text_color | default: '#FFFFFF'
+    assign custom_bestseller_svg = upsell_item.settings.custom_bestseller_svg
+    assign show_description = upsell_item.settings.show_description | default: false
+    assign description_text = upsell_item.settings.description_text
+    assign unique_id = upsell_item.id
+  else
+    assign upsell_product = block.settings.upsell_product
+    assign show_best_seller_tag = block.settings.show_best_seller_tag
+    assign best_seller_text = block.settings.best_seller_text
+    assign best_seller_tag_color = block.settings.best_seller_tag_color
+    assign best_seller_tag_text_color = block.settings.best_seller_tag_text_color | default: '#FFFFFF'
+    assign custom_bestseller_svg = block.settings.custom_bestseller_svg
+    assign show_description = block.settings.show_description | default: false
+    assign description_text = block.settings.description_text
+    assign unique_id = block.id
+  endif
+
+  # Style settings always come from the main block
+  assign remove_background = block.settings.remove_background
   assign card_bg_color = block.settings.card_background_color
   assign product_image_bg_color = block.settings.product_image_background_color
   assign image_border_radius = block.settings.image_border_radius | default: 4
+  assign title_font_size_desktop = block.settings.title_font_size_desktop | default: 16
+  assign title_font_size_mobile = block.settings.title_font_size_mobile | default: 14
 
   # Fix color logic: prioritize block settings when theme colors are off
   assign title_color = block.settings.title_color | default: '#111111'
@@ -31,27 +54,38 @@
   assign button_text = block.settings.button_text | default: 'Add +'
   assign button_text_color = block.settings.button_text_color | default: '#FFFFFF'
   assign price_below_description = block.settings.price_below_description | default: false
+  assign button_style = block.settings.button_style | default: 'button'
+  assign toggle_inactive_bg = block.settings.toggle_inactive_bg | default: '#cccccc'
+  assign toggle_active_bg = block.settings.toggle_active_bg | default: '#22c55e'
+  assign toggle_knob_color = block.settings.toggle_knob_color | default: '#ffffff'
+  assign toggle_width = block.settings.toggle_width | default: 50
+  assign toggle_height = block.settings.toggle_height | default: 26
 
   assign card_border_radius = block.settings.card_border_radius
-  assign top_margin = block.settings.margin_top
-  assign bottom_margin = block.settings.margin_bottom
+
+  # Remove margins when in carousel mode (handled by carousel container)
+  if is_carousel_item
+    assign top_margin = 0
+    assign bottom_margin = 0
+  else
+    assign top_margin = block.settings.margin_top
+    assign bottom_margin = block.settings.margin_bottom
+  endif
 
   assign border_color = block.settings.border_color | default: 'transparent'
   assign border_style = block.settings.border_style | default: 'none'
   assign border_width = block.settings.border_width | default: 0
   assign button_border_radius = block.settings.button_border_radius | default: 2
+  assign cart_action = block.settings.cart_action | default: 'drawer'
 
-  assign show_description = block.settings.show_description | default: false
-  assign description_text = block.settings.description_text
-
-  assign product_form_id = 'product-form-' | append: section.id | append: '-' | append: upsell_product.id | append: '-' | append: block.id
+  assign product_form_id = 'product-form-' | append: section.id | append: '-' | append: upsell_product.id | append: '-' | append: unique_id
 
   assign upsell_product_runtime = all_products[upsell_product]
 -%}
 
 {% if upsell_product != blank %}
   <style>
-    .upsell-product-price-{{ block.id }} {
+    .upsell-product-price-{{ unique_id }} {
       font-weight: bold;
       font-size: {{ block.settings.price_font_size | default: 16 }}px;
       color: {{ block.settings.title_color | default: '#111111' }};
@@ -61,15 +95,15 @@
   </style>
 
   <div
-    class="upsell-product-container-{{ block.id }}"
+    class="upsell-product-container-{{ unique_id }}"
     style="margin-top: {{ top_margin }}px; margin-bottom: {{ bottom_margin }}px;"
     {{ block.shopify_attributes }}
   >
-    <div class="upsell-product-card-{{ block.id }}">
+    <div class="upsell-product-card-{{ unique_id }}">
       {% if show_best_seller_tag and best_seller_text != blank %}
-        <div class="upsell-best-seller-tag-{{ block.id }}">
-          {% if block.settings.custom_bestseller_svg != blank %}
-            {{ block.settings.custom_bestseller_svg }}
+        <div class="upsell-best-seller-tag-{{ unique_id }}">
+          {% if custom_bestseller_svg != blank %}
+            {{ custom_bestseller_svg }}
           {% else %}
             <svg class="bestseller-icon" width="10" height="10" viewBox="0 0 54.558 54.559" fill="currentColor">
               <path d="M27.28,3.911c-8.024,0-14.553,6.528-14.553,14.552s6.528,14.553,14.553,14.553c8.024,0,14.552-6.529,14.552-14.553 S35.304,3.911,27.28,3.911z M27.28,31.016c-6.921,0-12.553-5.631-12.553-12.553c0-6.921,5.631-12.552,12.553-12.552 c6.921,0,12.552,5.631,12.552,12.552C39.832,25.384,34.201,31.016,27.28,31.016z"/>
@@ -82,57 +116,62 @@
         </div>
       {% endif %}
 
-      <form id="{{ product_form_id }}" class="upsell-form">
+      {%- form 'product', upsell_product,
+            id: product_form_id,
+            class: 'upsell-form',
+            novalidate: 'novalidate',
+            data-cart-action: cart_action
+          -%}
         <input type="hidden" name="id" value="{{ upsell_product.first_available_variant.id }}">
 
         <!-- Left column: Product image -->
-        <div class="upsell-product-image-column-{{ block.id }}">
+        <div class="upsell-product-image-column-{{ unique_id }}">
           {% if upsell_product.featured_image != blank %}
             <img
               src="{{ upsell_product.featured_image | image_url: width: 150 }}"
               alt="{{ upsell_product.featured_image.alt | escape }}"
-              class="upsell-product-img-{{ block.id }}"
+              class="upsell-product-img-{{ unique_id }}"
               loading="lazy"
               width=""
               height=""
             >
           {% else %}
-            <div class="upsell-product-img-{{ block.id }} placeholder-wrapper">
+            <div class="upsell-product-img-{{ unique_id }} placeholder-wrapper">
               {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
             </div>
           {% endif %}
         </div>
 
         <!-- Middle column: Title and variants -->
-        <div class="upsell-product-info-column-{{ block.id }}">
-          <div class="upsell-product-header-{{ block.id }}">
+        <div class="upsell-product-info-column-{{ unique_id }}">
+          <div class="upsell-product-header-{{ unique_id }}">
             {% if block.settings.make_title_clickable %}
-              <a href="{{ upsell_product.url }}" class="upsell-product-title-{{ block.id }} upsell-product-title-link">
+              <a href="{{ upsell_product.url }}" class="upsell-product-title-{{ unique_id }} upsell-product-title-link">
                 {{- upsell_product.title -}}
               </a>
             {% else %}
-              <div class="upsell-product-title-{{ block.id }}">{{ upsell_product.title }}</div>
+              <div class="upsell-product-title-{{ unique_id }}">{{ upsell_product.title }}</div>
             {% endif %}
           </div>
 
           {% if show_description and description_text != blank %}
-            <div class="upsell-product-description-{{ block.id }}">
+            <div class="upsell-product-description-{{ unique_id }}">
               {{ description_text }}
             </div>
           {% endif %}
 
           {% if price_below_description %}
-            <div class="upsell-product-price-{{ block.id }}">
+            <div class="upsell-product-price-{{ unique_id }}">
               {{ upsell_product.price | money }}
             </div>
           {% endif %}
 
           {% unless upsell_product.has_only_default_variant %}
-            <div class="upsell-variant-options-{{ block.id }}">
+            <div class="upsell-variant-options-{{ unique_id }}">
               {% for option in upsell_product.options_with_values %}
-                <select 
-                  name="options[{{ option.name | escape }}]" 
-                  class="upsell-variant-select-{{ block.id }}"
+                <select
+                  name="options[{{ option.name | escape }}]"
+                  class="upsell-variant-select-{{ unique_id }}"
                   onchange="handleProductUpsellVariantChange(this, '{{ product_form_id }}')"
                 >
                   {% for value in option.values %}
@@ -151,33 +190,69 @@
           {% endunless %}
         </div>
 
-        <!-- Right column: Add button -->
-        <div class="upsell-product-action-column-{{ block.id }}">
-          <button 
-            name="add" 
-            class="upsell-button upsell-add-button-{{ block.id }}"
-            onclick="handleProductUpsellAdd(this, '{{ product_form_id }}')"
-          >
-            {%- if block.settings.show_custom_icon and block.settings.custom_icon_svg != blank -%}
-              <span
-                class="upsell-custom-icon"
-                style="width: {{ block.settings.custom_icon_size }}px; height: {{ block.settings.custom_icon_size }}px; color: {% if block.settings.custom_icon_color != blank %}{{ block.settings.custom_icon_color }}{% else %}currentColor{% endif %}; display: inline-flex; align-items: center; justify-content: center; margin-right: 5px;"
-              >
-                {{ block.settings.custom_icon_svg }}
-              </span>
-            {%- endif -%}
-            <span class="upsell-button-text">
-              {% if price_below_description %}
-                {{ button_text }}
-              {% else %}
-                <span class="upsell-price" style="color: {{ block.settings.button_text_color | default: '#FFFFFF' }}">
+        <!-- Right column: Add button or toggle switch -->
+        <div class="upsell-product-action-column-{{ unique_id }} {% if button_style == 'toggle' %}upsell-toggle-mode{% endif %}">
+          {% if button_style == 'toggle' %}
+            <!-- Toggle Switch with Price -->
+            <div class="upsell-toggle-wrapper-{{ unique_id }}">
+              {% unless price_below_description %}
+                <span class="upsell-toggle-price-{{ unique_id }}">
                   {{- upsell_product.price | money -}}
                 </span>
-              {% endif %}
-            </span>
-          </button>
+              {% endunless %}
+              <label
+                class="upsell-toggle-switch-{{ unique_id }}"
+                data-form-id="{{ product_form_id }}"
+                data-unique-id="{{ unique_id }}"
+              >
+                <input
+                  type="checkbox"
+                  id="upsell-toggle-{{ unique_id }}"
+                  class="upsell-toggle-input upsell-toggle-input-{{ unique_id }}"
+                  data-form-id="{{ product_form_id }}"
+                  data-unique-id="{{ unique_id }}"
+                  onchange="if(typeof handleProductUpsellToggle === 'function') handleProductUpsellToggle(this, '{{ product_form_id }}', '{{ unique_id }}')"
+                >
+                <span class="upsell-toggle-slider-{{ unique_id }}"></span>
+                <div class="upsell-toggle-spinner-{{ unique_id }}">
+                  <span></span>
+                </div>
+                <div class="upsell-toggle-check-{{ unique_id }}">
+                  <svg fill="#fff" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1743.858 267.012 710.747 1300.124 176.005 765.382 0 941.387l710.747 710.871 1209.24-1209.116z" fill-rule="evenodd"/>
+                  </svg>
+                </div>
+              </label>
+            </div>
+          {% else %}
+            <!-- Standard Button: always use JS so drawer works even if handler bound after DOMContentLoaded -->
+            <button
+              type="button"
+              name="add"
+              class="upsell-button upsell-add-button-{{ unique_id }}"
+              onclick="handleProductUpsellAdd(this, '{{ product_form_id }}')"
+            >
+              {%- if block.settings.show_custom_icon and block.settings.custom_icon_svg != blank -%}
+                <span
+                  class="upsell-custom-icon"
+                  style="width: {{ block.settings.custom_icon_size }}px; height: {{ block.settings.custom_icon_size }}px; color: {% if block.settings.custom_icon_color != blank %}{{ block.settings.custom_icon_color }}{% else %}currentColor{% endif %}; display: inline-flex; align-items: center; justify-content: center; margin-right: 5px;"
+                >
+                  {{ block.settings.custom_icon_svg }}
+                </span>
+              {%- endif -%}
+              <span class="upsell-button-text">
+                {% if price_below_description %}
+                  {{ button_text }}
+                {% else %}
+                  <span class="upsell-price" style="color: {{ block.settings.button_text_color | default: '#FFFFFF' }}">
+                    {{- upsell_product.price | money -}}
+                  </span>
+                {% endif %}
+              </span>
+            </button>
+          {% endif %}
         </div>
-      </form>
+      {%- endform -%}
     </div>
   </div>
 
@@ -194,31 +269,49 @@
       meta.content = '{{ cart.currency.iso_code | default: "USD" }}';
       document.head.appendChild(meta);
     }
+    document.addEventListener('DOMContentLoaded', function () {
+      var f = document.getElementById('{{ product_form_id }}');
+      if (f) handleProductUpsellVariantChange(null, '{{ product_form_id }}', true);
+    });
   </script>
 
-  <style>
-    .upsell-product-container-{{ block.id }} {
+  {% if cart_action == 'redirect' %}
+    <script>
+      document.addEventListener('upsell:add-success', function (e) {
+        if (e.detail && e.detail.redirect) {
+          window.location = {{ routes.cart_url | json }};
+        }
+      });
+    </script>
+  {% endif %}
+
+  {% style %}
+    .upsell-product-container-{{ unique_id }} {
       margin-top: {{ top_margin }}px;
       margin-bottom: {{ bottom_margin }}px;
       width: 100%;
     }
 
-    .upsell-product-card-{{ block.id }} {
+    .upsell-product-card-{{ unique_id }} {
       display: flex;
       align-items: stretch;
-      background-color: {{ card_bg_color }};
+      {% if remove_background %}
+        background-color: transparent;
+      {% else %}
+        background-color: {{ card_bg_color }};
+      {% endif %}
       padding: 0;
-      border-radius: {{ card_border_radius }}px;
+      {% unless remove_background %}border-radius: {{ card_border_radius }}px;{% endunless %}
       position: relative;
       overflow: hidden;
       width: 100%;
-      min-height: 80px;
-      {% if border_style != 'none' and border_width > 0 %}
+      min-height: {% if remove_background %}auto{% else %}80px{% endif %};
+      {% if border_style != 'none' and border_width > 0 and remove_background == false %}
       border: {{ border_width }}px {{ border_style }} {{ border_color }};
       {% endif %}
     }
 
-    .upsell-best-seller-tag-{{ block.id }} {
+    .upsell-best-seller-tag-{{ unique_id }} {
       position: absolute;
       top: 0px;
       right: 6px;
@@ -247,7 +340,7 @@
     }
 
     /* Style custom SVG icons to match default icon */
-    .upsell-best-seller-tag-{{ block.id }} svg {
+    .upsell-best-seller-tag-{{ unique_id }} svg {
       display: inline-block;
       vertical-align: middle;
       width: 10px;
@@ -263,7 +356,7 @@
       align-items: stretch;
     }
 
-    .upsell-product-image-column-{{ block.id }} {
+    .upsell-product-image-column-{{ unique_id }} {
       position: absolute;
       top: 0;
       left: 0;
@@ -282,7 +375,7 @@
       border-radius: {{ image_border_radius }}px;
     }
 
-    .upsell-product-img-{{ block.id }} {
+    .upsell-product-img-{{ unique_id }} {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -302,12 +395,16 @@
       height: 80%;
     }
 
-    .upsell-product-info-column-{{ block.id }} {
+    .upsell-product-info-column-{{ unique_id }} {
       flex: 1;
       min-width: 0;
       margin-right: 2px;
       margin-left: 90px;
-      padding: 8px 5px 8px 8px;
+      {% if remove_background %}
+        padding: 4px 0 4px 8px;
+      {% else %}
+        padding: 8px 5px 8px 8px;
+      {% endif %}
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -315,15 +412,15 @@
       max-width: calc(100% - 160px); /* Account for 80px image + 80px action column */
     }
 
-    .upsell-product-header-{{ block.id }} {
+    .upsell-product-header-{{ unique_id }} {
       display: block;
       width: 100%;
       margin-bottom: 2px;
     }
 
-    .upsell-product-title-{{ block.id }} {
+    .upsell-product-title-{{ unique_id }} {
       font-weight: var(--font-weight-bold) !important;
-      font-size: {{ block.settings.title_font_size | default: 16 }}px;
+      font-size: {{ title_font_size_desktop }}px;
       line-height: 1.2;
       margin-bottom: 2px;
       letter-spacing: var(--letter-spacing-body);
@@ -337,23 +434,23 @@
     }
 
     /* Clickable title link styling */
-    .upsell-product-title-link.upsell-product-title-{{ block.id }} {
+    .upsell-product-title-link.upsell-product-title-{{ unique_id }} {
       text-decoration: none;
       display: block;
       transition: color 0.2s ease, opacity 0.2s ease;
       cursor: pointer;
     }
 
-    .upsell-product-title-link.upsell-product-title-{{ block.id }}:hover {
+    .upsell-product-title-link.upsell-product-title-{{ unique_id }}:hover {
       opacity: 0.8;
       text-decoration: underline;
     }
 
-    .upsell-product-title-link.upsell-product-title-{{ block.id }}:visited {
+    .upsell-product-title-link.upsell-product-title-{{ unique_id }}:visited {
       color: {{ title_color }} !important;
     }
 
-    .upsell-product-description-{{ block.id }} {
+    .upsell-product-description-{{ unique_id }} {
       font-size: {{ block.settings.description_font_size | default: 14 }}px;
       line-height: 1.3;
       margin-bottom: 4px;
@@ -365,14 +462,14 @@
       -webkit-box-orient: vertical;
     }
 
-    .upsell-variant-options-{{ block.id }} {
+    .upsell-variant-options-{{ unique_id }} {
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
       margin-bottom: 0;
     }
 
-    .upsell-variant-select-{{ block.id }} {
+    .upsell-variant-select-{{ unique_id }} {
       font-size: 9px;
       padding: 1px 4px;
       border: 1px solid {{ variant_border_color }} !important;
@@ -393,21 +490,21 @@
     }
 
     /* Remove default focus outline and add custom one */
-    .upsell-variant-select-{{ block.id }}:focus {
+    .upsell-variant-select-{{ unique_id }}:focus {
       outline: none;
       box-shadow: 0 0 0 1px {{ variant_border_color }};
       border-color: {{ variant_border_color }} !important;
     }
 
     /* Remove blue highlight on iOS */
-    .upsell-variant-select-{{ block.id }},
-    .upsell-variant-select-{{ block.id }}:focus,
-    .upsell-variant-select-{{ block.id }}:hover,
-    .upsell-variant-select-{{ block.id }}:active {
+    .upsell-variant-select-{{ unique_id }},
+    .upsell-variant-select-{{ unique_id }}:focus,
+    .upsell-variant-select-{{ unique_id }}:hover,
+    .upsell-variant-select-{{ unique_id }}:active {
       -webkit-tap-highlight-color: transparent;
     }
 
-    .upsell-product-action-column-{{ block.id }} {
+    .upsell-product-action-column-{{ unique_id }} {
       display: flex;
       align-items: flex-start;
       justify-content: flex-end;
@@ -418,14 +515,14 @@
 
     /* Desktop styling for action column - override padding */
     @media (min-width: 767px) {
-      .upsell-product-action-column-{{ block.id }} {
+      .upsell-product-action-column-{{ unique_id }} {
         padding: 30px 8px 8px 0 !important;
       }
     }
 
     /* Override mobile browser styling */
     @media (max-width: 767px) {
-      .upsell-variant-select-{{ block.id }} {
+      .upsell-variant-select-{{ unique_id }} {
         font-size: 9px;
         color: {{ variant_text_color }} !important;
         background-color: {{ variant_bg_color }} !important;
@@ -436,7 +533,7 @@
         padding-right: 18px !important;
       }
 
-      .upsell-product-card-{{ block.id }} {
+      .upsell-product-card-{{ unique_id }} {
         display: flex;
         min-height: 80px;
         position: relative;
@@ -449,12 +546,12 @@
         padding-left: 80px; /* Make space for the absolutely positioned image */
       }
 
-      .upsell-best-seller-tag-{{ block.id }} {
+      .upsell-best-seller-tag-{{ unique_id }} {
         z-index: 2; /* Ensure badge is above other elements */
         right: 8px; /* Adjust position as needed */
       }
 
-      .upsell-product-image-column-{{ block.id }} {
+      .upsell-product-image-column-{{ unique_id }} {
         position: absolute;
         top: 0;
         bottom: 0;
@@ -464,7 +561,7 @@
         z-index: 1;
       }
 
-      .upsell-product-img-{{ block.id }} {
+      .upsell-product-img-{{ unique_id }} {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -472,7 +569,7 @@
       }
 
       /* Ensure info column takes full width minus the image width */
-      .upsell-product-info-column-{{ block.id }} {
+      .upsell-product-info-column-{{ unique_id }} {
         width: 100%;
         padding-left: 8px;
         margin-left: 10px;
@@ -480,7 +577,7 @@
         max-width: calc(100% - 10px); /* Override to fit mobile layout */
       }
 
-      .upsell-product-title-{{ block.id }} {
+      .upsell-product-title-{{ unique_id }} {
         max-width: calc(100% - 50px); /* Allow room for the badge on mobile */
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -489,7 +586,7 @@
       }
 
       /* Position the action column */
-      .upsell-product-action-column-{{ block.id }} {
+      .upsell-product-action-column-{{ unique_id }} {
         position: absolute;
         right: 8px;
         top: 10px;
@@ -497,11 +594,22 @@
         padding: 0;
         z-index: 1;
       }
+
+      /* Toggle mode adjustments for mobile */
+      .upsell-product-action-column-{{ unique_id }}.upsell-toggle-mode {
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 0 !important;
+      }
+
+      .upsell-toggle-price-{{ unique_id }} {
+        font-size: 11px;
+      }
     }
 
     /* Additional fixed-width layout for very small screens */
     @media (max-width: 375px) {
-      .upsell-product-image-column-{{ block.id }} {
+      .upsell-product-image-column-{{ unique_id }} {
         width: 70px;
       }
 
@@ -509,40 +617,40 @@
         padding-left: 70px;
       }
 
-      .upsell-product-info-column-{{ block.id }} {
+      .upsell-product-info-column-{{ unique_id }} {
         padding-right: 100px;
         padding-left: 20px !important;
       }
 
-      .upsell-product-action-column-{{ block.id }} {
+      .upsell-product-action-column-{{ unique_id }} {
         width: 75px;
       }
     }
 
     /* Smaller text sizing for very small viewport widths */
     @media (max-width: 426px) {
-      .upsell-product-title-{{ block.id }} {
+      .upsell-product-title-{{ unique_id }} {
         font-size: {{ block.settings.title_font_size | default: 16 | minus: 2 }}px !important;
         line-height: 1.15 !important;
       }
 
-      .upsell-product-description-{{ block.id }} {
+      .upsell-product-description-{{ unique_id }} {
         font-size: {{ block.settings.description_font_size | default: 14 | minus: 2 }}px !important;
         line-height: 1.25 !important;
       }
 
-      .upsell-product-info-column-{{ block.id }} {
+      .upsell-product-info-column-{{ unique_id }} {
         padding-left: 10px !important;
       }
 
-      .upsell-variant-select-{{ block.id }} {
+      .upsell-variant-select-{{ unique_id }} {
         height: 18px !important;
         font-size: 9px !important;
       }
     }
 
-    .upsell-product-action-column-{{ block.id }} .upsell-add-button-{{ block.id }},
-    button.upsell-add-button-{{ block.id }},
+    .upsell-product-action-column-{{ unique_id }} .upsell-add-button-{{ unique_id }},
+    button.upsell-add-button-{{ unique_id }},
     .upsell-product-action-column [class^="upsell-add-button-"],
     button[class^="upsell-add-button-"] {
       background-color: {{ button_bg_color }} !important;
@@ -565,8 +673,8 @@
       justify-content: center !important;
     }
 
-    .upsell-product-action-column-{{ block.id }} .upsell-add-button-{{ block.id }}:hover,
-    button.upsell-add-button-{{ block.id }}:hover,
+    .upsell-product-action-column-{{ unique_id }} .upsell-add-button-{{ unique_id }}:hover,
+    button.upsell-add-button-{{ unique_id }}:hover,
     .upsell-product-action-column [class^="upsell-add-button-"]:hover,
     button[class^="upsell-add-button-"]:hover {
       background-color: {{ button_bg_color | color_darken: 5 }} !important;
@@ -616,19 +724,161 @@
       opacity: 0.8 !important;
     }
 
+    /* Toggle Switch Styles */
+    .upsell-product-action-column-{{ unique_id }}.upsell-toggle-mode {
+      padding: 8px 8px 8px 0 !important;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .upsell-toggle-wrapper-{{ unique_id }} {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .upsell-toggle-price-{{ unique_id }} {
+      font-size: 12px;
+      font-weight: var(--font-weight-bold);
+      color: {{ title_color }};
+      white-space: nowrap;
+    }
+
+    .upsell-toggle-switch-{{ unique_id }} {
+      position: relative;
+      display: inline-block;
+      width: {{ toggle_width }}px;
+      height: {{ toggle_height }}px;
+      cursor: pointer;
+    }
+
+    .upsell-toggle-switch-{{ unique_id }} input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      margin: 0;
+      padding: 0;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .upsell-toggle-slider-{{ unique_id }} {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: {{ toggle_inactive_bg }};
+      transition: 0.4s;
+      border-radius: {{ toggle_height }}px;
+    }
+
+    .upsell-toggle-slider-{{ unique_id }}:before {
+      position: absolute;
+      content: "";
+      height: {{ toggle_height | minus: 6 }}px;
+      width: {{ toggle_height | minus: 6 }}px;
+      left: 3px;
+      bottom: 3px;
+      background-color: {{ toggle_knob_color }};
+      transition: 0.4s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .upsell-toggle-switch-{{ unique_id }} input:checked + .upsell-toggle-slider-{{ unique_id }} {
+      background-color: {{ toggle_active_bg }};
+    }
+
+    .upsell-toggle-switch-{{ unique_id }} input:focus + .upsell-toggle-slider-{{ unique_id }} {
+      box-shadow: 0 0 2px {{ toggle_active_bg }};
+    }
+
+    .upsell-toggle-switch-{{ unique_id }} input:checked + .upsell-toggle-slider-{{ unique_id }}:before {
+      transform: translateX({{ toggle_width | minus: toggle_height }}px);
+    }
+
+    /* Toggle loading spinner */
+    .upsell-toggle-spinner-{{ unique_id }} {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: {{ toggle_height | minus: 10 }}px;
+      width: {{ toggle_height | minus: 10 }}px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: upsell-toggle-spin-{{ unique_id }} 0.8s linear infinite;
+    }
+
+    @keyframes upsell-toggle-spin-{{ unique_id }} {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .upsell-toggle-switch-{{ unique_id }}.is-loading .upsell-toggle-spinner-{{ unique_id }} {
+      display: block;
+    }
+
+    .upsell-toggle-switch-{{ unique_id }}.is-loading .upsell-toggle-slider-{{ unique_id }}:before {
+      opacity: 0;
+    }
+
+    /* Toggle check icon */
+    .upsell-toggle-check-{{ unique_id }} {
+      display: none;
+      position: absolute;
+      top: 50%;
+      right: {{ toggle_height | divided_by: 2 | minus: 6 }}px;
+      transform: translateY(-50%);
+      height: {{ toggle_height | minus: 12 }}px;
+      width: {{ toggle_height | minus: 12 }}px;
+      color: white;
+    }
+
+    .upsell-toggle-check-{{ unique_id }} svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+
+    .upsell-toggle-switch-{{ unique_id }} input:checked ~ .upsell-toggle-check-{{ unique_id }} {
+      display: block;
+    }
+
     /* Extra specificity for title and description colors */
-    #block-{{ block.id }} .upsell-product-title-{{ block.id }},
-    .upsell-product-container-{{ block.id }} .upsell-product-title-{{ block.id }},
-    div.upsell-product-container-{{ block.id }} .upsell-product-title-{{ block.id }} {
+    #block-{{ unique_id }} .upsell-product-title-{{ unique_id }},
+    .upsell-product-container-{{ unique_id }} .upsell-product-title-{{ unique_id }},
+    div.upsell-product-container-{{ unique_id }} .upsell-product-title-{{ unique_id }} {
       color: {{ title_color }} !important;
     }
 
-    #block-{{ block.id }} .upsell-product-description-{{ block.id }},
-    .upsell-product-container-{{ block.id }} .upsell-product-description-{{ block.id }},
-    div.upsell-product-container-{{ block.id }} .upsell-product-description-{{ block.id }} {
+    #block-{{ unique_id }} .upsell-product-description-{{ unique_id }},
+    .upsell-product-container-{{ unique_id }} .upsell-product-description-{{ unique_id }},
+    div.upsell-product-container-{{ unique_id }} .upsell-product-description-{{ unique_id }} {
       color: {{ description_color }} !important;
     }
-  </style>
+
+    /* Mobile styles */
+    @media (max-width: 768px) {
+      .upsell-product-title-{{ unique_id }} {
+        font-size: {{ title_font_size_mobile }}px !important;
+      }
+
+      {% if remove_background %}
+      .upsell-product-info-column-{{ unique_id }} {
+        padding: 4px 0 !important;
+      }
+      {% endif %}
+    }
+  {% endstyle %}
 {% else %}
   <div class="product-upsell-placeholder">
     <p>Please select an upsell product in the block settings.</p>

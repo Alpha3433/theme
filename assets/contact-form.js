@@ -335,9 +335,9 @@ class ContactForm {
     message.className = 'contact-form__status contact-form__status--success';
     message.innerHTML = `
       <span class="contact-form__status-icon">
-        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-success" viewBox="0 0 13 13">
-          <circle cx="6.5" cy="6.5" r="6.5"/>
-          <path d="M5.87413 3.5L6.50004 4.16945L7.12595 3.5L8.50004 4.87426L7.87412 5.50004L8.50004 6.12582L7.12595 7.50004L6.50004 6.87426L5.87413 7.50004L4.50004 6.12582L5.12596 5.50004L4.50004 4.87426L5.87413 3.5Z" fill="white"/>
+        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-success" width="16" height="16" viewBox="0 0 16 16">
+          <circle cx="8" cy="8" r="8" fill="#28a745"/>
+          <path d="M4 8L7 11L12 5" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
       <span>Thank you! Your message has been sent successfully.</span>
@@ -352,9 +352,9 @@ class ContactForm {
     message.className = 'contact-form__status contact-form__status--error';
     message.innerHTML = `
       <span class="contact-form__status-icon">
-        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-error" viewBox="0 0 13 13">
-          <circle cx="6.5" cy="6.5" r="6.5"/>
-          <path d="M5.87413 3.5L6.50004 4.16945L7.12595 3.5L8.50004 4.87426L7.87412 5.50004L8.50004 6.12582L7.12595 7.50004L6.50004 6.87426L5.87413 7.50004L4.50004 6.12582L5.12596 5.50004L4.50004 4.87426L5.87413 3.5Z" fill="white"/>
+        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-error" width="16" height="16" viewBox="0 0 16 16">
+          <circle cx="8" cy="8" r="8" fill="#dc3545"/>
+          <path d="M5 5L11 11M11 5L5 11" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
         </svg>
       </span>
       <span>Sorry, there was an error sending your message. Please try again.</span>

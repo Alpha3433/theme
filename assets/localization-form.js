@@ -23,8 +23,6 @@ if (!customElements.get("localization-form")) {
 
         if (this.elements.search) {
           this.elements.search.addEventListener("keyup", this.filterCountries.bind(this));
-          this.elements.search.addEventListener("focus", this.onSearchFocus.bind(this));
-          this.elements.search.addEventListener("blur", this.onSearchBlur.bind(this));
           this.elements.search.addEventListener("keydown", this.onSearchKeyDown.bind(this));
         }
         if (this.elements.closeButton) {
@@ -111,28 +109,28 @@ if (!customElements.get("localization-form")) {
 
       openSelector() {
         this.elements.button.focus();
-        
+
         // Check current state - panel is open if it doesn't have hidden attribute
-        const isCurrentlyOpen = !this.elements.panel.hasAttribute('hidden');
-        
+        const isCurrentlyOpen = !this.elements.panel.hasAttribute("hidden");
+
         if (isCurrentlyOpen) {
           // Close the panel
           this.hidePanel();
         } else {
           // Open the panel
-          this.elements.panel.removeAttribute('hidden');
-          this.elements.button.setAttribute('aria-expanded', 'true');
-          
-          if (!document.body.classList.contains('overflow-hidden-tablet')) {
-            document.body.classList.add('overflow-hidden-mobile');
+          this.elements.panel.removeAttribute("hidden");
+          this.elements.button.setAttribute("aria-expanded", "true");
+
+          if (!document.body.classList.contains("overflow-hidden-tablet")) {
+            document.body.classList.add("overflow-hidden-mobile");
           }
           if (this.elements.search && this.mql.matches) {
             this.elements.search.focus();
           }
-          if (this.hasAttribute('data-prevent-hide')) {
+          if (this.hasAttribute("data-prevent-hide")) {
             this.header.preventHide = true;
           }
-          document.querySelector('.menu-drawer').classList.add('country-selector-open');
+          document.querySelector(".menu-drawer").classList.add("country-selector-open");
         }
       }
 
@@ -192,16 +190,6 @@ if (!customElements.get("localization-form")) {
         this.elements.search.value = "";
         this.filterCountries();
         this.elements.search.focus();
-      }
-
-      onSearchFocus() {
-        this.elements.searchIcon.classList.add("country-filter__search-icon--hidden");
-      }
-
-      onSearchBlur() {
-        if (!this.elements.search.value) {
-          this.elements.searchIcon.classList.remove("country-filter__search-icon--hidden");
-        }
       }
 
       onSearchKeyDown(event) {

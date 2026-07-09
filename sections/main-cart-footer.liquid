@@ -20,6 +20,12 @@
     }
   }
 
+  @media screen and (max-width: 750px) {
+    #main-cart-footer .page-width {
+      padding: 0 3rem;
+    }
+  }
+
   /* Custom Color Styling for Cart Footer */
   {% unless section.settings.use_theme_colors %}
     /* Subtotal Block Colors */
@@ -81,6 +87,7 @@
       background-color: {{ section.settings.checkout_button_background_color }} !important;
       color: {{ section.settings.checkout_button_text_color }} !important;
       border-color: {{ section.settings.checkout_button_background_color }} !important;
+      border-radius: {{ section.settings.checkout_button_border_radius | default: 4 }}px !important;
     }
 
     #main-cart-footer .cart__checkout-button:hover:not([disabled]) {
@@ -142,9 +149,68 @@
                   {%- endif -%}
                 </div>
 
-                <div class="totals">
-                  <h2 class="totals__total">{{ 'sections.cart.estimated_total' | t }}</h2>
-                  <p class="totals__total-value">{{ cart.total_price | money_with_currency }}</p>
+                <div
+                  class="totals gb-discounts-cart-values"
+                  role="status"
+                  style="display: flex; flex-direction: column; gap: 4px;"
+                >
+                  {%- liquid
+                    assign cart_total_compare_at_price = 0
+                    for item_loop_var in cart.items
+                      assign item_price_for_calc = item_loop_var.variant.price
+                      assign item_display_price_before_any_discount = item_price_for_calc
+                      if item_loop_var.variant.compare_at_price and item_loop_var.variant.compare_at_price > item_price_for_calc
+                        assign item_display_price_before_any_discount = item_loop_var.variant.compare_at_price
+                      endif
+                      assign line_total_compare_price = item_display_price_before_any_discount | times: item_loop_var.quantity
+                      assign cart_total_compare_at_price = cart_total_compare_at_price | plus: line_total_compare_price
+                    endfor
+
+                    assign cart_total_savings = cart_total_compare_at_price | minus: cart.total_price
+                  -%}
+                  <div style="display: flex; justify-content: space-between; align-items: end;">
+                    <div class="totals__total">
+                      <span class="total_count">
+                        {{ 'sections.cart.items_total' | t: item_count: cart.item_count }}
+                      </span>
+                    </div>
+                    <div></div>
+                  </div>
+                  {%- if cart_total_savings > 0 -%}
+                    <div style="display: flex; justify-content: space-between; align-items: end;">
+                      <span>{{ 'sections.cart.discounts' | t }}</span>
+                      <span>-{{ cart_total_savings | money }}</span>
+                    </div>
+                  {%- endif -%}
+                  <div style="display: flex; justify-content: space-between; align-items: end;">
+                    <div></div>
+                    <div class="discount_price-container">
+                      {% if cart_total_savings > 0 %}
+                        <div class="discount_discount-value" style="margin-left: 8px;">
+                          {% if total_discount_msg != '' %}
+                            <span class="discount_discount-label">{{ total_discount_msg }}</span>
+                          {% endif %}
+                          <span style="font-weight: var(--font-weight-regular);"
+                            >-{{ cart_total_savings | money -}}
+                          </span>
+                        </div>
+                      {% endif %}
+                      <div style="display: flex; align-items: baseline;">
+                        {% if cart_total_compare_at_price > cart.total_price %}
+                          <s
+                            class="cart-item__old-price product-option"
+                            style="margin-right: 3px; font-size: 14px; color: currentColor; opacity: 0.7;"
+                          >
+                            {{ cart_total_compare_at_price | money }}
+                          </s>
+                        {% endif %}
+
+                        <div class="totals__total-value">
+                          {{ cart.total_price | money }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <small class="tax-note caption-large rte">
@@ -220,6 +286,7 @@
 {% schema %}
 {
   "name": "t:sections.main-cart-footer.name",
+  "tag": "section",
   "class": "cart__footer-wrapper",
   "settings": [
     {
@@ -328,6 +395,17 @@
       "label": "Checkout Button Hover Background",
       "default": "#333333",
       "info": "Background color when hovering over checkout button"
+    },
+    {
+      "type": "range",
+      "id": "checkout_button_border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Checkout Button Border Radius",
+      "default": 4,
+      "info": "Controls the roundness of checkout button corners"
     },
     {
       "type": "header",

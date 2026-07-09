@@ -443,7 +443,7 @@
   }
 {%- endstyle -%}
 
-<section class="image-banner-section-{{ section.id }}">
+<section class="image-banner-section-{{ section.id }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
   <div class="image-banner-container-{{ section.id }}">
     {% if section.settings.use_container_mode and section.settings.use_banner_as_background == false %}
       {% comment %} Render banner image as IMG element in container mode {% endcomment %}
@@ -705,16 +705,20 @@ document.addEventListener('DOMContentLoaded', function() {
       "info": "Only used when gradient background is enabled"
     },
     {
+      "type": "header",
+      "content": "Section Background Image (Full-Width Mode Only)"
+    },
+    {
       "type": "image_picker",
       "id": "section_background_image",
-      "label": "Section Background Image (Desktop)",
-      "info": "Background image for the entire section (Desktop). Overrides background color and gradient when set."
+      "label": "Background Image (Desktop)",
+      "info": "Used when Container Mode is OFF. Background image for the full-width section. Overrides background color and gradient."
     },
     {
       "type": "image_picker",
       "id": "section_background_image_mobile",
-      "label": "Section Background Image (Mobile)",
-      "info": "Background image for the entire section (Mobile). If not set, desktop image will be used."
+      "label": "Background Image (Mobile)",
+      "info": "Used when Container Mode is OFF. If not set, desktop image will be used."
     },
     {
       "type": "checkbox",
@@ -1047,26 +1051,26 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     {
       "type": "header",
-      "content": "Image Settings"
+      "content": "Container Image Settings (Container Mode ON Only)"
     },
     {
       "type": "image_picker",
       "id": "banner_image",
-      "label": "Banner image (Desktop)",
-      "info": "Image used for desktop screens"
+      "label": "Container Image (Desktop)",
+      "info": "Used when Container Mode is ON. Image for the contained box on desktop."
     },
     {
       "type": "image_picker",
       "id": "banner_image_mobile",
-      "label": "Banner image (Mobile)",
-      "info": "Image used for mobile screens. If not set, desktop image will be used."
+      "label": "Container Image (Mobile)",
+      "info": "Used when Container Mode is ON. If not set, desktop image will be used."
     },
     {
       "type": "checkbox",
       "id": "use_banner_as_background",
-      "label": "Use Banner Image as Background",
+      "label": "Use Container Image as Background",
       "default": true,
-      "info": "When ON: Banner image is applied as CSS background (covers space). When OFF: Banner image is rendered as IMG element (maintains aspect ratio). Note: Section background images always remain as CSS backgrounds."
+      "info": "When ON: Container image is applied as CSS background (covers space). When OFF: Container image is rendered as IMG element (maintains aspect ratio)."
     },
     {
       "type": "select",

@@ -4,6 +4,7 @@ if (!window.__premiumKitScriptLoaded) {
 
   document.addEventListener("DOMContentLoaded", function () {
     try {
+      if (typeof Elixir_ProductFormExists !== "function" || !Elixir_ProductFormExists()) return;
       // Find all premium-attachment-kit instances on the page
       const kitWrappers = document.querySelectorAll(".premium-attachment-kit");
 
@@ -23,20 +24,7 @@ if (!window.__premiumKitScriptLoaded) {
         // Mark wrapper as processed immediately
         kitWrapper.setAttribute("data-kit-processed", "true");
 
-        // Find the product form that contains or is closest to this kit
-        let productForm = kitWrapper.closest('form[action*="cart/add"]');
-
-        if (!productForm) {
-          // If not inside a form, look for the nearest product-form
-          const productFormElement =
-            kitWrapper.closest(".product-info-container")?.querySelector("product-form form") ||
-            kitWrapper.closest(".main-product")?.querySelector("product-form form") ||
-            document.querySelector("product-form form") ||
-            document.querySelector(".shop-add-to-cart-wrapper product-form form") ||
-            document.querySelector('form[action*="cart/add"]');
-
-          productForm = productFormElement;
-        }
+        const productForm = typeof Elixir_GetProductForm === "function" ? Elixir_GetProductForm() : null;
 
         if (!productForm) {
           console.log("No product form found for this kit, skipping");
@@ -51,8 +39,10 @@ if (!window.__premiumKitScriptLoaded) {
           return;
         }
 
-        // Get the main product ID and rely-on product ID
-        const mainProductId = productForm.querySelector('[name="id"]')?.value || "";
+        // Get the main product ID from the controller; skip if unavailable
+        if (typeof Elixir_GetProductFormVariantId !== 'function') return;
+        const mainProductId = Elixir_GetProductFormVariantId();
+        if (!mainProductId) return;
         const relyOnProductId = kitWrapper.getAttribute("data-rely-on-product-id") || mainProductId;
 
         const container = document.createElement("div");

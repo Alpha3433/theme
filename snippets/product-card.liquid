@@ -14,6 +14,7 @@
 {% assign section_id = section_id | default: 'default' %}
 {% assign show_view_product = show_view_product | default: settings.show_view_product %}
 {% assign full_card_clickable = full_card_clickable | default: settings.full_card_clickable %}
+{% assign show_product_rating =  show_product_rating |default: false %}
 
 <div class="product-card{% if full_card_clickable %} full-card-clickable{% endif %}"{% if full_card_clickable %} data-product-url="{{ product.url }}"{% endif %}>
   {% unless show_view_product %}
@@ -87,7 +88,7 @@
             {% assign savings_percentage = savings | times: 100 | divided_by: compare_at_price %}
             {{ savings_percentage }}% {{ settings.sale_badge_off_text | default: 'off' }}
           {% else %}
-            Save {{ savings | money }}
+            {{ settings.sale_badge_save_text | default: 'Save' }} {{ savings | money }}
           {% endif %}
         {% endif %}
       </div>
@@ -134,7 +135,7 @@
       </div>
     {% endif %}
     
-    {% if settings.show_rating %}
+    {% if settings.show_rating or show_product_rating %}
       <div class="product-rating">
         <div class="stars">
           {% if product.metafields.custom.rating != blank and settings.use_product_rating %}

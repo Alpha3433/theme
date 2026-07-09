@@ -38,11 +38,11 @@
   letter-spacing: var(--letter-spacing-body, -0.3px);
   margin: 0;
 }
-.swiper-slide {
-  width: auto !important;
+.reviewSwiper .swiper-slide {
+  width: auto;
 }
 .reviewSwiper .swiper-wrapper {
-  transition-timing-function: linear !important;
+  transition-timing-function: linear;
   will-change: transform;
 }
 .new-section .claim-button {
@@ -138,11 +138,11 @@
   letter-spacing: var(--letter-spacing-body, -0.3px);
   margin: 0;
 }
-.swiper-slide {
-  width: auto !important;
+.reviewSwiper .swiper-slide {
+  width: auto;
 }
 .reviewSwiper .swiper-wrapper {
-  transition-timing-function: linear !important;
+  transition-timing-function: linear;
   will-change: transform;
 }
 .new-section .claim-button {

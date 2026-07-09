@@ -39,7 +39,7 @@
       >
         <span class="cart-discount-code-button-text">{{ block.settings.button_text | default: 'APPLY' }}</span>
         <div class="cart-discount-code-loading hidden">
-          <div class="spin-animation border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600">
+			    <div class="spin-animation">
             <span></span>
           </div>
         </div>
@@ -89,6 +89,14 @@
     font-size: 13px !important;
     font-family: inherit !important;
     min-width: 0 !important;
+  }
+
+  /* Prevent Safari iOS zoom on input focus - requires min 16px font-size */
+  @media screen and (max-width: 749px) {
+    .cart-discount-code-input,
+    #CartDrawer .cart-discount-code-input {
+      font-size: 16px !important;
+    }
   }
 
   .cart-discount-code-input::placeholder,

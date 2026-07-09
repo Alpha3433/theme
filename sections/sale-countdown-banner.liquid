@@ -31,7 +31,7 @@
   };
 </script>
 
-<div id="sale-countdown-banner" class="sale-countdown-banner{% if section.settings.sticky %} sticky{% endif %}">
+<div id="sale-countdown-banner" class="sale-countdown-banner{% if section.settings.sticky %} sticky{% endif %} {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
   <div class="sale-countdown-content">
     <div class="sale-countdown-text">
       <p>

@@ -1,9 +1,8 @@
-/* Custom font settings - Inter with -0.3px letter-spacing */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+/* Custom font settings with theme typography variables */
 
 :root {
-  --font-body-family-override: var(--font-body-family, "Inter", sans-serif);
-  --font-heading-family-override: var(--font-heading-family, "Inter", sans-serif);
+  --font-body-family-override: var(--font-body-family, sans-serif);
+  --font-heading-family-override: var(--font-heading-family, sans-serif);
   --font-body-weight-override: var(--font-body-weight, 400);
   --font-body-weight-bold-override: var(--font-body-weight-bold, var(--font-weight-bold, 500));
   --font-heading-weight-override: var(--font-weight-bold, 500);

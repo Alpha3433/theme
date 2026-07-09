@@ -40,7 +40,7 @@
 
     --risk-free-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_accent_1_color }}{% elsif section.settings.risk_free_color %}{{ section.settings.risk_free_color }}{% else %}{{ settings.accent_text_color }}{% endif %};
     --beauty-revolution-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.beauty_revolution_color }}{% endif %};
-    --beauty-revolution-margin-left: {{ section.settings.accent_text_margin_left | default: 3 }}px;
+    --accent-text-margin-right: {{ section.settings.accent_text_margin_left | default: 3 }}px;
     --accent-font-family: {{ settings.accent_text_font.family }}, {{ settings.accent_text_font.fallback_families }};
     --accent-font-weight: {{ settings.accent_text_weight }};
     --accent-font-style: {{ settings.accent_text_style }};
@@ -94,17 +94,49 @@
       background-color: var(--global-button-bg-color, #EF4A65) !important;
       {% endif %}
       color: var(--global-button-text-color, #FFFFFF) !important;
-      border: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+      border-left: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+      border-right: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+      border-top: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+      border-bottom: var(--global-button-bottom-border-width, 0px) solid var(--global-button-bottom-border-color, #000000) !important;
     {% else %}
-      /* Use Section Custom Colors (but keep global spacing) */
-      background-color: var(--button-background) !important;
-      color: var(--button-text-color) !important;
+      /* Use Section Custom Button Styling */
+      background: {{ section.settings.button_color | default: '#EF4A65' }} !important;
+      background-color: {{ section.settings.button_color | default: '#EF4A65' }} !important;
+      background-image: none !important;
+      color: {{ section.settings.button_text_color | default: '#FFFFFF' }} !important;
       border: none !important;
-      font-size: 16px !important;
-      font-weight: 600 !important;
-      border-radius: 8px !important;
+      font-size: {{ section.settings.button_font_size | default: 16 }}px !important;
+      font-weight: {{ section.settings.button_font_weight | default: '600' }} !important;
+      border-radius: {{ section.settings.button_border_radius | default: 8 }}px !important;
+      padding: {{ section.settings.button_padding_vertical | default: 12 }}px {{ section.settings.button_padding_horizontal | default: 20 }}px !important;
     {% endif %}
   }
+
+  /* Extra specificity for custom button when global styling is disabled */
+  {% unless section.settings.use_global_button_style %}
+  .guarantee-section__cta.disable-global-button-styling,
+  a.guarantee-section__cta.disable-global-button-styling,
+  .guarantee-section .guarantee-section__cta.disable-global-button-styling {
+    background: {{ section.settings.button_color | default: '#EF4A65' }} !important;
+    background-color: {{ section.settings.button_color | default: '#EF4A65' }} !important;
+    background-image: none !important;
+    color: {{ section.settings.button_text_color | default: '#FFFFFF' }} !important;
+    font-size: {{ section.settings.button_font_size | default: 16 }}px !important;
+    font-weight: {{ section.settings.button_font_weight | default: '600' }} !important;
+    border-radius: {{ section.settings.button_border_radius | default: 8 }}px !important;
+    padding: {{ section.settings.button_padding_vertical | default: 12 }}px {{ section.settings.button_padding_horizontal | default: 20 }}px !important;
+    border: none !important;
+  }
+  
+  .guarantee-section__cta.disable-global-button-styling:hover,
+  a.guarantee-section__cta.disable-global-button-styling:hover,
+  .guarantee-section .guarantee-section__cta.disable-global-button-styling:hover {
+    background: {{ section.settings.button_color | color_darken: 10 }} !important;
+    background-color: {{ section.settings.button_color | color_darken: 10 }} !important;
+    background-image: none !important;
+    color: {{ section.settings.button_text_color | default: '#FFFFFF' }} !important;
+  }
+  {% endunless %}
 
   /* Higher specificity for hover state */
   .guarantee-section__cta:hover,
@@ -117,7 +149,10 @@
       background-color: var(--global-button-hover-bg-color, #D63953) !important;
       {% endif %}
       color: var(--global-button-hover-text-color, #FFFFFF) !important;
-      border: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+      border-left: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+      border-right: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+      border-top: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+      border-bottom: var(--global-button-bottom-border-width, 0px) solid var(--global-button-bottom-border-color, #000000) !important;
     {% else %}
       /* Custom Section Hover State */
       background-color: var(--button-background-hover) !important;
@@ -157,7 +192,11 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: {{ section.settings.container_padding }}px;
-      background: {{ section.settings.container_background | default: '#FFFFFF' }};
+      {% if section.settings.container_bg_image == blank and section.settings.container_bg_image_mobile == blank %}
+        background: {{ section.settings.container_background | default: '#FFFFFF' }};
+      {% else %}
+        background-color: {{ section.settings.container_background | default: '#FFFFFF' }};
+      {% endif %}
       {% if section.settings.enable_border %}
         border: {{ section.settings.border_width }}px {{ section.settings.border_style }} {{ section.settings.border_color }};
         border-radius: {{ section.settings.border_radius }}px;
@@ -165,8 +204,55 @@
       {% if section.settings.enable_shadow %}
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       {% endif %}
+
+      {% if section.settings.container_bg_image != blank %}
+        background-image: url('{{ section.settings.container_bg_image | image_url: width: 1600 }}');
+        background-size: {{ section.settings.container_bg_size | default: 'cover' }};
+        background-position: {{ section.settings.container_bg_position | default: 'center center' }};
+        background-repeat: no-repeat;
+        position: relative;
+        overflow: hidden;
+      {% endif %}
     {% endif %}
   }
+
+  {% if section.settings.contain_section and section.settings.container_bg_image_mobile != blank %}
+    @media screen and (max-width: 768px) {
+      .guarantee-section__container {
+        background-image: url('{{ section.settings.container_bg_image_mobile | image_url: width: 800 }}') !important;
+        background-size: {{ section.settings.container_bg_size | default: 'cover' }};
+        background-position: {{ section.settings.container_bg_position | default: 'center center' }};
+        background-repeat: no-repeat;
+        position: relative;
+        overflow: hidden;
+      }
+    }
+  {% endif %}
+
+  {% if section.settings.contain_section and section.settings.enable_container_bg_overlay %}
+    {% if section.settings.container_bg_image != blank or section.settings.container_bg_image_mobile != blank %}
+      .guarantee-section__container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: {{ section.settings.container_bg_overlay_color | default: '#000000' }};
+        opacity: {{ section.settings.container_bg_overlay_opacity | default: 30 | divided_by: 100.0 }};
+        z-index: 0;
+        pointer-events: none;
+        {% if section.settings.enable_border %}
+          border-radius: {{ section.settings.border_radius }}px;
+        {% endif %}
+      }
+
+      .guarantee-section__container > * {
+        position: relative;
+        z-index: 1;
+      }
+    {% endif %}
+  {% endif %}
 
   @media screen and (max-width: 768px) {
     .guarantee-section__wrapper {
@@ -190,7 +276,12 @@
 
   /* Enhanced accent text styling */
   .guarantee-section .accent-text {
-    {% unless section.settings.use_global_accent_typography %}
+    {% if section.settings.use_global_accent_typography %}
+      /* Use Global Accent Typography */
+      font-family: var(--font-accent-family) !important;
+      font-style: var(--font-accent-style) !important;
+      font-weight: var(--font-accent-weight) !important;
+    {% else %}
       /* Use Section-Specific Accent Typography */
       {% if section.settings.accent_font_family != 'inherit' %}
         {% case section.settings.accent_font_family %}
@@ -214,10 +305,10 @@
       {% if section.settings.accent_font_weight != 'inherit' %}
         font-weight: {{ section.settings.accent_font_weight }} !important;
       {% endif %}
-    {% endunless %}
+    {% endif %}
 
-    /* Apply the accent text left margin */
-    margin-left: var(--beauty-revolution-margin-left) !important;
+    /* Apply spacing between accent text and regular text */
+    margin-right: var(--accent-text-margin-right) !important;
 
     /* Color and Gradient Application */
     {%- if section.settings.use_global_accent_typography -%}
@@ -244,27 +335,4 @@
     padding-right: 0px !important;
     display: inline-block !important;
   }
-
-  /* Load-in animation */
-  .page-fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Add slight delay for staggered effect on multiple sections */
-  .page-fade-in:nth-child(2) { animation-delay: 0.1s; }
-  .page-fade-in:nth-child(3) { animation-delay: 0.2s; }
-  .page-fade-in:nth-child(4) { animation-delay: 0.3s; }
 </style>

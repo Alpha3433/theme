@@ -63,7 +63,10 @@
                         {{ childlink.title | escape }}
                       </a>
                     {%- else -%}
-                      <details id="Details-HeaderSubMenu-{{ link.handle }}-{{ childlink.handle }}">
+                      <details
+                        id="Details-HeaderSubMenu-{{ link.handle }}-{{ childlink.handle }}"
+                        class="header__submenu-item--has-flyout"
+                      >
                         <summary
                           id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}"
                           class="header__menu-item link link--text list-menu__item focus-inset caption-large"
@@ -74,7 +77,7 @@
                         </summary>
                         <ul
                           id="HeaderMenu-SubMenuList-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
-                          class="header__submenu list-menu motion-reduce"
+                          class="header__submenu header__submenu--flyout list-menu motion-reduce"
                         >
                           {%- for grandchildlink in childlink.links -%}
                             <li>

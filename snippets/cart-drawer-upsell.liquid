@@ -1,5 +1,5 @@
 {% if upsell_product != blank %}
-  <div class="upsell-product-container" id="upsell-slide-{{ block_id }}">
+  <div class="upsell-product-container" id="upsell-slide-{{ block_id }}"{% if block %} {{ block.shopify_attributes }}{% endif %}>
     <div class="upsell-product-card-{{ block_id }}">
       {% if show_best_seller_tag and best_seller_text != blank %}
         <div class="upsell-best-seller-tag-{{ block_id }}">

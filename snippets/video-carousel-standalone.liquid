@@ -39,7 +39,9 @@
 -%}
 
 <div class="video-carousel-container" data-enable-autoplay="{{ enable_autoplay | default: false }}" data-show-sound-controls="{{ show_sound_controls_autoplay | default: false }}" data-play-button-size="{{ play_button_size | default: 30 }}" data-sound-button-size="{{ sound_button_size | default: 30 }}" data-play-button-bg-color="{{ play_button_bg_color | default: '#000000' }}" data-play-button-bg-opacity="{{ play_button_bg_opacity | default: 35 }}" data-sound-button-bg-color="{{ sound_button_bg_color | default: '#000000' }}" data-sound-button-bg-opacity="{{ sound_button_bg_opacity | default: 35 }}" style="margin-top: {{ top_margin }}px !important; margin-bottom: {{ bottom_margin }}px !important;" {{ block.shopify_attributes }}>
-  <h2 class="carousel-heading" style="color: {{ heading_color | default: '#333333' }} !important; font-size: {{ heading_size | default: 24 }}px !important; font-weight: {{ heading_font_weight | default: 'var(--font-weight-semibold)' }} !important; letter-spacing: {{ heading_letter_spacing | default: 'var(--letter-spacing-heading)' }} !important;">{{ heading | default: "See it in action" }}</h2>
+  {% if heading != blank %}
+    <h2 class="carousel-heading" style="color: {{ heading_color | default: '#333333' }} !important; font-size: {{ heading_size | default: 24 }}px !important; font-weight: {{ heading_font_weight | default: 'var(--font-weight-semibold)' }} !important; letter-spacing: {{ heading_letter_spacing | default: 'var(--letter-spacing-heading)' }} !important;">{{ heading }}</h2>
+  {% endif %}
   
   {% if show_social_badge %}
     {% if remove_badge_background %}
@@ -178,7 +180,7 @@
     margin-top: 0;
   }
 
-  .tiktok-views-badge {
+  .video-carousel-container .tiktok-views-badge {
     display: inline-flex !important;
     align-items: center !important;
     padding: 1.7px 10px !important;
@@ -193,7 +195,7 @@
     margin-bottom: 10px;
   }
 
-  .tiktok-views-badge::before {
+  .video-carousel-container .tiktok-views-badge::before {
     content: '' !important;
     position: absolute !important;
     top: -1px !important;
@@ -205,13 +207,13 @@
     background: linear-gradient(45deg, #00f2ea, #ff0050) !important;
   }
 
-  .tiktok-icon {
+  .video-carousel-container .tiktok-icon {
     width: 9.8px !important;
     height: 9.8px !important;
     margin-right: 7px !important;
   }
 
-  .tiktok-text {
+  .video-carousel-container .tiktok-text {
     letter-spacing: -0.3px !important;
     font-weight: 500 !important;
   }
@@ -278,21 +280,21 @@
   }
   
   /* TikTok Gradient (default) */
-  .tiktok-text.gradient-text {
+  .video-carousel-container .tiktok-text.gradient-text {
     background: linear-gradient(45deg, #00f2ea, #ff0050) !important;
     background-clip: text !important;
     -webkit-background-clip: text !important;
   }
 
   /* Instagram Gradient */
-  .instagram-text.gradient-text.instagram-gradient {
+  .video-carousel-container .instagram-text.gradient-text.instagram-gradient {
     background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045) !important;
     background-clip: text !important;
     -webkit-background-clip: text !important;
   }
 
   /* Facebook Gradient */
-  .facebook-text.gradient-text.facebook-gradient {
+  .video-carousel-container .facebook-text.gradient-text.facebook-gradient {
     background: linear-gradient(45deg, #1877F2, #42a5f5) !important;
     background-clip: text !important;
     -webkit-background-clip: text !important;
@@ -358,6 +360,20 @@
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+
+  /* Mobile video sizing */
+  @media (max-width: 768px) {
+    .video-item {
+      flex: 0 0 {{ video_size_mobile | default: video_size | default: 120 }}px !important;
+      width: {{ video_size_mobile | default: video_size | default: 120 }}px !important;
+      min-width: {{ video_size_mobile | default: video_size | default: 120 }}px !important;
+      max-width: {{ video_size_mobile | default: video_size | default: 120 }}px !important;
+    }
+
+    .video-thumbnail {
+      height: {{ video_size_mobile | default: video_size | default: 120 | times: 1.78 | round }}px !important;
+    }
   }
 
   .gradient-overlay {
@@ -487,7 +503,7 @@
     display: none !important;
   }
 
-  .instagram-views-badge {
+  .video-carousel-container .instagram-views-badge {
     display: inline-flex !important;
     align-items: center !important;
     padding: 1.7px 10px !important;
@@ -502,7 +518,7 @@
     background-clip: padding-box !important;
   }
 
-  .instagram-views-badge::before {
+  .video-carousel-container .instagram-views-badge::before {
     content: '' !important;
     position: absolute !important;
     top: -1px !important;
@@ -514,18 +530,18 @@
     background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045) !important;
   }
 
-  .instagram-icon {
+  .video-carousel-container .instagram-icon {
     width: 9.8px !important;
     height: 9.8px !important;
     margin-right: 7px !important;
   }
 
-  .instagram-text {
+  .video-carousel-container .instagram-text {
     letter-spacing: -0.3px !important;
     font-weight: 500 !important;
   }
 
-  .facebook-views-badge {
+  .video-carousel-container .facebook-views-badge {
     display: inline-flex !important;
     align-items: center !important;
     padding: 1.7px 10px !important;
@@ -540,7 +556,7 @@
     margin-bottom: 10px;
   }
 
-  .facebook-views-badge::before {
+  .video-carousel-container .facebook-views-badge::before {
     content: '' !important;
     position: absolute !important;
     top: -1px !important;
@@ -552,28 +568,28 @@
     background: #1877F2 !important;
   }
 
-  .facebook-icon {
+  .video-carousel-container .facebook-icon {
     width: 9.8px !important;
     height: 9.8px !important;
     margin-right: 7px !important;
   }
 
-  .facebook-text {
+  .video-carousel-container .facebook-text {
     letter-spacing: -0.3px !important;
     font-weight: 500 !important;
   }
 
   @media (max-width: 768px) {
-    .tiktok-views-badge,
-    .instagram-views-badge,
-    .facebook-views-badge {
+    .video-carousel-container .tiktok-views-badge,
+    .video-carousel-container .instagram-views-badge,
+    .video-carousel-container .facebook-views-badge {
       font-size: 11px !important;
       padding: 1.7px 12px !important;
     }
 
-    .tiktok-icon,
-    .instagram-icon,
-    .facebook-icon {
+    .video-carousel-container .tiktok-icon,
+    .video-carousel-container .instagram-icon,
+    .video-carousel-container .facebook-icon {
       width: 11.7px !important;
       height: 11.7px !important;
       margin-right: 7.5px !important;

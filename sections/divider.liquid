@@ -30,20 +30,19 @@
     --padding-top: {{ section.settings.padding_top }}px;
     --padding-bottom: {{ section.settings.padding_bottom }}px;
     --svg-transform: {% if section.settings.flip_direction %}scaleY(-1){% else %}none{% endif %};
-
     background-color: {{ bg_color }};
     padding: var(--padding-top) 0 var(--padding-bottom) 0;
   }
 
-  /* Only the SVG wrapper needs line-height reset */
   .divider-section-{{ section.id }} .divider-svg-wrap {
     line-height: 0;
+    transform: var(--svg-transform); /* ALWAYS on wrapper */
   }
 
   .divider-section-{{ section.id }} svg {
     width: 100%;
     height: var(--divider-height);
-    transform: var(--svg-transform);
+    /* REMOVE transform from here entirely */
     display: block;
     {% if section.settings.keep_proportion %}
       preserveAspectRatio: xMidYMid meet;

@@ -31,6 +31,10 @@
     {% endif %}
 
     {% assign hide_icons_on_single_goal = block.settings.hide_icons_single_goal | default: false %}
+    {% assign has_equal_goals = false %}
+    {% if free_shipping_price > 0 and free_product_price > 0 and free_shipping_price == free_product_price %}
+      {% assign has_equal_goals = true %}
+    {% endif %}
     {% assign should_hide_icons = false %}
     {% if hide_icons_on_single_goal and has_single_goal %}
       {% assign should_hide_icons = true %}
@@ -135,7 +139,7 @@
     class="free_product_progress_bar_variant"
     style="display: none !important;"
   >
-  <div class="free-product-progress-bar {% if should_hide_icons %}hide-icons-mode{% endif %}" 
+  <div class="free-product-progress-bar {% if should_hide_icons %}hide-icons-mode{% endif %}{% if has_equal_goals %} has-equal-goals{% endif %}" 
        data-free-shipping-price="{{ free_shipping_price }}" 
        data-free-product-price="{{ free_product_price }}"
        data-has-single-goal="{{ has_single_goal }}">

@@ -26,11 +26,21 @@
   margin: 0 0 8px 0;
   letter-spacing: var(--letter-spacing-heading, -0.02em);
   color: #181818;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0 8px;
+  width: 100%;
+}
+
+.media-grid__heading-text {
+  display: inline;
 }
 
 .media-grid__accent {
   color: #ff6b35;
-  margin-left: 4px;
+  display: inline-block;
 }
 
 .media-grid__subtitle {
@@ -237,12 +247,6 @@
 }
 
 /* Animation */
-.media-grid {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.8s ease-out forwards;
-}
-
 @keyframes fadeInUp {
   to {
     opacity: 1;
