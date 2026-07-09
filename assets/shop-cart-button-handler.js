@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const productForms = document.querySelectorAll('form[action*="/cart/add"]');
   productForms.forEach((form) => {
     if (form.classList.contains("drawer-initialized")) return;
+    if (form.dataset.cartAction === "redirect") return;
     form.classList.add("drawer-initialized");
     form.addEventListener("submit", function (event) {
       event.preventDefault();

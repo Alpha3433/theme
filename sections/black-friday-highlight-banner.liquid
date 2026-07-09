@@ -1,4 +1,4 @@
-<div class="bf-highlight-banner">
+<div class="bf-highlight-banner {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
     {% if section.settings.show_tape %}
       <div class="bf-tape bf-tape-left">
         <span class="bf-tape-content">{{ section.settings.tape_text }}</span>

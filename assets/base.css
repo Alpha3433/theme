@@ -11,10 +11,6 @@
   --inputs-radius-outset: 16px;
   --global-section-text-color-rgb: 0, 0, 0;
   --global-section-background-color-rgb: 255, 255, 255;
-  --font-body-family: {{settings.type_body_font.family}}, {{settings.type_body_font.fallback_families}};
-  --font-body-style: {{settings.type_body_font.style}};
-  --font-heading-weight: {{settings.type_header_font.weight}};
-  --color-header-border: {{settings.header_border_color.rgb | default: '229, 229, 229'}};
 }
 
 .product-card-wrapper .card,
@@ -86,7 +82,7 @@
 .page-width {
   max-width: var(--page-width);
   margin: 0 auto;
-  padding: 0 2rem
+  padding: 0 var(--page-desktop-horizontal-padding, 2rem);
 }
 
 body:has(.section-header .drawer-menu) .announcement-bar-section .page-width {
@@ -151,9 +147,16 @@ body:has(.section-header .drawer-menu) .announcement-bar-section .page-width {
   margin-top: var(--spacing-sections-mobile)
 }
 
+section.section {
+  padding: var(--sections-mobile-vertical-padding, 0) var(--sections-mobile-horizontal-padding, 0);
+}
+
 @media screen and (min-width:750px) {
   .section+.section {
       margin-top: var(--spacing-sections-desktop)
+  }
+  section.section {
+    padding: var(--sections-desktop-vertical-padding, 0) var(--sections-desktop-horizontal-padding, 0);
   }
 }
 
@@ -357,7 +360,6 @@ h6,
 }
 
 blockquote {
-  font-style: italic;
   color: rgba(var(--color-foreground), .75);
   border-left: .2rem solid rgba(var(--color-foreground), .2);
   padding-left: 1rem
@@ -587,7 +589,8 @@ details>* {
   --duration-extended: 3s;
   --ease-out-slow: cubic-bezier(0, 0, 0.3, 1);
   --animation-slide-in: slideIn var(--duration-extra-long) var(--ease-out-slow) forwards;
-  --animation-fade-in: fadeIn var(--duration-extra-long) var(--ease-out-slow)
+  --animation-fade-in: fadeIn var(--duration-extra-long) var(--ease-out-slow);
+  --animation-fade-up: fadeInUp 0.8s ease-out forwards
 }
 
 .underlined-link,
@@ -2588,12 +2591,12 @@ details[open] .modal-overlay::after {
 
 .search-modal__close-button {
   position: absolute;
-  right: .3rem
+  right: 1rem
 }
 
 @media screen and (min-width:750px) {
   .search-modal__close-button {
-      right: 1rem
+      right: 2rem
   }
   .search-modal__content {
       padding: 0 6rem
@@ -3141,22 +3144,30 @@ details-disclosure>details {
       }
   }
   .scroll-trigger.animate--fade-in,
-  .scroll-trigger.animate--slide-in {
+  .scroll-trigger.animate--slide-in,
+  .scroll-trigger.animate--fade-up {
       opacity: .01
   }
-  .scroll-trigger.animate--slide-in {
-      transform: translateY(2rem)
+  .scroll-trigger.animate--slide-in,
+  .scroll-trigger.animate--fade-up {
+      transform: translateY(3rem)
   }
   .scroll-trigger:not(.scroll-trigger--offscreen).animate--fade-in {
       opacity: 1;
-      animation: var(--animation-fade-in)
+      animation: var(--animation-fade-in);
   }
   .scroll-trigger:not(.scroll-trigger--offscreen).animate--slide-in {
       animation: var(--animation-slide-in);
       animation-delay: calc(var(--animation-order) * 75ms)
   }
+  .scroll-trigger:not(.scroll-trigger--offscreen).animate--fade-up {
+      opacity: 1;
+      animation: var(--animation-fade-up);
+      animation-delay: calc(var(--animation-order) * 2000ms)
+  }
   .scroll-trigger.scroll-trigger--design-mode.animate--fade-in,
   .scroll-trigger.scroll-trigger--design-mode.animate--slide-in,
+  .scroll-trigger.scroll-trigger--design-mode.animate--fade-up,
   .scroll-trigger.scroll-trigger--design-mode .slider,
   .scroll-trigger:not(.scroll-trigger--offscreen).scroll-trigger--cancel {
       opacity: 1;
@@ -3164,7 +3175,8 @@ details-disclosure>details {
       transition: none;
       transform: none
   }
-  .scroll-trigger.scroll-trigger--design-mode.animate--slide-in {
+  .scroll-trigger.scroll-trigger--design-mode.animate--slide-in,
+  .scroll-trigger.scroll-trigger--design-mode.animate--fade-up {
       transform: translateY(0)
   }
   @keyframes slideIn {
@@ -3179,10 +3191,20 @@ details-disclosure>details {
   }
   @keyframes fadeIn {
       from {
-          opacity: .01
+          opacity: 0
       }
       to {
           opacity: 1
+      }
+  }
+  @keyframes fadeInUp {
+      from {
+          opacity: .01;
+          transform: translateY(2rem)
+      }
+      to {
+          opacity: 1;
+          transform: translateY(0)
       }
   }
 }
@@ -3461,7 +3483,7 @@ details-disclosure>details {
 }
 
 .field:focus-within:after {
-  box-shadow: 0 0 0 var(--inputs-border-width) rgba(var(--global-section-text-color), .75) !important
+  box-shadow: 0 0 0 var(--inputs-border-width) color-mix(in srgb, var(--global-section-text-color) 50%, transparent) !important
 }
 
 .section-heading {

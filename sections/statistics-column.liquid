@@ -1,9 +1,11 @@
 {{ 'statistics-column.css' | asset_url | stylesheet_tag }}
 
+{% liquid
+  assign heading_tag = section.settings.heading_tag
+%}
+
 <style>
   .section-{{ section.id }} {
-    --stats-padding-top: {{ section.settings.padding_top }}px;
-    --stats-padding-bottom: {{ section.settings.padding_bottom }}px;
     --stats-number-size-mobile: {{ section.settings.number_size_mobile }}px;
     --stats-number-size-desktop: {{ section.settings.number_size_desktop }}px;
     --stats-title-size-mobile: {{ section.settings.title_size_mobile }}px;
@@ -24,8 +26,6 @@
     --stats-disclaimer-border-width: {{ section.settings.disclaimer_border_width }}px;
     --stats-disclaimer-border-style: {{ section.settings.disclaimer_border_style }};
     --stats-disclaimer-border-color: {{ section.settings.disclaimer_border_color }};
-    padding-top: var(--stats-padding-top);
-    padding-bottom: var(--stats-padding-bottom);
     {% if section.settings.enable_top_border %}
       border-top: {{ section.settings.top_border_width }}px solid {{ section.settings.top_border_color }};
     {% endif %}
@@ -69,9 +69,9 @@
     align-items: flex-start;
     gap: 10px;
     padding: var(--stats-disclaimer-padding-top) var(--stats-disclaimer-padding-right) var(--stats-disclaimer-padding-bottom) var(--stats-disclaimer-padding-left);
-    background-color: {% if use_theme_colors %}color-mix(in srgb, {{ settings.global_section_text_color }} 5%, transparent){% else %}var(--stats-disclaimer-background){% endif %};
+    background-color: {% if section.settings.use_theme_colors %}color-mix(in srgb, {{ settings.global_section_text_color }} 5%, transparent){% else %}var(--stats-disclaimer-background){% endif %};
     border-radius: var(--stats-disclaimer-border-radius);
-    border: var(--stats-disclaimer-border-width) var(--stats-disclaimer-border-style) {% if use_theme_colors %}color-mix(in srgb, {{ settings.global_section_text_color }} 20%, transparent){% else %}var(--stats-disclaimer-border-color){% endif %};
+    border: var(--stats-disclaimer-border-width) var(--stats-disclaimer-border-style) {% if section.settings.use_theme_colors %}color-mix(in srgb, {{ settings.global_section_text_color }} 20%, transparent){% else %}var(--stats-disclaimer-border-color){% endif %};
   }
 
   .section-{{ section.id }} .disclaimer-icon {
@@ -141,36 +141,22 @@
     background: {{ section.settings.section_background | default: '#FFFFFF' }};
   }
 
-  .section-{{ section.id }}-padding {
-    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
-    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  /* Page-width container padding customization - applies regardless of contain_section */
+  .section-{{ section.id }} .page-width {
+    padding-left: {{ section.settings.section_padding_horizontal_mobile | default: 15 }}px;
+    padding-right: {{ section.settings.section_padding_horizontal_mobile | default: 15 }}px;
+    padding-top: {{ section.settings.section_padding_top_mobile | default: 0 }}px;
+    padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 0 }}px;
   }
 
   @media screen and (min-width: 750px) {
-    .section-{{ section.id }}-padding {
-      padding-top: {{ section.settings.padding_top }}px;
-      padding-bottom: {{ section.settings.padding_bottom }}px;
+    .section-{{ section.id }} .page-width {
+      padding-left: {{ section.settings.section_padding_horizontal_desktop | default: 15 }}px;
+      padding-right: {{ section.settings.section_padding_horizontal_desktop | default: 15 }}px;
+      padding-top: {{ section.settings.section_padding_top_desktop | default: 0 }}px;
+      padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 0 }}px;
     }
   }
-
-  /* Page-width container padding customization */
-  {% if section.settings.contain_section %}
-    .section-{{ section.id }} .page-width {
-      padding-left: {{ section.settings.section_padding_left_mobile | default: 15 }}px;
-      padding-right: {{ section.settings.section_padding_right_mobile | default: 15 }}px;
-      padding-top: {{ section.settings.section_padding_top_mobile | default: 0 }}px;
-      padding-bottom: {{ section.settings.section_padding_bottom_mobile | default: 0 }}px;
-    }
-
-    @media screen and (min-width: 750px) {
-      .section-{{ section.id }} .page-width {
-        padding-left: {{ section.settings.section_padding_left_desktop | default: 15 }}px;
-        padding-right: {{ section.settings.section_padding_right_desktop | default: 15 }}px;
-        padding-top: {{ section.settings.section_padding_top_desktop | default: 0 }}px;
-        padding-bottom: {{ section.settings.section_padding_bottom_desktop | default: 0 }}px;
-      }
-    }
-  {% endif %}
 
   .stats-column {
     display: flex;
@@ -199,35 +185,28 @@
 
   @media screen and (min-width: 990px) {
     .stats-column {
-      {% if section.settings.image_position_desktop == 'above' %}
-        flex-direction: column;
-        gap: 2rem;
-      {% else %}
-        flex-direction: row;
-        align-items: center;
-        gap: 4rem;
-      {% endif %}
+      flex-direction: row;
+      align-items: center;
+      gap: 4rem;
     }
 
     .stats-column-content {
-      {% if section.settings.image_position_desktop == 'above' %}
+      {% if section.settings.image_position_desktop == 'left' %}
         order: 2;
       {% else %}
         order: 1;
-        max-width: calc(100% - {{ section.settings.image_column_width | default: 50 }}%);
       {% endif %}
+      max-width: calc(100% - {{ section.settings.image_column_width | default: 50 }}%);
     }
 
     .stats-column-image {
-      {% if section.settings.image_position_desktop == 'above' %}
+      {% if section.settings.image_position_desktop == 'left' %}
         order: 1;
-        max-width: 100%;
-        margin-bottom: 2rem;
       {% else %}
         order: 2;
-        max-width: {{ section.settings.image_column_width | default: 50 }}%;
-        margin-bottom: 0;
       {% endif %}
+      max-width: {{ section.settings.image_column_width | default: 50 }}%;
+      margin-bottom: 0;
     }
   }
 
@@ -295,6 +274,60 @@
     max-width: {{ section.settings.section_max_width | default: 1200 }}px;
     margin: 0 auto;
   }
+
+  /* Override page-width max-width when contain_section is enabled */
+  {% if section.settings.contain_section %}
+    .section-{{ section.id }} .page-width {
+      max-width: {{ section.settings.section_max_width | default: 1200 }}px;
+    }
+
+    {% if section.settings.container_bg_image != blank %}
+      .section-{{ section.id }} .stats-column-container.contained {
+        background-image: url('{{ section.settings.container_bg_image | image_url: width: 1600 }}');
+        background-size: {{ section.settings.container_bg_size | default: 'cover' }};
+        background-position: {{ section.settings.container_bg_position | default: 'center center' }};
+        background-repeat: no-repeat;
+        position: relative;
+        overflow: hidden;
+      }
+    {% endif %}
+
+    {% if section.settings.container_bg_image_mobile != blank %}
+      @media screen and (max-width: 749px) {
+        .section-{{ section.id }} .stats-column-container.contained {
+          background-image: url('{{ section.settings.container_bg_image_mobile | image_url: width: 800 }}') !important;
+          background-size: {{ section.settings.container_bg_size | default: 'cover' }};
+          background-position: {{ section.settings.container_bg_position | default: 'center center' }};
+          background-repeat: no-repeat;
+          position: relative;
+          overflow: hidden;
+        }
+      }
+    {% endif %}
+
+    {% if section.settings.enable_container_bg_overlay %}
+      {% if section.settings.container_bg_image != blank or section.settings.container_bg_image_mobile != blank %}
+        .section-{{ section.id }} .stats-column-container.contained::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: {{ section.settings.container_bg_overlay_color | default: '#000000' }};
+          opacity: {{ section.settings.container_bg_overlay_opacity | default: 30 | divided_by: 100.0 }};
+          z-index: 0;
+          pointer-events: none;
+          border-radius: {{ section.settings.container_border_radius | default: 12 }}px;
+        }
+
+        .section-{{ section.id }} .stats-column-container.contained > * {
+          position: relative;
+          z-index: 1;
+        }
+      {% endif %}
+    {% endif %}
+  {% endif %}
 
   .stats-column-list {
     display: flex;
@@ -532,7 +565,7 @@
 
   .stats-column-section-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: {{ section.settings.header_margin_bottom | default: 48 }}px;
   }
 
   /* Heading vertical alignment for two-column layout */
@@ -578,6 +611,7 @@
     margin: 0 0 1rem 0;
     letter-spacing: var(--letter-spacing-heading);
     text-align: {{ section.settings.heading_text_alignment | default: 'center' }};
+    line-height: {{ section.settings.heading_line_height | default: 1.2 }};
   }
 
   @media screen and (min-width: 750px) {
@@ -685,69 +719,41 @@
   }
 {%- endstyle -%}
 
-<style>
-  /* Load-in animation */
-  .page-fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Add slight delay for staggered effect on multiple sections */
-  .page-fade-in:nth-child(2) {
-    animation-delay: 0.1s;
-  }
-  .page-fade-in:nth-child(3) {
-    animation-delay: 0.2s;
-  }
-  .page-fade-in:nth-child(4) {
-    animation-delay: 0.3s;
-  }
-</style>
-
-<div class="section-{{ section.id }} {% if use_theme_colors == false or section.settings.override_theme_section_background %}statistics-section-custom-background-{{ section.id }}{% else %}statistics-section-theme-background-{{ section.id }}{% endif %} stats-column-section page-fade-in">
-  <div class="section-{{ section.id }}-padding">
-    <div class="page-width">
-      <div
-        class="stats-column-container {% if section.settings.contain_section %}contained{% endif %}"
-        style="
-          {% if section.settings.contain_section %}
-            padding: {{ section.settings.container_padding_top_mobile | default: 20 }}px {{ section.settings.container_padding_right_mobile | default: 20 }}px {{ section.settings.container_padding_bottom_mobile | default: 20 }}px {{ section.settings.container_padding_left_mobile | default: 20 }}px;
-            border-radius: {{ section.settings.container_border_radius | default: 12 }}px;
+<div class="section-{{ section.id }} {% if use_theme_colors == false or section.settings.override_theme_section_background %}statistics-section-custom-background-{{ section.id }}{% else %}statistics-section-theme-background-{{ section.id }}{% endif %} stats-column-section  {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
+  <div class="page-width">
+    <div
+      class="stats-column-container {% if section.settings.contain_section %}contained{% endif %}"
+      style="
+        {% if section.settings.contain_section %}
+          padding: {{ section.settings.container_padding_top_mobile | default: 20 }}px {{ section.settings.container_padding_right_mobile | default: 20 }}px {{ section.settings.container_padding_bottom_mobile | default: 20 }}px {{ section.settings.container_padding_left_mobile | default: 20 }}px;
+          border-radius: {{ section.settings.container_border_radius | default: 12 }}px;
+          {% if section.settings.container_bg_image == blank and section.settings.container_bg_image_mobile == blank %}
             background: {{ section.settings.container_background | default: '#FFFFFF' }};
-            {% if section.settings.enable_border %}
-              border: {{ section.settings.border_width | default: 1 }}px {{ section.settings.border_style | default: 'solid' }} {{ section.settings.border_color | default: '#E5E7EB' }};
-            {% endif %}
-            {% if section.settings.enable_shadow %}
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            {% endif %}
+          {% else %}
+            background-color: {{ section.settings.container_background | default: '#FFFFFF' }};
           {% endif %}
-        "
-      >
+          {% if section.settings.enable_border %}
+            border: {{ section.settings.border_width | default: 1 }}px {{ section.settings.border_style | default: 'solid' }} {{ section.settings.border_color | default: '#E5E7EB' }};
+          {% endif %}
+          {% if section.settings.enable_shadow %}
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          {% endif %}
+        {% endif %}
+      "
+    >
         <!-- Mobile Header -->
         {%- if section.settings.heading != blank or section.settings.subtitle != blank -%}
           <div class="stats-column-section-header mobile-header">
             {%- if section.settings.heading != blank -%}
               {% if section.settings.heading_accent != blank %}
-                <h2 class="stats-section-title">
+                <{{ heading_tag }} class="stats-section-title">
                   {{ section.settings.heading }}
                   <span class="{% if section.settings.override_global_accent %}custom-accent-text{% else %}global-accent-text{% endif %}">
                     {{ section.settings.heading_accent }}
                   </span>
-                </h2>
+                </{{ heading_tag }}>
               {% else %}
-                <h2 class="stats-section-title">{{ section.settings.heading }}</h2>
+                <{{ heading_tag }} class="stats-section-title">{{ section.settings.heading }}</{{ heading_tag }}>
               {% endif %}
             {%- endif -%}
             {%- if section.settings.subtitle != blank -%}
@@ -766,14 +772,14 @@
                 <div class="stats-column-section-header desktop-header">
                   {%- if section.settings.heading != blank -%}
                     {% if section.settings.heading_accent != blank %}
-                      <h2 class="stats-section-title">
+                      <{{ heading_tag }} class="stats-section-title">
                         {{ section.settings.heading }}
                         <span class="{% if section.settings.override_global_accent %}custom-accent-text{% else %}global-accent-text{% endif %}">
                           {{ section.settings.heading_accent }}
                         </span>
-                      </h2>
+                      </{{ heading_tag }}>
                     {% else %}
-                      <h2 class="stats-section-title">{{ section.settings.heading }}</h2>
+                      <{{ heading_tag }} class="stats-section-title">{{ section.settings.heading }}</{{ heading_tag }}>
                     {% endif %}
                   {%- endif -%}
                   {%- if section.settings.subtitle != blank -%}
@@ -786,129 +792,133 @@
             </div>
           {% endif %}
 
-        <div class="stats-column-content">
-          {% unless section.settings.enable_two_column_layout %}
-            <!-- Original Layout: Desktop Header (inside stats-column-content) -->
-            {%- if section.settings.heading != blank or section.settings.subtitle != blank -%}
-              <div class="stats-column-section-header desktop-header">
-                {%- if section.settings.heading != blank -%}
-                  {% if section.settings.heading_accent != blank %}
-                    <h2 class="stats-section-title">
-                      {{ section.settings.heading }} 
-                      <span class="{% if section.settings.override_global_accent %}custom-accent-text{% else %}global-accent-text{% endif %}">
-                        {{ section.settings.heading_accent }}
-                      </span>
-                    </h2>
-                  {% else %}
-                    <h2 class="stats-section-title">{{ section.settings.heading }}</h2>
-                  {% endif %}
-                {%- endif -%}
-                {%- if section.settings.subtitle != blank -%}
-                  <div class="section-subtitle-container">
-                    <div class="section-subtitle">{{ section.settings.subtitle }}</div>
-                  </div>
-                {%- endif -%}
-              </div>
-            {%- endif -%}
-          {% endunless %}
-          
-          <div class="stats-column-list">
-            {%- for block in section.blocks -%}
-              <div class="stats-column-item" {{ block.shopify_attributes }}>
-                {% comment %} Extract numeric value and suffix for animation {% endcomment %}
-                {%- liquid
-                  assign number_text = block.settings.number | strip
-                  assign numeric_part = ''
-                  assign suffix_part = ''
-                  assign has_numeric = false
-                -%}
-                
-                {% comment %} Check if the number contains text patterns that should disable counter animation {% endcomment %}
-                {%- liquid
-                  assign disable_counter = false
-                  assign lowercase_number = number_text | downcase
-                  
-                  # Check for text patterns that indicate non-countable content
-                  if lowercase_number contains ' of ' or lowercase_number contains ' out of ' or lowercase_number contains ' in ' or lowercase_number contains ' to ' or lowercase_number contains ' and ' or lowercase_number contains ' or ' or lowercase_number contains '/' and lowercase_number contains ' '
-                    assign disable_counter = true
-                  endif
-                  
-                  # Check for multiple separate numbers (like "3 of 4" or "1 in 5")
-                  assign number_count = 0
-                  assign chars = number_text | split: ''
-                  assign in_number = false
-                  for char in chars
-                    assign is_digit = false
-                    if char == '0' or char == '1' or char == '2' or char == '3' or char == '4' or char == '5' or char == '6' or char == '7' or char == '8' or char == '9'
-                      assign is_digit = true
-                      if in_number == false
-                        assign number_count = number_count | plus: 1
-                        assign in_number = true
-                      endif
-                    else
-                      assign in_number = false
-                    endif
-                  endfor
-                  
-                  if number_count > 1
-                    assign disable_counter = true
-                  endif
-                -%}
-                
-                {% comment %} Extract numbers and suffixes like 100+, 99%, 24/7, etc. {% endcomment %}
-                {%- liquid
-                  assign chars = number_text | split: ''
-                  for char in chars
-                    assign is_digit = false
-                    assign is_decimal = false
-                    if char == '0' or char == '1' or char == '2' or char == '3' or char == '4' or char == '5' or char == '6' or char == '7' or char == '8' or char == '9'
-                      assign is_digit = true
-                      assign has_numeric = true
-                    elsif char == '.' or char == ','
-                      assign is_decimal = true
-                    endif
-                    
-                    if is_digit or is_decimal
-                      assign numeric_part = numeric_part | append: char
-                    else
-                      assign suffix_part = suffix_part | append: char
-                    endif
-                  endfor
-                -%}
-                
-                {% comment %} Clean up numeric part - remove trailing decimals if they are .0 {% endcomment %}
-                {%- liquid
-                  if numeric_part contains '.'
-                    assign decimal_check = numeric_part | split: '.'
-                    if decimal_check[1] == '0' or decimal_check[1] == '00'
-                      assign numeric_part = decimal_check[0]
-                    endif
-                  endif
-                -%}
-                
-                {% if section.settings.enable_counter_animation and has_numeric and disable_counter == false %}
-                  <div class="stats-column-number counter-animate" 
-                       data-target="{{ numeric_part }}" 
-                       data-suffix="{{ suffix_part }}"
-                       data-duration="2000"
-                       data-delay="200">0{{ suffix_part }}</div>
-                {% else %}
-                  <div class="stats-column-number">{{ block.settings.number }}</div>
-                {% endif %}
-                
-                <div class="stats-column-text">
-                  <div class="stats-column-title-wrapper">
-                    {%- if block.settings.title != blank -%}
-                      <h3 class="stats-column-title">{{ block.settings.title }}</h3>
-                    {%- endif -%}
-                  </div>
-                  {%- if block.settings.description != blank -%}
-                    <p class="stats-column-description">{{ block.settings.description }}</p>
+          <div class="stats-column-content">
+            {% unless section.settings.enable_two_column_layout %}
+              <!-- Original Layout: Desktop Header (inside stats-column-content) -->
+              {%- if section.settings.heading != blank or section.settings.subtitle != blank -%}
+                <div class="stats-column-section-header desktop-header">
+                  {%- if section.settings.heading != blank -%}
+                    {% if section.settings.heading_accent != blank %}
+                      <{{ heading_tag }} class="stats-section-title">
+                        {{ section.settings.heading }}
+                        <span class="{% if section.settings.override_global_accent %}custom-accent-text{% else %}global-accent-text{% endif %}">
+                          {{ section.settings.heading_accent }}
+                        </span>
+                      </{{ heading_tag }}>
+                    {% else %}
+                      <h2 class="stats-section-title">{{ section.settings.heading }}</h2>
+                    {% endif %}
+                  {%- endif -%}
+                  {%- if section.settings.subtitle != blank -%}
+                    <div class="section-subtitle-container">
+                      <div class="section-subtitle">{{ section.settings.subtitle }}</div>
+                    </div>
                   {%- endif -%}
                 </div>
-              </div>
-            {%- endfor -%}
-          </div>
+              {%- endif -%}
+            {% endunless %}
+
+            <div class="stats-column-list">
+              {%- for block in section.blocks -%}
+                <div class="stats-column-item" {{ block.shopify_attributes }}>
+                  {% comment %} Extract numeric value and suffix for animation {% endcomment %}
+                  {%- liquid
+                    assign number_text = block.settings.number | strip
+                    assign numeric_part = ''
+                    assign suffix_part = ''
+                    assign has_numeric = false
+                  -%}
+
+                  {% comment %} Check if the number contains text patterns that should disable counter animation {% endcomment %}
+                  {%- liquid
+                    assign disable_counter = false
+                    assign lowercase_number = number_text | downcase
+
+                    # Check for text patterns that indicate non-countable content
+                    if lowercase_number contains ' of ' or lowercase_number contains ' out of ' or lowercase_number contains ' in ' or lowercase_number contains ' to ' or lowercase_number contains ' and ' or lowercase_number contains ' or ' or lowercase_number contains '/' and lowercase_number contains ' '
+                      assign disable_counter = true
+                    endif
+
+                    # Check for multiple separate numbers (like "3 of 4" or "1 in 5")
+                    assign number_count = 0
+                    assign chars = number_text | split: ''
+                    assign in_number = false
+                    for char in chars
+                      assign is_digit = false
+                      if char == '0' or char == '1' or char == '2' or char == '3' or char == '4' or char == '5' or char == '6' or char == '7' or char == '8' or char == '9'
+                        assign is_digit = true
+                        if in_number == false
+                          assign number_count = number_count | plus: 1
+                          assign in_number = true
+                        endif
+                      else
+                        assign in_number = false
+                      endif
+                    endfor
+
+                    if number_count > 1
+                      assign disable_counter = true
+                    endif
+                  -%}
+
+                  {% comment %} Extract numbers and suffixes like 100+, 99%, 24/7, etc. {% endcomment %}
+                  {%- liquid
+                    assign chars = number_text | split: ''
+                    for char in chars
+                      assign is_digit = false
+                      assign is_decimal = false
+                      if char == '0' or char == '1' or char == '2' or char == '3' or char == '4' or char == '5' or char == '6' or char == '7' or char == '8' or char == '9'
+                        assign is_digit = true
+                        assign has_numeric = true
+                      elsif char == '.' or char == ','
+                        assign is_decimal = true
+                      endif
+
+                      if is_digit or is_decimal
+                        assign numeric_part = numeric_part | append: char
+                      else
+                        assign suffix_part = suffix_part | append: char
+                      endif
+                    endfor
+                  -%}
+
+                  {% comment %} Clean up numeric part - remove trailing decimals if they are .0 {% endcomment %}
+                  {%- liquid
+                    if numeric_part contains '.'
+                      assign decimal_check = numeric_part | split: '.'
+                      if decimal_check[1] == '0' or decimal_check[1] == '00'
+                        assign numeric_part = decimal_check[0]
+                      endif
+                    endif
+                  -%}
+
+                  {% if section.settings.enable_counter_animation and has_numeric and disable_counter == false %}
+                    <div
+                      class="stats-column-number counter-animate"
+                      data-target="{{ numeric_part }}"
+                      data-suffix="{{ suffix_part }}"
+                      data-duration="2000"
+                      data-delay="200"
+                    >
+                      0{{ suffix_part }}
+                    </div>
+                  {% else %}
+                    <div class="stats-column-number">{{ block.settings.number }}</div>
+                  {% endif %}
+
+                  <div class="stats-column-text">
+                    <div class="stats-column-title-wrapper">
+                      {%- if block.settings.title != blank -%}
+                        <h3 class="stats-column-title">{{ block.settings.title }}</h3>
+                      {%- endif -%}
+                    </div>
+                    {%- if block.settings.description != blank -%}
+                      <p class="stats-column-description">{{ block.settings.description }}</p>
+                    {%- endif -%}
+                  </div>
+                </div>
+              {%- endfor -%}
+            </div>
 
             {%- if section.settings.disclaimer_text != blank and section.settings.show_disclaimer -%}
               <div class="studies-disclaimer">
@@ -954,7 +964,6 @@
       <!-- Close stats-column-container -->
     </div>
   </div>
-</div>
 
 {% if section.settings.enable_counter_animation %}
   <script>
@@ -1081,6 +1090,16 @@
       "info": "Optional descriptive text that appears below the section heading"
     },
     {
+      "type": "range",
+      "id": "header_margin_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Header Margin Bottom",
+      "default": 48
+    },
+    {
       "type": "header",
       "content": "Typography"
     },
@@ -1130,6 +1149,56 @@
       "unit": "px",
       "label": "Heading size (desktop)",
       "default": 36
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height",
+      "min": 0.5,
+      "max": 2,
+      "step": 0.1,
+      "label": "Heading line height",
+      "default": 1.2,
+      "info": "Line height multiplier for the heading text"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading Tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        },
+        {
+          "value": "p",
+          "label": "P"
+        },
+        {
+          "value": "span",
+          "label": "Span"
+        }
+      ],
+      "default": "h2"
     },
     {
       "type": "select",
@@ -1588,6 +1657,73 @@
     },
     {
       "type": "header",
+      "content": "Container Background Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_bg_image",
+      "label": "Container Background Image (Desktop)",
+      "info": "Background image for the container when Contain Section is enabled"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_bg_image_mobile",
+      "label": "Container Background Image (Mobile)",
+      "info": "Mobile background image. If not set, desktop image will be used."
+    },
+    {
+      "type": "select",
+      "id": "container_bg_size",
+      "label": "Background Size",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" },
+        { "value": "auto", "label": "Auto" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "container_bg_position",
+      "label": "Background Position",
+      "options": [
+        { "value": "center center", "label": "Center" },
+        { "value": "top center", "label": "Top Center" },
+        { "value": "bottom center", "label": "Bottom Center" },
+        { "value": "left center", "label": "Left Center" },
+        { "value": "right center", "label": "Right Center" },
+        { "value": "top left", "label": "Top Left" },
+        { "value": "top right", "label": "Top Right" },
+        { "value": "bottom left", "label": "Bottom Left" },
+        { "value": "bottom right", "label": "Bottom Right" }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_container_bg_overlay",
+      "label": "Enable Background Image Overlay",
+      "default": false,
+      "info": "Add an overlay over the background image for better text readability"
+    },
+    {
+      "type": "color",
+      "id": "container_bg_overlay_color",
+      "label": "Background Overlay Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "container_bg_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Overlay Opacity",
+      "default": 30
+    },
+    {
+      "type": "header",
       "content": "Border Settings"
     },
     {
@@ -1651,7 +1787,7 @@
       "unit": "px",
       "label": "Top Padding - Desktop",
       "default": 0,
-      "info": "Top padding for the page-width container when contain section is enabled"
+      "info": "Top padding for the page-width container"
     },
     {
       "type": "range",
@@ -1662,29 +1798,18 @@
       "unit": "px",
       "label": "Bottom Padding - Desktop",
       "default": 0,
-      "info": "Bottom padding for the page-width container when contain section is enabled"
+      "info": "Bottom padding for the page-width container"
     },
     {
       "type": "range",
-      "id": "section_padding_left_desktop",
+      "id": "section_padding_horizontal_desktop",
       "min": 0,
       "max": 60,
       "step": 5,
       "unit": "px",
-      "label": "Left Padding - Desktop",
+      "label": "Horizontal Padding - Desktop",
       "default": 15,
-      "info": "Left padding for the page-width container when contain section is enabled"
-    },
-    {
-      "type": "range",
-      "id": "section_padding_right_desktop",
-      "min": 0,
-      "max": 60,
-      "step": 5,
-      "unit": "px",
-      "label": "Right Padding - Desktop",
-      "default": 15,
-      "info": "Right padding for the page-width container when contain section is enabled"
+      "info": "Horizontal padding for the page-width container"
     },
     {
       "type": "header",
@@ -1699,7 +1824,7 @@
       "unit": "px",
       "label": "Top Padding - Mobile",
       "default": 0,
-      "info": "Top padding for the page-width container on mobile when contain section is enabled"
+      "info": "Top padding for the page-width container on mobile"
     },
     {
       "type": "range",
@@ -1710,29 +1835,18 @@
       "unit": "px",
       "label": "Bottom Padding - Mobile",
       "default": 0,
-      "info": "Bottom padding for the page-width container on mobile when contain section is enabled"
+      "info": "Bottom padding for the page-width container on mobile"
     },
     {
       "type": "range",
-      "id": "section_padding_left_mobile",
+      "id": "section_padding_horizontal_mobile",
       "min": 0,
       "max": 40,
       "step": 5,
       "unit": "px",
-      "label": "Left Padding - Mobile",
+      "label": "Horizontal Padding - Mobile",
       "default": 15,
-      "info": "Left padding for the page-width container on mobile when contain section is enabled"
-    },
-    {
-      "type": "range",
-      "id": "section_padding_right_mobile",
-      "min": 0,
-      "max": 40,
-      "step": 5,
-      "unit": "px",
-      "label": "Right Padding - Mobile",
-      "default": 15,
-      "info": "Right padding for the page-width container on mobile when contain section is enabled"
+      "info": "Horizontal padding for the page-width container on mobile"
     },
     {
       "type": "header",
@@ -1763,8 +1877,8 @@
           "label": "Right of statistics"
         },
         {
-          "value": "above",
-          "label": "Above statistics"
+          "value": "left",
+          "label": "Left of statistics"
         }
       ],
       "default": "right"
@@ -1794,7 +1908,7 @@
       "unit": "%",
       "label": "Image Column Width (Desktop)",
       "default": 50,
-      "info": "Width of the image column when positioned to the right of statistics on desktop"
+      "info": "Width of the image column when positioned to the left or right of statistics on desktop"
     },
     {
       "type": "header",
@@ -1959,30 +2073,6 @@
       "id": "disclaimer_border_color",
       "label": "Disclaimer border color",
       "default": "#e0e0e0"
-    },
-    {
-      "type": "header",
-      "content": "Section Spacing"
-    },
-    {
-      "type": "range",
-      "id": "padding_top",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "Top padding",
-      "default": 36
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "Bottom padding",
-      "default": 36
     },
     {
       "type": "header",

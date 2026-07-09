@@ -175,14 +175,19 @@
      display: inline-flex !important;
      align-items: center !important;
      padding: {{ section.settings.badge_padding_vertical | default: 4 }}px {{ section.settings.badge_padding_horizontal | default: 12 }}px !important;
-     background-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.badge_background_color | default: '#f8f9fa' }}{% endif %} !important;
+     {% if section.settings.show_badge_background %}
+       background-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.badge_background_color | default: '#f8f9fa' }}{% endif %} !important;
+       border: 1px solid transparent !important;
+       background-clip: padding-box !important;
+     {% else %}
+       background-color: transparent !important;
+       border: none !important;
+     {% endif %}
      border-radius: {{ section.settings.badge_border_radius | default: 50 }}px !important;
      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
      font-size: {{ section.settings.badge_font_size | default: 11 }}px !important;
      color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.badge_text_color | default: '#262626' }}{% endif %} !important;
      position: relative !important;
-     border: 1px solid transparent !important;
-     background-clip: padding-box !important;
      margin-bottom: 10px;
      text-align: {{ section.settings.main_heading_alignment }};
      gap: {{ section.settings.badge_icon_gap | default: 6 }}px !important;
@@ -198,6 +203,7 @@
      {% endif %}
    }
 
+   {% if section.settings.show_badge_background %}
    .video-section-{{ section.id }} .video-slider-social-badge::before {
      content: '' !important;
      position: absolute !important;
@@ -215,6 +221,7 @@
        background: #1877F2 !important;
      {% endif %}
    }
+   {% endif %}
 
    .video-section-{{ section.id }} .video-slider-social-icon {
      width: {{ section.settings.badge_icon_size | default: 12 }}px !important;
@@ -239,6 +246,17 @@
      {% endif %}
    }
 
+   /* Rich text badge styling */
+   .video-section-{{ section.id }} .video-slider-social-text p {
+     margin: 0 !important;
+     display: inline !important;
+   }
+
+   .video-section-{{ section.id }} .video-slider-social-text strong,
+   .video-section-{{ section.id }} .video-slider-social-text b {
+     font-weight: 700 !important;
+   }
+
    @media (max-width: 768px) {
      .video-section-{{ section.id }} .video-slider-social-badge {
        font-size: {{ section.settings.badge_font_size_mobile | default: section.settings.badge_font_size | default: 11 }}px !important;
@@ -256,6 +274,11 @@
     position: relative;
 	width: 100%;
     height: {{ section.settings.desktop_container_height }}px;
+    {% if section.settings.enable_video_grid_max_width %}
+      max-width: {{ section.settings.video_grid_max_width }}px;
+      margin-left: auto;
+      margin-right: auto;
+    {% endif %}
   }
 
    {% if section.settings.enable_gradient_mask %}
@@ -710,7 +733,13 @@ padding: {{ section.settings.mobile_content_padding }}px;
          {%- if section.settings.social_platform == 'tiktok' -%}
            <div class="video-slider-social-badge">
              <img class="video-slider-social-icon" src="https://cdn4.iconfinder.com/data/icons/social-media-flat-7/64/Social-media_Tiktok-512.png" width="9.8" height="9.8" alt="TikTok" />
-             <span class="video-slider-social-text">{{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On TikTok' }}</span>
+             <span class="video-slider-social-text">
+               {%- if section.settings.badge_richtext != blank -%}
+                 {{ section.settings.badge_richtext }}
+               {%- else -%}
+                 {{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On TikTok' }}
+               {%- endif -%}
+             </span>
            </div>
          {%- elsif section.settings.social_platform == 'instagram' -%}
            <div class="video-slider-social-badge">
@@ -724,14 +753,26 @@ padding: {{ section.settings.mobile_content_padding }}px;
                </defs>
                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="url(#instagramGradientVideoSlider{{ section.id }})"/>
              </svg>
-             <span class="video-slider-social-text">{{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On Instagram' }}</span>
+             <span class="video-slider-social-text">
+               {%- if section.settings.badge_richtext != blank -%}
+                 {{ section.settings.badge_richtext }}
+               {%- else -%}
+                 {{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On Instagram' }}
+               {%- endif -%}
+             </span>
            </div>
          {%- elsif section.settings.social_platform == 'facebook' -%}
            <div class="video-slider-social-badge">
              <svg class="video-slider-social-icon" width="9.8" height="9.8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
              </svg>
-             <span class="video-slider-social-text">{{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On Facebook' }}</span>
+             <span class="video-slider-social-text">
+               {%- if section.settings.badge_richtext != blank -%}
+                 {{ section.settings.badge_richtext }}
+               {%- else -%}
+                 {{ section.settings.badge_text | default: 'Over ' }} {{ section.settings.view_count }}{{ section.settings.badge_suffix | default: 'M Views On Facebook' }}
+               {%- endif -%}
+             </span>
            </div>
          {%- endif -%}
        {%- endif -%}
@@ -789,8 +830,10 @@ padding: {{ section.settings.mobile_content_padding }}px;
                       playsinline
                       {% if section.settings.autoplay_videos %}
                         preload="auto"
-                      {% else %}
+                      {% elsif block.settings.video_thumbnail != blank %}
                         preload="none"
+                      {% else %}
+                        preload="metadata"
                       {% endif %}
                       {% if block.settings.video_thumbnail != blank %}
                         poster="{{ block.settings.video_thumbnail | image_url: width: 800 }}"
@@ -816,8 +859,10 @@ padding: {{ section.settings.mobile_content_padding }}px;
                       playsinline
                       {% if section.settings.autoplay_videos %}
                         preload="auto"
-                      {% else %}
+                      {% elsif block.settings.video_thumbnail != blank %}
                         preload="none"
+                      {% else %}
+                        preload="metadata"
                       {% endif %}
                       {% if block.settings.video_thumbnail != blank %}
                         poster="{{ block.settings.video_thumbnail | image_url: width: 800 }}"
@@ -869,8 +914,10 @@ padding: {{ section.settings.mobile_content_padding }}px;
                       playsinline
                       {% if section.settings.autoplay_videos %}
                         preload="auto"
-                      {% else %}
+                      {% elsif block.settings.video_thumbnail != blank %}
                         preload="none"
+                      {% else %}
+                        preload="metadata"
                       {% endif %}
                       {% if block.settings.video_thumbnail != blank %}
                         poster="{{ block.settings.video_thumbnail | image_url: width: 800 }}"
@@ -889,6 +936,8 @@ padding: {{ section.settings.mobile_content_padding }}px;
                     src="{{ block.settings.video_thumbnail | image_url: width: 800 }}"
                     alt="{{ block.settings.title | escape }}"
                     loading="lazy"
+                    width="800"
+                    height="1422"
                   >
                 {%- endif -%}
                 {% if section.settings.enable_video_overlay %}<div class="card-overlay"></div>{% endif %}
@@ -975,17 +1024,23 @@ document.addEventListener('DOMContentLoaded', function() {
   
   videos.forEach(video => {
     const card = video.closest('.card');
+    const hasPoster = video.hasAttribute('poster') && video.getAttribute('poster') !== '';
     
     // Only initialize as paused if autoplay is NOT enabled
     if (!autoplayEnabled) {
       video.classList.add('paused');
       card.classList.remove('playing');
       
-      if (video.readyState < 1) {
+      // Only load video if there's no custom poster (we want to show first frame)
+      // If there's a poster, don't load the video - let the poster show
+      if (!hasPoster && video.readyState < 1) {
         video.load();
       }
       
+      // Don't set currentTime if there's a poster - it will replace the poster with video frame
+      if (!hasPoster) {
       video.currentTime = 0;
+      }
     } else {
       // For autoplay videos, mark as playing
       video.classList.remove('paused');
@@ -1000,8 +1055,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     {% unless section.settings.autoplay_videos %}
+    // Only set currentTime on loadedmetadata if there's no poster
     video.addEventListener('loadedmetadata', function() {
+      if (!hasPoster) {
       video.currentTime = 0;
+      }
     });
     {% endunless %}
   });
@@ -1188,6 +1246,24 @@ document.addEventListener('DOMContentLoaded', function() {
       "unit": "px",
       "label": "Container Max Width",
       "default": 1100
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_video_grid_max_width",
+      "label": "Enable Video Grid Max Width",
+      "default": false,
+      "info": "When enabled, limits the video grid width on desktop"
+    },
+    {
+      "type": "range",
+      "id": "video_grid_max_width",
+      "min": 800,
+      "max": 1800,
+      "step": 50,
+      "unit": "px",
+      "label": "Video Grid Max Width",
+      "default": 1400,
+      "info": "Maximum width of the video grid on desktop (only applies when enabled above)"
     },
     {
       "type": "range",
@@ -1726,6 +1802,13 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     {
       "type": "checkbox",
+      "id": "show_badge_background",
+      "label": "Show badge background",
+      "default": true,
+      "info": "When disabled, only the icon and text are shown without the background pill"
+    },
+    {
+      "type": "checkbox",
       "id": "badge_above_heading",
       "label": "Show badge above heading",
       "default": true,
@@ -1752,24 +1835,32 @@ document.addEventListener('DOMContentLoaded', function() {
       "default": "instagram"
     },
     {
+      "type": "richtext",
+      "id": "badge_richtext",
+      "label": "Badge Text (Rich Text)",
+      "default": "<p>Over <strong>56M</strong> Views On Instagram</p>",
+      "info": "Use bold for emphasis. If filled, this overrides the prefix/suffix fields below."
+    },
+    {
       "type": "number",
       "id": "view_count",
       "label": "View count (raw number)",
-      "default": 56
+      "default": 56,
+      "info": "Only used if Badge Text (Rich Text) is empty"
     },
     {
       "type": "text",
       "id": "badge_text",
       "label": "Badge prefix text",
       "default": "Over ",
-      "info": "Text that appears before the view count"
+      "info": "Only used if Badge Text (Rich Text) is empty"
     },
     {
       "type": "text",
       "id": "badge_suffix",
       "label": "Badge suffix text",
       "default": "M Views On Instagram",
-      "info": "Text that appears after the view count"
+      "info": "Only used if Badge Text (Rich Text) is empty"
     },
     {
       "type": "checkbox",
@@ -2213,8 +2304,8 @@ document.addEventListener('DOMContentLoaded', function() {
         {
           "type": "image_picker",
           "id": "video_thumbnail",
-          "label": "Video Thumbnail/Poster",
-          "info": "Upload a thumbnail image that shows before video loads (recommended for mobile)"
+          "label": "Custom Video Thumbnail",
+          "info": "Optional: Upload a custom thumbnail. If left empty, the video's first frame will be used automatically."
         },
         {
           "type": "text",

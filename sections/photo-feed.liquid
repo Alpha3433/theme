@@ -4,7 +4,6 @@
 {% endcomment %}
 
 <!-- Swiper CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
 <style>
   #shopify-section-{{ section.id }} .instagram-feed-section {
@@ -136,7 +135,7 @@
   }
 </style>
 
-<section class="instagram-feed-section" id="instagram-feed-section-{{ section.id }}">
+<section class="instagram-feed-section {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" id="instagram-feed-section-{{ section.id }}">
   <div class="instagram-feed-container">
     {% if section.settings.show_title %}
       <div class="instagram-feed-header">
@@ -210,10 +209,10 @@
 </section>
 
 <!-- Swiper JS -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    swiperCheckAndLoad();
     const swiper = new Swiper('#instagram-swiper-{{ section.id }}', {
       slidesPerView: {{ section.settings.columns_mobile }},
       spaceBetween: {{ section.settings.grid_gap_mobile }},

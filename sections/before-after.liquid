@@ -174,7 +174,6 @@
     {%- endif -%}
   {%- endcapture -%}
   
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   
   {%- style -%}
       #shopify-section-{{ section.id }} {
@@ -211,6 +210,12 @@
           -webkit-tap-highlight-color: transparent;
           width: 100%;
           overflow: hidden;
+          transition: opacity 0.15s ease-out;
+      }
+      
+      #shopify-section-{{ section.id }} .section-slider--pending {
+          opacity: 0;
+          pointer-events: none;
       }
       
       #shopify-section-{{ section.id }} .swiper-wrapper {
@@ -697,7 +702,7 @@
       </div>
     {%- endif -%}
     
-    <div class="section-slider swiper">
+    <div class="section-slider swiper section-slider--pending">
           <div class="swiper-wrapper">
               {%- for block in section.blocks -%}
                   {%- liquid 
@@ -757,14 +762,14 @@
       {%- endif -%}
   </div>
   
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
   <script>
       const {{ section.id | replace: '-', '_' }}_function = () => {
           const section = document.querySelector('#shopify-section-{{ section.id }}');
+          if (!section) return;
   
-          if(!section) return;
+          const slider = section.querySelector('.section-slider');
+          if (!slider) return;
   
-          // Wait for images to load before initializing Swiper
           const images = section.querySelectorAll('img');
           const imagePromises = Array.from(images).map(img => {
               if (img.complete) return Promise.resolve();
@@ -773,16 +778,24 @@
                   img.addEventListener('error', resolve);
               });
           });
+          const imagesReady = Promise.race([
+              Promise.all(imagePromises),
+              new Promise(r => setTimeout(r, 200))
+          ]);
   
-          Promise.all(imagePromises).then(() => {
+          Promise.all([
+              typeof window.swiperCheckAndLoad === 'function' ? window.swiperCheckAndLoad() : Promise.resolve(),
+              imagesReady
+          ]).then(() => {
+              if (!slider || slider.swiper) return;
               initializeSlider();
           });
-          
-          // Also initialize immediately (will be overridden if images are still loading)
-          setTimeout(() => initializeSlider(), 100);
-          
+  
           function initializeSlider() {
-              const slider = section.querySelector('.section-slider');
+              const sliderEl = section.querySelector('.section-slider');
+              if (!sliderEl || sliderEl.swiper) return;
+              sliderEl.classList.remove('section-slider--pending');
+              const slider = sliderEl;
               const prev = section.querySelector('.nav-button.prev');
               const next = section.querySelector('.nav-button.next');
               const pagination = section.querySelector('.slider-pagination');
@@ -1077,6 +1090,7 @@
   {%- schema -%}
       {
           "name": "Before & After Slider",
+          "tag": "section",
           "class": "cstm-before-and-after-slider",
           "settings": [
               {

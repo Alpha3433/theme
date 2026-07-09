@@ -17,7 +17,7 @@
 </style>
 
 <div
-  class="fb-thread-section"
+  class="fb-thread-section {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}"
   id="fb-thread-{{ section.id }}"
   style="
     background-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.section_background_color | default: '#ffffff' }}{% endif %};
@@ -1857,7 +1857,8 @@
 
 {% schema %}
 {
-  "name": "Facebook Comment Thread",
+  "name": "Facebook Comment Thread",  
+  "tag": "section",
   "class": "fb-thread-section",
   "settings": [
     {

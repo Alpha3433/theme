@@ -127,6 +127,9 @@
 
 .contact-form__status--error {
   color: var(--error-color);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
 }
 
 .contact-form__status-icon {
@@ -136,6 +139,8 @@
 
 .contact-form__status-icon svg {
   fill: currentColor;
+  width: 16px;
+  height: 16px;
 }
 
 .contact-form__status-list {

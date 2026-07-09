@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
     variantSelector.onVariantSelect((variantData, index) => {
       console.log("Variant selected:", variantData);
       if (variantData.variantId) {
-        const productForm = document.querySelector('form[action*="/cart/add"]');
+        const productForm = typeof Elixir_GetProductForm === 'function' ? Elixir_GetProductForm() : document.querySelector('form[action*="/cart/add"]');
         if (productForm) {
           const variantInput = productForm.querySelector('input[name="id"], select[name="id"]');
           if (variantInput) {

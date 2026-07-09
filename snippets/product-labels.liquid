@@ -45,7 +45,10 @@
   - label_3_serving_text_color: Serving text color for third label
   - label_3_border_color: Border color for third label
   - container_gap: Gap between labels (default: 12px)
+  - labels_wrapper_padding_top: Top padding for labels wrapper (default: 0px)
+  - labels_wrapper_padding_bottom: Bottom padding for labels wrapper (default: 0px)
   - labels_wrapper_left_padding: Left padding for labels wrapper (default: 0px)
+  - labels_wrapper_padding_right: Right padding for labels wrapper (default: 0px)
   - label_bg_color: Background color for labels (default: #ffffff)
   - label_border_color: Border color for labels (default: #e0e0e0)
   - label_border_radius: Border radius for labels (default: 12px)
@@ -115,7 +118,10 @@
   assign label_3_serving_text_color = label_3_serving_text_color | default: '#666666'
   assign label_3_border_color = label_3_border_color | default: '#e0e0e0'
   assign container_gap = container_gap | default: 12
+  assign labels_wrapper_padding_top = labels_wrapper_padding_top | default: 0
+  assign labels_wrapper_padding_bottom = labels_wrapper_padding_bottom | default: 0
   assign labels_wrapper_left_padding = labels_wrapper_left_padding | default: 0
+  assign labels_wrapper_padding_right = labels_wrapper_padding_right | default: 0
   assign label_bg_color = label_bg_color | default: '#ffffff'
   assign label_border_color = label_border_color | default: '#e0e0e0'
   assign label_border_radius = label_border_radius | default: 12
@@ -143,6 +149,8 @@
   assign icon_size_mobile = icon_size_mobile | default: 24
   assign margin_top = margin_top | default: 0
   assign margin_bottom = margin_bottom | default: 0
+  assign label_layout = label_layout | default: 'row'
+  assign container_layout = container_layout | default: 'flex'
   assign label_1_drop_shadow_enabled = label_1_drop_shadow_enabled | default: false
   assign label_1_shadow_blur = label_1_shadow_blur | default: 8
   assign label_1_shadow_spread = label_1_shadow_spread | default: 0
@@ -274,12 +282,21 @@
   }
 
   .product-labels-{{ block.id }} .labels-wrapper {
+    {% if container_layout == 'grid' %}
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    {% else %}
     display: flex;
+    justify-content: {{ labels_justify_content | default: 'flex-start' }};
+    {% endif %}
     gap: {{ container_gap }}px;
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    padding-top: {{ labels_wrapper_padding_top }}px;
+    padding-bottom: {{ labels_wrapper_padding_bottom }}px;
     padding-left: {{ labels_wrapper_left_padding }}px;
+    padding-right: {{ labels_wrapper_padding_right }}px;
   }
 
   .product-labels-{{ block.id }} .product-label {
@@ -288,11 +305,25 @@
     padding: {{ label_padding_v }}px {{ label_padding_h }}px;
     display: flex;
     font-weight: var(--font-weight-bold) !important;
+    {% if label_layout == 'column' %}
+    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    text-align: center;
+    {% else %}
+    flex-direction: row;
+    align-items: center;
+    {% endif %}
+    gap: {% if label_layout == 'column' %}8{% else %}4{% endif %}px;
     border: 1px solid {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color | color_modify: 'alpha', 0.2 }}{% else %}{{ label_border_color }}{% endif %};
     min-width: 0;
   }
+  
+  {% if label_layout == 'column' %}
+  .product-labels-{{ block.id }} .product-content {
+    align-items: center;
+    text-align: center;
+  }
+  {% endif %}
 
   .product-labels-{{ block.id }} .product-content {
     display: flex;
@@ -329,12 +360,12 @@
     font-weight: var(--font-weight-bold) !important;
     letter-spacing: var(--letter-spacing-body);
     color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ product_name_color }}{% endif %};
-    font-size: {{ product_name_font_size }}px;
+    font-size: {{ product_name_font_size }}px !important;
   }
 
   .product-labels-{{ block.id }} .serving-info {
     color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color | color_modify: 'alpha', 0.7 }}{% else %}{{ serving_info_color }}{% endif %};
-    font-size: {{ serving_info_font_size }}px;
+    font-size: {{ serving_info_font_size }}px !important;
   }
 
   .product-labels-{{ block.id }} .serving-count {
@@ -420,7 +451,7 @@
   @media (max-width: 768px) {
     .product-labels-{{ block.id }} .labels-wrapper {
       gap: {{ container_gap | times: 0.67 | round }}px;
-      padding: 0 10px;
+      padding: 0 0px;
     }
 
     .product-labels-{{ block.id }} .product-label {
@@ -435,11 +466,11 @@
     }
 
     .product-labels-{{ block.id }} .product-name {
-      font-size: {{ product_name_font_size_mobile }}px;
+      font-size: {{ product_name_font_size_mobile }}px !important;
     }
 
     .product-labels-{{ block.id }} .serving-info {
-      font-size: {{ serving_info_font_size_mobile }}px;
+      font-size: {{ serving_info_font_size_mobile }}px !important;
       gap: 8px;
     }
   }
@@ -447,7 +478,7 @@
   @media (max-width: 480px) {
     .product-labels-{{ block.id }} .labels-wrapper {
       gap: {{ container_gap | times: 0.5 | round }}px;
-      padding: 0 5px;
+      padding: 0 0px;
     }
 
     .product-labels-{{ block.id }} .product-label {
@@ -462,18 +493,18 @@
     }
 
     .product-labels-{{ block.id }} .product-name {
-      font-size: {{ product_name_font_size_mobile | times: 0.9 | round }}px;
+      font-size: {{ product_name_font_size_mobile | times: 0.9 | round }}px !important;
     }
 
     .product-labels-{{ block.id }} .serving-info {
-      font-size: {{ serving_info_font_size_mobile | times: 0.9 | round }}px;
+      font-size: {{ serving_info_font_size_mobile | times: 0.9 | round }}px !important;
     }
   }
 
   @media (max-width: 396px) {
     .product-labels-{{ block.id }} .labels-wrapper {
       gap: {{ container_gap | times: 0.4 | round }}px;
-      padding: 0 3px;
+      padding: 0 0px;
     }
 
     .product-labels-{{ block.id }} .product-label {
@@ -489,12 +520,12 @@
     }
 
     .product-labels-{{ block.id }} .product-name {
-      font-size: {{ product_name_font_size_mobile | times: 0.83 | round }}px;
+      font-size: {{ product_name_font_size_mobile | times: 0.83 | round }}px !important;
       line-height: 1.2;
     }
 
     .product-labels-{{ block.id }} .serving-info {
-      font-size: {{ serving_info_font_size_mobile | times: 0.8 | round }}px;
+      font-size: {{ serving_info_font_size_mobile | times: 0.8 | round }}px !important;
       line-height: 1.1;
     }
 

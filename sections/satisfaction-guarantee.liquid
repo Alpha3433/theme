@@ -29,7 +29,7 @@
 
 {% render 'satisfaction-guarantee_style' %}
 
-<div class="guarantee-section__wrapper page-fade-in">
+<div class="guarantee-section__wrapper {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
   <div class="guarantee-section__container">
     <!-- Mobile View -->
     <div class="guarantee-section__mobile {% if section.settings.show_photos == false %}no-photos{% endif %}">
@@ -154,7 +154,7 @@
             {% endif %}
         {% endcase %}
 
-        <a href="{{ button_href }}" class="guarantee-section__cta" {{ button_data_attrs }}>
+        <a href="{{ button_href }}" class="guarantee-section__cta{% unless section.settings.use_global_button_style %} disable-global-button-styling{% endunless %}" {{ button_data_attrs }}>
           {{ section.settings.button_text }}
         </a>
 
@@ -268,7 +268,7 @@
           {{ section.settings.description_text | replace: 'Premium Product', section.settings.product_name }}
         </p>
 
-        <a href="{{ button_href }}" class="guarantee-section__cta" {{ button_data_attrs }}>
+        <a href="{{ button_href }}" class="guarantee-section__cta{% unless section.settings.use_global_button_style %} disable-global-button-styling{% endunless %}" {{ button_data_attrs }}>
           {{ section.settings.button_text }}
         </a>
 
@@ -904,6 +904,58 @@
       "default": "#FFFFFF"
     },
     {
+      "type": "range",
+      "id": "button_font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Font Size",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "button_font_weight",
+      "label": "Button Font Weight",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "label": "Button Border Radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "button_padding_vertical",
+      "min": 8,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "label": "Button Padding (Vertical)",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "button_padding_horizontal",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Button Padding (Horizontal)",
+      "default": 20
+    },
+    {
       "type": "header",
       "content": "Benefits"
     },
@@ -1074,7 +1126,7 @@
       "id": "padding_top",
       "min": 0,
       "max": 100,
-      "step": 5,
+      "step": 1,
       "unit": "px",
       "label": "Top Padding (Desktop)",
       "default": 60
@@ -1084,7 +1136,7 @@
       "id": "padding_bottom",
       "min": 0,
       "max": 100,
-      "step": 5,
+      "step": 1,
       "unit": "px",
       "label": "Bottom Padding (Desktop)",
       "default": 60
@@ -1338,6 +1390,73 @@
       "id": "container_background",
       "label": "Container Background",
       "default": "linear-gradient(to right, #FFFFFF, #F8F8F8)"
+    },
+    {
+      "type": "header",
+      "content": "Container Background Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_bg_image",
+      "label": "Container Background Image (Desktop)",
+      "info": "Background image for the container when Contain Section is enabled"
+    },
+    {
+      "type": "image_picker",
+      "id": "container_bg_image_mobile",
+      "label": "Container Background Image (Mobile)",
+      "info": "Mobile background image. If not set, desktop image will be used."
+    },
+    {
+      "type": "select",
+      "id": "container_bg_size",
+      "label": "Background Size",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" },
+        { "value": "auto", "label": "Auto" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "container_bg_position",
+      "label": "Background Position",
+      "options": [
+        { "value": "center center", "label": "Center" },
+        { "value": "top center", "label": "Top Center" },
+        { "value": "bottom center", "label": "Bottom Center" },
+        { "value": "left center", "label": "Left Center" },
+        { "value": "right center", "label": "Right Center" },
+        { "value": "top left", "label": "Top Left" },
+        { "value": "top right", "label": "Top Right" },
+        { "value": "bottom left", "label": "Bottom Left" },
+        { "value": "bottom right", "label": "Bottom Right" }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_container_bg_overlay",
+      "label": "Enable Background Image Overlay",
+      "default": false,
+      "info": "Add an overlay over the background image for better text readability"
+    },
+    {
+      "type": "color",
+      "id": "container_bg_overlay_color",
+      "label": "Background Overlay Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "container_bg_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Overlay Opacity",
+      "default": 30
     },
     {
       "type": "header",

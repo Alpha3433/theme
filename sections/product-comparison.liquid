@@ -26,10 +26,12 @@
   {% endif %}
 {% endif %}
 
-{{ 'product-comparison.js' | asset_url | defer | script_tag }}
+{%- liquid
+  assign column_count = section.settings.column_count | default: '2' | plus: 0
+-%}
 
 <div
-  class="comparison-section section-{{ section.id }} page-fade-in"
+  class="comparison-section section-{{ section.id }}  {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}"
   style="{% if section.settings.use_theme_colors %}{% if settings.global_section_use_gradient_background %}background: {{ settings.global_section_gradient_background }};{% else %}background-color: {{ settings.global_section_background_color }};{% endif %}{% else %}background-color: {{ section.settings.background_color }};{% endif %}"
 >
   <div class="comparison-container">
@@ -99,7 +101,7 @@
               <tr class="table-header">
                 <th class="feature-header"></th>
                 {% for block in section.blocks %}
-                  {% if block.type == 'product_column' and forloop.index <= 2 %}
+                  {% if block.type == 'product_column' and forloop.index <= column_count %}
                     <th
                       class="product-header column-{{ forloop.index }} {% if block.settings.highlight_column %}highlighted{% endif %}"
                       data-column="{{ forloop.index }}"
@@ -185,7 +187,7 @@
                       </div>
                     </td>
 
-                    {% for i in (1..2) %}
+                    {% for i in (1..column_count) %}
                       {% assign value_setting = 'value_' | append: i %}
                       {% assign text_value_setting = 'text_value_' | append: i %}
 
@@ -208,15 +210,43 @@
                         {% if block.settings.value_type == 'checkmark' %}
                           {% if block.settings[value_setting] == 'yes' %}
                             <span class="check-yes">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="24" height="24">
-                                <rect width="256" height="256" fill="none"/><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm45.66,85.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32Z" fill="currentColor"/>
-                              </svg>
+                              {% if section.settings.use_custom_check_icons
+                                and section.settings.custom_checkmark_icon != blank
+                              %}
+                                <img
+                                  src="{{ section.settings.custom_checkmark_icon | image_url: width: 96 }}"
+                                  srcset="{{ section.settings.custom_checkmark_icon | image_url: width: 48 }} 1x, {{ section.settings.custom_checkmark_icon | image_url: width: 96 }} 2x"
+                                  alt="Yes"
+                                  loading="lazy"
+                                  width="{{ section.settings.icon_size_desktop | default: 24 }}"
+                                  height="{{ section.settings.icon_size_desktop | default: 24 }}"
+                                  class="custom-check-icon"
+                                >
+                              {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="24" height="24">
+                                  <rect width="256" height="256" fill="none"/><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm45.66,85.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32Z" fill="currentColor"/>
+                                </svg>
+                              {% endif %}
                             </span>
                           {% else %}
                             <span class="check-no">
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="24" height="24">
-                                <rect width="256" height="256" fill="none"/><path d="M128,24A104,104,0,1,0,232,128,104.12,104.12,0,0,0,128,24Zm36.44,132.88a8,8,0,0,1,0,11.31,8.17,8.17,0,0,1-11.31,0L128,143.31l-25.13,24.88a8.17,8.17,0,0,1-11.31,0,8,8,0,0,1,0-11.31L116.69,132,91.56,107.13a8,8,0,0,1,11.31-11.32L128,120.69l25.13-24.88a8,8,0,0,1,11.31,11.32L139.31,132Z" fill="currentColor"/>
-                              </svg>
+                              {% if section.settings.use_custom_check_icons
+                                and section.settings.custom_x_icon != blank
+                              %}
+                                <img
+                                  src="{{ section.settings.custom_x_icon | image_url: width: 96 }}"
+                                  srcset="{{ section.settings.custom_x_icon | image_url: width: 48 }} 1x, {{ section.settings.custom_x_icon | image_url: width: 96 }} 2x"
+                                  alt="No"
+                                  loading="lazy"
+                                  width="{{ section.settings.icon_size_desktop | default: 24 }}"
+                                  height="{{ section.settings.icon_size_desktop | default: 24 }}"
+                                  class="custom-check-icon"
+                                >
+                              {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="24" height="24">
+                                  <rect width="256" height="256" fill="none"/><path d="M128,24A104,104,0,1,0,232,128,104.12,104.12,0,0,0,128,24Zm36.44,132.88a8,8,0,0,1,0,11.31,8.17,8.17,0,0,1-11.31,0L128,143.31l-25.13,24.88a8.17,8.17,0,0,1-11.31,0,8,8,0,0,1,0-11.31L116.69,132,91.56,107.13a8,8,0,0,1,11.31-11.32L128,120.69l25.13-24.88a8,8,0,0,1,11.31,11.32L139.31,132Z" fill="currentColor"/>
+                                </svg>
+                              {% endif %}
                             </span>
                           {% endif %}
                         {% else %}
@@ -253,26 +283,164 @@
 <style>
   /* Dynamic styles that use Liquid variables */
   .section-{{ section.id }} {
-    {% if section.settings.use_gradient_background and section.settings.use_theme_colors != true %}
+    {% if section.settings.use_background_image and section.settings.background_image_desktop != blank %}
+      /* Background image mode */
+      {% if section.settings.use_theme_colors %}
+        background-image: url('{{ section.settings.background_image_desktop | image_url: width: 1920 }}');
+        background-color: {{ settings.global_section_background_color }};
+      {% elsif section.settings.use_gradient_background %}
+        background: url('{{ section.settings.background_image_desktop | image_url: width: 1920 }}'), {{ section.settings.background_gradient }};
+      {% else %}
+        background-image: url('{{ section.settings.background_image_desktop | image_url: width: 1920 }}');
+        background-color: {{ section.settings.background_color }};
+      {% endif %}
+      background-size: {{ section.settings.background_image_size | default: 'cover' }};
+      background-position: {{ section.settings.background_image_position | default: 'center center' }};
+      background-repeat: {{ section.settings.background_image_repeat | default: 'no-repeat' }};
+      {% if section.settings.background_overlay_enable %}
+        position: relative;
+      {% endif %}
+    {% elsif section.settings.use_gradient_background and section.settings.use_theme_colors != true %}
       background: {{ section.settings.background_gradient }};
     {% elsif section.settings.use_theme_colors != true %}
       background-color: {{ section.settings.background_color }};
     {% endif %}
     /* Theme color for background is handled by the div's inline style */
-    
+
+    padding-top: {{ section.settings.padding_top }}px !important;
+    padding-bottom: {{ section.settings.padding_bottom }}px !important;
+    padding-left: {{ section.settings.padding_horizontal }}px !important;
+    padding-right: {{ section.settings.padding_horizontal }}px !important;
+
     /* Section borders */
     {% if section.settings.enable_section_top_border %}
       border-top: {{ section.settings.section_top_border_width | default: 1 }}px {{ section.settings.section_top_border_style | default: 'solid' }} {{ section.settings.section_top_border_color | default: '#E5E5E5' }};
     {% endif %}
-    
+
     {% if section.settings.enable_section_bottom_border %}
       border-bottom: {{ section.settings.section_bottom_border_width | default: 1 }}px {{ section.settings.section_bottom_border_style | default: 'solid' }} {{ section.settings.section_bottom_border_color | default: '#E5E5E5' }};
     {% endif %}
   }
 
-  .section-{{ section.id }} .comparison-container {
-    max-width: {{ section.settings.table_width }}px;
+  @media screen and (max-width: 767px) {
+    .section-{{ section.id }} {
+      padding-top: {{ section.settings.mobile_padding_top }}px !important;
+      padding-bottom: {{ section.settings.mobile_padding_bottom }}px !important;
+      padding-left: {{ section.settings.mobile_padding_horizontal }}px !important;
+      padding-right: {{ section.settings.mobile_padding_horizontal }}px !important;
+      {% if section.settings.use_background_image %}
+        {% if section.settings.background_image_mobile != blank %}
+          background-image: url('{{ section.settings.background_image_mobile | image_url: width: 768 }}') !important;
+        {% elsif section.settings.background_image_desktop != blank %}
+          background-image: url('{{ section.settings.background_image_desktop | image_url: width: 768 }}') !important;
+        {% endif %}
+      {% endif %}
+    }
   }
+
+  /* Background overlay */
+  {% if section.settings.use_background_image and section.settings.background_overlay_enable %}
+  .section-{{ section.id }}::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: {{ section.settings.background_overlay_color | default: '#000000' }};
+    opacity: {{ section.settings.background_overlay_opacity | default: 30 | divided_by: 100.0 }};
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .section-{{ section.id }} .comparison-container {
+    position: relative;
+    z-index: 1;
+  }
+  {% endif %}
+
+  .section-{{ section.id }} .comparison-container {
+    {% if section.settings.column_count == '3' %}
+      max-width: {{ section.settings.table_width | at_least: 1400 }}px;
+    {% else %}
+      max-width: {{ section.settings.table_width }}px;
+    {% endif %}
+    padding-top: {{ section.settings.container_padding_vertical_desktop | default: 0 }}px;
+    padding-bottom: {{ section.settings.container_padding_vertical_desktop | default: 0 }}px;
+    padding-left: {{ section.settings.container_padding_horizontal_desktop | default: 0 }}px;
+    padding-right: {{ section.settings.container_padding_horizontal_desktop | default: 0 }}px;
+  }
+
+  @media (max-width: 991px) {
+    .section-{{ section.id }} .comparison-container {
+      padding-top: {{ section.settings.container_padding_vertical_mobile | default: 0 }}px;
+      padding-bottom: {{ section.settings.container_padding_vertical_mobile | default: 0 }}px;
+      padding-left: {{ section.settings.container_padding_horizontal_mobile | default: 15 }}px;
+      padding-right: {{ section.settings.container_padding_horizontal_mobile | default: 15 }}px;
+    }
+  }
+
+  /* Column count layout adjustments */
+  {% if section.settings.column_count == '3' %}
+    .section-{{ section.id }} .comparison-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    .section-{{ section.id }} .feature-header,
+    .section-{{ section.id }} .feature-cell {
+      width: 22%;
+    }
+    .section-{{ section.id }} .product-header,
+    .section-{{ section.id }} .value-cell {
+      width: 26%;
+    }
+    @media (max-width: 991px) {
+      .section-{{ section.id }} .comparison-container {
+        max-width: 100%;
+      }
+      .section-{{ section.id }} .feature-header,
+      .section-{{ section.id }} .feature-cell {
+        width: 25%;
+        font-size: 11px;
+      }
+      .section-{{ section.id }} .product-header,
+      .section-{{ section.id }} .value-cell {
+        width: 25%;
+      }
+      .section-{{ section.id }} .comparison-product-title {
+        font-size: 11px;
+      }
+      .section-{{ section.id }} .product-subtitle {
+        font-size: 9px;
+      }
+      .section-{{ section.id }} .comparison-img {
+        max-height: 50px !important;
+      }
+    }
+    @media (max-width: 600px) {
+      .section-{{ section.id }} .feature-header,
+      .section-{{ section.id }} .feature-cell {
+        width: 28%;
+        font-size: 10px;
+        padding: 8px 5px;
+      }
+      .section-{{ section.id }} .product-header,
+      .section-{{ section.id }} .value-cell {
+        width: 24%;
+        padding: 8px 5px;
+      }
+      .section-{{ section.id }} .comparison-product-title {
+        font-size: 10px;
+      }
+      .section-{{ section.id }} .product-subtitle {
+        font-size: 8px;
+        padding: 2px 4px;
+      }
+      .section-{{ section.id }} .comparison-img {
+        max-height: 40px !important;
+      }
+    }
+  {% endif %}
 
   /* Two-Column Layout for Desktop Text Column */
   .section-{{ section.id }} .comparison-layout {
@@ -340,7 +508,11 @@
     .section-{{ section.id }} .comparison-text-column-wrapper {
       flex: 1;
       max-width: {{ 100 | minus: section.settings.table_column_width | default: 53 }}%;
-      order: 1;
+      {% if section.settings.table_column_position == 'left' %}
+        order: 2;
+      {% else %}
+        order: 1;
+      {% endif %}
       align-self: stretch; /* Force the wrapper to stretch to parent height */
       {% if section.settings.center_text_column_desktop %}
         display: flex;
@@ -366,7 +538,11 @@
     }
 
     .section-{{ section.id }} .comparison-table-column {
-      order: 2;
+      {% if section.settings.table_column_position == 'left' %}
+        order: 1;
+      {% else %}
+        order: 2;
+      {% endif %}
       flex: 0 0 {{ section.settings.table_column_width | default: 47 }}%;
       max-width: {{ section.settings.table_column_width | default: 47 }}%;
     }
@@ -383,7 +559,7 @@
     /* Reduce vertical spacing */
     .section-{{ section.id }} .product-header {
       padding: 12px 6px; /* Much smaller horizontal padding */
-      width: 80px; /* Much narrower - reduced from 140px to 80px */
+      width: {{ section.settings.product_header_width_desktop | default: 80 }}px;
     }
 
     .section-{{ section.id }} .feature-cell {
@@ -397,6 +573,7 @@
 
     .section-{{ section.id }} .value-cell {
       padding: 10px 6px; /* Much smaller horizontal padding */
+      width: {{ section.settings.product_header_width_desktop | default: 80 }}px;
     }
 
     .section-{{ section.id }} .comparison-img-wrapper {
@@ -421,7 +598,8 @@
     /* Enhanced accent text styling with global and local customization options */
     .section-{{ section.id }} .comparison-heading .accent-text {
       display: inline-block;
-      line-height: 1;
+      line-height: inherit;
+      vertical-align: baseline;
       margin-left: {{ section.settings.accent_text_margin_left }}px !important;
 
       /* 1. Apply Color or Gradient */
@@ -524,6 +702,8 @@
       {% endif %}
       padding-right: 4px !important;
       display: inline-block !important;
+      line-height: inherit !important;
+      vertical-align: baseline !important;
     }
 
     /* Enhanced specificity for custom accent text */
@@ -561,6 +741,8 @@
       {% endif %}
       padding-right: 4px !important;
       display: inline-block !important;
+      line-height: inherit !important;
+      vertical-align: baseline !important;
     }
 
     /* .section-{{ section.id }} .comparison-subheading {
@@ -705,6 +887,21 @@
     letter-spacing: var(--letter-spacing-body);
   }
 
+  /* Checkmark/X Icon Sizing */
+  .section-{{ section.id }} .check-yes svg,
+  .section-{{ section.id }} .check-no svg {
+    width: {{ section.settings.icon_size_desktop | default: 24 }}px;
+    height: {{ section.settings.icon_size_desktop | default: 24 }}px;
+  }
+
+  /* Custom Icon Images */
+  .section-{{ section.id }} .check-yes .custom-check-icon,
+  .section-{{ section.id }} .check-no .custom-check-icon {
+    width: {{ section.settings.icon_size_desktop | default: 24 }}px;
+    height: {{ section.settings.icon_size_desktop | default: 24 }}px;
+    object-fit: contain;
+  }
+
   /* Borders and Highlight Background - Mostly independent of text color logic but uses theme colors for BG */
   .section-{{ section.id }} .table-header th,
   .section-{{ section.id }} .feature-row td {
@@ -808,6 +1005,20 @@
       font-size: {{ section.settings.text_value_size_mobile }}px !important;
     }
 
+    /* Checkmark/X Icon Sizing - Mobile */
+    .section-{{ section.id }} .check-yes svg,
+    .section-{{ section.id }} .check-no svg {
+      width: {{ section.settings.icon_size_mobile | default: 20 }}px !important;
+      height: {{ section.settings.icon_size_mobile | default: 20 }}px !important;
+    }
+
+    /* Custom Icon Images - Mobile */
+    .section-{{ section.id }} .check-yes .custom-check-icon,
+    .section-{{ section.id }} .check-no .custom-check-icon {
+      width: {{ section.settings.icon_size_mobile | default: 20 }}px !important;
+      height: {{ section.settings.icon_size_mobile | default: 20 }}px !important;
+    }
+
     /* Column-specific mobile image sizes */
     {% for block in section.blocks %}
       {% if block.type == 'product_column' %}
@@ -829,29 +1040,6 @@
       {% endif %}
     {% endfor %}
   } {% endcomment %}
-
-  /* Load-in animation */
-  .page-fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Add slight delay for staggered effect on multiple sections */
-  .page-fade-in:nth-child(2) { animation-delay: 0.1s; }
-  .page-fade-in:nth-child(3) { animation-delay: 0.2s; }
-  .page-fade-in:nth-child(4) { animation-delay: 0.3s; }
 </style>
 
 {% schema %}
@@ -865,6 +1053,27 @@
       "id": "use_theme_colors",
       "label": "Use Theme Colors",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "column_count",
+      "label": "Number of Product Columns",
+      "options": [
+        {
+          "value": "2",
+          "label": "2 Columns"
+        },
+        {
+          "value": "3",
+          "label": "3 Columns"
+        }
+      ],
+      "default": "2",
+      "info": "Choose how many product columns to display in the comparison table"
     },
     {
       "type": "header",
@@ -1122,7 +1331,34 @@
       "type": "header",
       "content": "Desktop Layout Settings"
     },
-
+    {
+      "type": "select",
+      "id": "table_column_position",
+      "label": "Table Column Position",
+      "options": [
+        {
+          "value": "right",
+          "label": "Right (Text Left, Table Right)"
+        },
+        {
+          "value": "left",
+          "label": "Left (Table Left, Text Right)"
+        }
+      ],
+      "default": "right",
+      "info": "Choose which side the comparison table appears on desktop"
+    },
+    {
+      "type": "range",
+      "id": "product_header_width_desktop",
+      "min": 30,
+      "max": 160,
+      "step": 5,
+      "unit": "px",
+      "label": "Product Column Width (Desktop)",
+      "default": 80,
+      "info": "Width of each product column header on desktop"
+    },
     {
       "type": "range",
       "id": "table_column_width",
@@ -1143,18 +1379,126 @@
     },
     {
       "type": "header",
+      "content": "Section Spacing (Outer)"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Section Top Padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Section Bottom Padding",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Section Horizontal Padding (Desktop)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Section Top Padding (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Section Bottom Padding (Mobile)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_horizontal",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Section Horizontal Padding (Mobile)",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Container Spacing (Inner)"
+    },
+    {
+      "type": "range",
+      "id": "container_padding_vertical_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Container Vertical Padding - Desktop",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_horizontal_desktop",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Container Horizontal Padding - Desktop",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_vertical_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Container Vertical Padding - Mobile",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "container_padding_horizontal_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "label": "Container Horizontal Padding - Mobile",
+      "default": 16
+    },
+    {
+      "type": "header",
       "content": "Layout Settings"
     },
     {
       "type": "range",
       "id": "table_width",
       "min": 600,
-      "max": 1400,
+      "max": 1800,
       "step": 50,
       "unit": "px",
       "label": "Container Max Width",
       "default": 1200,
-      "info": "Maximum width of the entire comparison section container"
+      "info": "Maximum width of the entire comparison section container. Increase for 3 columns."
     },
     {
       "type": "range",
@@ -1260,6 +1604,53 @@
     },
     {
       "type": "header",
+      "content": "Icon Sizing"
+    },
+    {
+      "type": "range",
+      "id": "icon_size_desktop",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "default": 24,
+      "unit": "px",
+      "label": "Checkmark/X Icon Size - Desktop"
+    },
+    {
+      "type": "range",
+      "id": "icon_size_mobile",
+      "min": 14,
+      "max": 36,
+      "step": 2,
+      "default": 20,
+      "unit": "px",
+      "label": "Checkmark/X Icon Size - Mobile"
+    },
+    {
+      "type": "header",
+      "content": "Custom Icons (Optional)"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_check_icons",
+      "label": "Use custom icons for checkmarks and X",
+      "default": false,
+      "info": "When enabled, uploaded images will replace the default SVG icons"
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_checkmark_icon",
+      "label": "Custom Checkmark Icon",
+      "info": "Upload an image to use as the checkmark (Yes) icon"
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_x_icon",
+      "label": "Custom X Icon",
+      "info": "Upload an image to use as the X (No) icon"
+    },
+    {
+      "type": "header",
       "content": "Colors & Background"
     },
     {
@@ -1280,6 +1671,86 @@
       "label": "Background Gradient",
       "default": "linear-gradient(90deg, #ffffff 0%, #f5f5f5 100%)",
       "info": "Choose a gradient background for the section"
+    },
+    {
+      "type": "header",
+      "content": "Background Image"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_background_image",
+      "label": "Use Background Image",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image_desktop",
+      "label": "Background Image (Desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image_mobile",
+      "label": "Background Image (Mobile)",
+      "info": "Optional. Falls back to desktop image if not set."
+    },
+    {
+      "type": "select",
+      "id": "background_image_size",
+      "label": "Background Size",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" },
+        { "value": "auto", "label": "Auto" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "select",
+      "id": "background_image_position",
+      "label": "Background Position",
+      "options": [
+        { "value": "center center", "label": "Center" },
+        { "value": "top center", "label": "Top Center" },
+        { "value": "bottom center", "label": "Bottom Center" },
+        { "value": "left center", "label": "Left Center" },
+        { "value": "right center", "label": "Right Center" }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "select",
+      "id": "background_image_repeat",
+      "label": "Background Repeat",
+      "options": [
+        { "value": "no-repeat", "label": "No Repeat" },
+        { "value": "repeat", "label": "Repeat" },
+        { "value": "repeat-x", "label": "Repeat X" },
+        { "value": "repeat-y", "label": "Repeat Y" }
+      ],
+      "default": "no-repeat"
+    },
+    {
+      "type": "checkbox",
+      "id": "background_overlay_enable",
+      "label": "Enable Overlay",
+      "default": false,
+      "info": "Add a color overlay on top of the background image"
+    },
+    {
+      "type": "color",
+      "id": "background_overlay_color",
+      "label": "Overlay Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "background_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Overlay Opacity",
+      "default": 30
     },
     {
       "type": "color",
@@ -1524,7 +1995,7 @@
     {
       "type": "product_column",
       "name": "Product Column",
-      "limit": 2,
+      "limit": 3,
       "settings": [
         {
           "type": "text",
@@ -1739,6 +2210,33 @@
           "label": "Column 2 Text Value",
           "default": "No",
           "info": "Used when Value Type is Text"
+        },
+        {
+          "type": "header",
+          "content": "Column 3 (when 3 columns enabled)"
+        },
+        {
+          "type": "select",
+          "id": "value_3",
+          "label": "Column 3 Value",
+          "options": [
+            {
+              "value": "yes",
+              "label": "Yes"
+            },
+            {
+              "value": "no",
+              "label": "No"
+            }
+          ],
+          "default": "no"
+        },
+        {
+          "type": "text",
+          "id": "text_value_3",
+          "label": "Column 3 Text Value",
+          "default": "No",
+          "info": "Used when Value Type is Text"
         }
       ]
     }
@@ -1762,7 +2260,7 @@
             "product_name": "Others",
             "product_subtitle": "Knock-off",
             "highlight_column": false,
-            "subtitle_custom_icon": "<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 400 400' fill='currentColor'><path d='M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z'/></svg>"
+            "subtitle_custom_icon": "<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 461 461' fill='currentColor'><path d='M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z'/></svg>"
           }
         },
         {

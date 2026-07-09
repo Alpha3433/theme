@@ -2,7 +2,7 @@
   {
     "name": "theme_info",
     "theme_name": "Elixir",
-    "theme_version": "1.5.2",
+    "theme_version": "1.6.2",
     "theme_author": "Elixir",
     "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
     "theme_support_url": "https://support.shopify.com/"
@@ -268,6 +268,31 @@
         "unit": "px",
         "label": "Heading Letter Spacing",
         "default": -0.3
+      },
+      {
+        "type": "select",
+        "id": "heading_text_transform",
+        "label": "Heading Text Transform",
+        "options": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "uppercase",
+            "label": "UPPERCASE"
+          },
+          {
+            "value": "lowercase",
+            "label": "lowercase"
+          },
+          {
+            "value": "capitalize",
+            "label": "Capitalize Each Word"
+          }
+        ],
+        "default": "none",
+        "info": "Apply text transformation to all headings globally"
       },
       {
         "type": "header",
@@ -1102,41 +1127,64 @@
       },
       {
         "type": "range",
+        "id": "page_desktop_horizontal_padding",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "t:settings_schema.layout.settings.page_desktop_horizontal_padding.label",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "sections_desktop_horizontal_padding",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "t:settings_schema.layout.settings.sections_desktop_horizontal_padding.label",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "sections_desktop_vertical_padding",
+        "min": 0,
+        "max": 100,
+        "step": 4,
+        "unit": "px",
+        "label": "t:settings_schema.layout.settings.sections_desktop_vertical_padding.label",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "sections_mobile_horizontal_padding",
+        "min": 0,
+        "max": 40,
+        "step": 2,
+        "unit": "px",
+        "label": "t:settings_schema.layout.settings.sections_mobile_horizontal_padding.label",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "sections_mobile_vertical_padding",
+        "min": 0,
+        "max": 40,
+        "step": 2,
+        "unit": "px",
+        "label": "t:settings_schema.layout.settings.sections_mobile_vertical_padding.label",
+        "default": 0
+      },
+      {
+        "type": "range",
         "id": "spacing_sections",
         "min": 0,
         "max": 100,
         "step": 4,
         "unit": "px",
         "label": "t:settings_schema.layout.settings.spacing_sections.label",
+        "info": "t:settings_schema.layout.settings.spacing_sections.info",
         "default": 0
-      },
-      {
-        "type": "header",
-        "content": "t:settings_schema.layout.settings.header__grid.content"
-      },
-      {
-        "type": "paragraph",
-        "content": "t:settings_schema.layout.settings.paragraph__grid.content"
-      },
-      {
-        "type": "range",
-        "id": "spacing_grid_horizontal",
-        "min": 4,
-        "max": 40,
-        "step": 4,
-        "default": 8,
-        "unit": "px",
-        "label": "t:settings_schema.layout.settings.spacing_grid_horizontal.label"
-      },
-      {
-        "type": "range",
-        "id": "spacing_grid_vertical",
-        "min": 4,
-        "max": 40,
-        "step": 4,
-        "default": 8,
-        "unit": "px",
-        "label": "t:settings_schema.layout.settings.spacing_grid_vertical.label"
       }
     ]
   },
@@ -1150,23 +1198,9 @@
         "default": true
       },
       {
-        "type": "select",
+        "type": "checkbox",
         "id": "animations_hover_elements",
-        "options": [
-          {
-            "value": "default",
-            "label": "t:settings_schema.animations.settings.animations_hover_elements.options__1.label"
-          },
-          {
-            "value": "vertical-lift",
-            "label": "t:settings_schema.animations.settings.animations_hover_elements.options__2.label"
-          },
-          {
-            "value": "3d-lift",
-            "label": "t:settings_schema.animations.settings.animations_hover_elements.options__3.label"
-          }
-        ],
-        "default": "default",
+        "default": true,
         "label": "t:settings_schema.animations.settings.animations_hover_elements.label",
         "info": "t:settings_schema.animations.settings.animations_hover_elements.info"
       }
@@ -2125,71 +2159,6 @@
         "default": 100,
         "unit": "px",
         "label": "t:settings_schema.brand_information.settings.brand_image_width.label"
-      }
-    ]
-  },
-  {
-    "name": "Free gift",
-    "settings": [
-      {
-        "type": "product",
-        "id": "rely_on_product",
-        "label": "Rely on gift product",
-        "info": "If this product is removed from the cart all free gifts will also be removed"
-      },
-      {
-        "type": "header",
-        "content": "Free Products"
-      },
-      {
-        "type": "product",
-        "id": "item_1_product",
-        "label": "Item 1 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_2_product",
-        "label": "Item 2 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_3_product",
-        "label": "Item 3 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_4_product",
-        "label": "Item 4 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_5_product",
-        "label": "Item 5 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_6_product",
-        "label": "Item 6 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_7_product",
-        "label": "Item 7 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_8_product",
-        "label": "Item 8 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_9_product",
-        "label": "Item 9 Product"
-      },
-      {
-        "type": "product",
-        "id": "item_10_product",
-        "label": "Item 10 Product"
       }
     ]
   },

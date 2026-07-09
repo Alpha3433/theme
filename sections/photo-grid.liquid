@@ -197,7 +197,7 @@
     }
   {% endif %}
 
-  .tiktok-views-badge {
+  .photo-grid-section .tiktok-views-badge {
     display: inline-flex !important;
     align-items: center !important;
     padding: 1.7px 10px !important;
@@ -212,7 +212,7 @@
     margin-bottom: 10px;
   }
 
-  .tiktok-views-badge::before {
+  .photo-grid-section .tiktok-views-badge::before {
     content: '' !important;
     position: absolute !important;
     top: -1px !important;
@@ -224,18 +224,18 @@
     background: linear-gradient(45deg, #00f2ea, #ff0050) !important;
   }
 
-  .tiktok-icon {
+  .photo-grid-section .tiktok-icon {
     width: 9.8px !important;
     height: 9.8px !important;
     margin-right: 7px !important;
   }
 
-  .tiktok-text {
+  .photo-grid-section .tiktok-text {
     letter-spacing: -0.3px !important;
     font-weight: 500 !important;
   }
 
-  .instagram-views-badge {
+  .photo-grid-section .instagram-views-badge {
     display: inline-flex !important;
     align-items: center !important;
     padding: 1.7px 10px !important;
@@ -250,7 +250,7 @@
     background-clip: padding-box !important;
   }
 
-  .instagram-views-badge::before {
+  .photo-grid-section .instagram-views-badge::before {
     content: '' !important;
     position: absolute !important;
     top: -1px !important;
@@ -262,22 +262,22 @@
     background: linear-gradient(45deg, #833ab4, #fd1d1d, #fcb045) !important;
   }
 
-  .instagram-icon {
+  .photo-grid-section .instagram-icon {
     width: 9.8px !important;
     height: 9.8px !important;
     margin-right: 7px !important;
   }
 
-  [dir="rtl"] .instagram-icon {
+  .photo-grid-section [dir="rtl"] .instagram-icon {
     margin-left: 7px;
   }
 
-  .instagram-text {
+  .photo-grid-section .instagram-text {
     letter-spacing: -0.3px !important;
     font-weight: 500 !important;
   }
 
-  .facebook-views-badge {
+  .photo-grid-section .facebook-views-badge {
     display: inline-flex !important;
     align-items: center !important;
     padding: 1.7px 10px !important;
@@ -292,7 +292,7 @@
     margin-bottom: 10px;
   }
 
-  .facebook-views-badge::before {
+  .photo-grid-section .facebook-views-badge::before {
     content: '' !important;
     position: absolute !important;
     top: -1px !important;
@@ -304,28 +304,28 @@
     background: #1877F2 !important;
   }
 
-  .facebook-icon {
+  .photo-grid-section .facebook-icon {
     width: 9.8px !important;
     height: 9.8px !important;
     margin-right: 7px !important;
   }
 
-  .facebook-text {
+  .photo-grid-section .facebook-text {
     letter-spacing: -0.3px !important;
     font-weight: 500 !important;
   }
 
   @media (max-width: 768px) {
-    .tiktok-views-badge,
-    .instagram-views-badge,
-    .facebook-views-badge {
+    .photo-grid-section .tiktok-views-badge,
+    .photo-grid-section .instagram-views-badge,
+    .photo-grid-section .facebook-views-badge {
       font-size: 11px !important;
       padding: 1.7px 12px !important;
     }
 
-    .tiktok-icon,
-    .instagram-icon,
-    .facebook-icon {
+    .photo-grid-section .tiktok-icon,
+    .photo-grid-section .instagram-icon,
+    .photo-grid-section .facebook-icon {
       width: 11.7px !important;
       height: 11.7px !important;
       margin-right: 7.5px !important;
@@ -479,7 +479,7 @@
 <script src="{{ 'photo-grid-counter.js' | asset_url }}" defer></script>
 
 <div
-  class="photo-grid-section"
+  class="photo-grid-section {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}"
   {% if section.settings.natural_aspect_ratio %}
     data-natural-aspect-ratio="true"
   {% endif %}

@@ -20,6 +20,8 @@
   - custom_icon: Custom SVG icon
   - icon_size: Size of icon in px
   - alignment: Text alignment (left, center, right)
+  - font_size_desktop: Font size on desktop (px)
+  - font_size_mobile: Font size on mobile (px)
   - block: Block object for Shopify attributes
 {% endcomment %}
 
@@ -40,6 +42,8 @@
 {% assign use_icon = use_icon | default: false %}
 {% assign icon_size = icon_size | default: 16 %}
 {% assign text_align = alignment | default: 'left' %}
+{% assign fs_desktop = font_size_desktop | default: 12 %}
+{% assign fs_mobile = font_size_mobile | default: 11 %}
 
 <div
   class="viewer-notice-container"
@@ -80,7 +84,7 @@
   }
 
   .viewer-notice {
-    font-size: 12px;
+    font-size: {{ fs_desktop }}px;
     padding: 4px 10px;
     display: inline-flex;
     align-items: center;
@@ -136,7 +140,7 @@
 
   @media (max-width: 768px) {
     .viewer-notice {
-      font-size: 11px;
+      font-size: {{ fs_mobile }}px;
     }
 
     .viewer-dot {

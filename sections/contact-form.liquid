@@ -29,12 +29,16 @@
     
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    padding-left: {{ section.settings.padding_left | times: 0.75 | round: 0 }}px;
+    padding-right: {{ section.settings.padding_right | times: 0.75 | round: 0 }}px;
   }
 
   @media screen and (min-width: 750px) {
     .contact-form-{{ section.id }} {
       padding-top: {{ section.settings.padding_top }}px;
       padding-bottom: {{ section.settings.padding_bottom }}px;
+      padding-left: {{ section.settings.padding_left }}px;
+      padding-right: {{ section.settings.padding_right }}px;
     }
   }
 
@@ -53,7 +57,7 @@
 {%- endstyle -%}
 
 <div 
-  class="contact-form contact-form-{{ section.id }}" 
+  class="contact-form contact-form-{{ section.id }} {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" 
   data-component="contact-form"
   data-validate-on-submit="{{ section.settings.validate_on_submit | default: true }}"
   data-show-success-message="{{ section.settings.show_success_message | default: true }}"
@@ -423,6 +427,26 @@
     {
       "type": "header",
       "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Left",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Right",
+      "default": 16
     },
     {
       "type": "range",

@@ -38,8 +38,13 @@
     align-items: center !important;
     justify-content: {% if alignment == 'center' %}center{% elsif alignment == 'right' %}flex-end{% else %}flex-start{% endif %} !important;
     width: auto !important;
-    padding: 0px 11px !important;
-    background-color: {{ bg_color | default: "#f5f5f5" }} !important;
+    {% if enable_background == false %}
+      padding: 0 !important;
+      background-color: transparent !important;
+    {% else %}
+      padding: 0px 11px !important;
+      background-color: {{ bg_color | default: "#f5f5f5" }} !important;
+    {% endif %}
     border-radius: {{ border_radius | default: 50 }}px !important;
     {% if block.settings.enable_border %}
     border: {{ block.settings.border_width | default: 1 }}px {{ block.settings.border_style | default: 'solid' }} {{ block.settings.border_color | default: '#e5e5e5' }} !important;

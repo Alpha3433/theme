@@ -10,7 +10,7 @@
         id="block-{{ block.id }}"
         {{ block.shopify_attributes }}
         style="
-          margin-top: {{ block.settings.margin_top }}px; 
+          margin-top: {{ block.settings.margin_top }}px;
           margin-bottom: {{ block.settings.margin_bottom }}px;
           width: 100%;
           max-width: 100%;
@@ -61,11 +61,11 @@
             {{ product.description }}
           </div>
           <script>
-            (function() {
+            (function () {
               const descriptionContainer = document.getElementById('product-description-{{ block.id }}');
               if (descriptionContainer) {
                 const images = descriptionContainer.querySelectorAll('img');
-                images.forEach(function(img) {
+                images.forEach(function (img) {
                   img.classList.add('description-image');
                   // Ensure images don't have inline width/height that could cause overflow
                   img.removeAttribute('width');
@@ -248,32 +248,33 @@
       <!-- Font Debug: {{ block.settings.custom_font.family | default: 'No custom font' }} -->
       <h1
         style="
-            font-size: {{ block.settings.font_size }}px !important;
-            margin-top: {{ block.settings.margin_top }}px !important;
-            margin-bottom: {{ block.settings.margin_bottom }}px !important;
+          font-size: {{ block.settings.font_size }}px !important;
+          margin-top: {{ block.settings.margin_top }}px !important;
+          margin-bottom: {{ block.settings.margin_bottom }}px !important;
           color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ block.settings.title_color }}{% endif %} !important;
-            line-height: {{ block.settings.line_height | default: 1.2 }} !important;
-            padding: 2px 0 !important;
-            width: 100% !important;
-            display: block !important;
-            {% if block.settings.custom_font != blank %}
-              {% if block.settings.override_global_font %}
-                font-family: '{{ block.settings.custom_font.family }}', {{ block.settings.custom_font.fallback_families }}, Arial, sans-serif !important;
-                font-weight: {{ block.settings.custom_font.weight | default: 400 }} !important;
-                font-style: {{ block.settings.custom_font.style | default: 'normal' }} !important;
-              {% else %}
-                font-family: '{{ block.settings.custom_font.family }}', {{ block.settings.custom_font.fallback_families }}, Arial, sans-serif;
-                font-weight: {{ block.settings.custom_font.weight | default: 400 }};
-                font-style: {{ block.settings.custom_font.style | default: 'normal' }};
-              {% endif %}
+          line-height: {{ block.settings.line_height | default: 1.2 }} !important;
+          letter-spacing: var(--letter-spacing-{{ block.settings.letter_spacing | default: 'heading' }}) !important;
+          padding: 2px 0 !important;
+          width: 100% !important;
+          display: block !important;
+          {% if block.settings.custom_font != blank %}
+            {% if block.settings.override_global_font %}
+              font-family: '{{ block.settings.custom_font.family }}', {{ block.settings.custom_font.fallback_families }}, Arial, sans-serif !important;
+              font-weight: {{ block.settings.custom_font.weight | default: 400 }} !important;
+              font-style: {{ block.settings.custom_font.style | default: 'normal' }} !important;
+            {% else %}
+              font-family: '{{ block.settings.custom_font.family }}', {{ block.settings.custom_font.fallback_families }}, Arial, sans-serif;
+              font-weight: {{ block.settings.custom_font.weight | default: 400 }};
+              font-style: {{ block.settings.custom_font.style | default: 'normal' }};
             {% endif %}
+          {% endif %}
         "
         class="shop-product-title product-title-{{ block.id }}{% if block.settings.override_global_font %} custom-font-override{% endif %}"
         {{ block.shopify_attributes }}
         data-font-size="{{ block.settings.font_size }}"
         data-mobile-font-size="{{ mobile_font_size }}"
         data-custom-font="{{ block.settings.custom_font.family | default: 'none' }}"
-        data-use-dynamic-variant-title="{{ block.settings.use_dynamic_variant_title }}"
+        data-dynamic-variant-option="{{ block.settings.dynamic_variant_title_option | default: 'none' }}"
         data-original-title="{{ product.title }}"
       >
         {% if block.settings.use_custom_title and block.settings.custom_title != blank %}
@@ -283,76 +284,92 @@
         {% endif %}
       </h1>
       <!-- Responsive title sizing is handled by shop-product-details.js -->
-      
-      {% if block.settings.use_dynamic_variant_title %}
-      <script>
-        window.productVariants_{{ block.id }} = {{ product.variants | json }};
-        
-        (function() {
-          const titleElement = document.querySelector('.product-title-{{ block.id }}');
-          const productForm = document.querySelector('form[action*="/cart/add"]');
-          
-          if (!titleElement || !productForm) return;
-          
-          const useDynamicTitle = titleElement.getAttribute('data-use-dynamic-variant-title') === 'true';
-          const originalTitle = titleElement.getAttribute('data-original-title');
-          const productVariants = window.productVariants_{{ block.id }} || [];
-          
-          if (!useDynamicTitle) return;
-          
-          // Function to update title based on variant
-          function updateTitle(variantId) {
-            if (!variantId) return;
-            
-            const variant = productVariants.find(v => v.id == variantId);
-            
-            if (variant && variant.name) {
-              // Use variant.name if it exists (custom field)
-              titleElement.textContent = variant.name;
-            } else if (variant && variant.title && variant.title !== 'Default Title') {
-              // Otherwise use variant.title
-              titleElement.textContent = variant.title;
-            } else {
-              // Fallback to original product title
-              titleElement.textContent = originalTitle;
-            }
-          }
-          
-          // Listen for variant changes
-          document.addEventListener('variant:change', function(event) {
-            if (event.detail && event.detail.variant) {
-              updateTitle(event.detail.variant.id);
-            }
-          });
-          
-          // Also listen for form input changes
-          const variantInput = productForm.querySelector('[name="id"]');
-          if (variantInput) {
-            const observer = new MutationObserver(function(mutations) {
-              mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
-                  updateTitle(variantInput.value);
+
+      {% if block.settings.dynamic_variant_title_option != 'none'
+        and block.settings.dynamic_variant_title_option != blank
+      %}
+        <script>
+          window.productVariants_{{ block.id }} = {{ product.variants | json }};
+          window.productOptions_{{ block.id }} = {{ product.options_with_values | json }};
+
+          (function() {
+            if (typeof Elixir_ProductFormExists !== 'function' || !Elixir_ProductFormExists()) return;
+            const titleElement = document.querySelector('.product-title-{{ block.id }}');
+            const productForm = (typeof Elixir_GetProductForm === 'function' && Elixir_GetProductForm()) || document.querySelector('form[action*="/cart/add"]');
+
+            if (!titleElement || !productForm) return;
+
+            const dynamicOption = titleElement.getAttribute('data-dynamic-variant-option');
+            const originalTitle = titleElement.getAttribute('data-original-title');
+            const productVariants = window.productVariants_{{ block.id }} || [];
+            const productOptions = window.productOptions_{{ block.id }} || [];
+
+            if (!dynamicOption || dynamicOption === 'none') return;
+
+            const optionIndex = parseInt(dynamicOption) - 1; // Convert to 0-based index
+
+            // Function to update title based on variant option
+            function updateTitle(variantId) {
+              if (!variantId) return;
+
+              const variant = productVariants.find(v => v.id == variantId);
+
+              if (variant) {
+                // Get the option value based on selected option index (option1, option2, option3)
+                let optionValue = null;
+                if (optionIndex === 0 && variant.option1) {
+                  optionValue = variant.option1;
+                } else if (optionIndex === 1 && variant.option2) {
+                  optionValue = variant.option2;
+                } else if (optionIndex === 2 && variant.option3) {
+                  optionValue = variant.option3;
                 }
-              });
-            });
-            
-            observer.observe(variantInput, {
-              attributes: true,
-              attributeFilter: ['value']
-            });
-            
-            // Also listen for direct value changes
-            variantInput.addEventListener('change', function() {
-              updateTitle(this.value);
-            });
-            
-            // Set initial title if variant is pre-selected
-            if (variantInput.value) {
-              updateTitle(variantInput.value);
+
+                if (optionValue && optionValue !== 'Default Title') {
+                  titleElement.textContent = optionValue;
+                } else {
+                  titleElement.textContent = originalTitle;
+                }
+              } else {
+                titleElement.textContent = originalTitle;
+              }
             }
-          }
-        })();
-      </script>
+
+            // Listen for variant changes
+            document.addEventListener('variant:change', function(event) {
+              if (event.detail && event.detail.variant) {
+                updateTitle(event.detail.variant.id);
+              }
+            });
+
+            // Also listen for form input changes
+            const variantInput = productForm.querySelector('[name="id"]');
+            if (variantInput) {
+              const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                  if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                    updateTitle(variantInput.value);
+                  }
+                });
+              });
+
+              observer.observe(variantInput, {
+                attributes: true,
+                attributeFilter: ['value']
+              });
+
+              // Also listen for direct value changes
+              variantInput.addEventListener('change', function() {
+                updateTitle(this.value);
+              });
+
+              // Set initial title if variant is pre-selected
+              if (variantInput.value) {
+                updateTitle(variantInput.value);
+              }
+            }
+          })();
+        </script>
       {% endif %}
 
     {% when 'price' %}
@@ -360,6 +377,9 @@
         class="shop-product-price-container"
         id="block-{{ block.id }}"
         {{ block.shopify_attributes }}
+        data-multiply-by-quantity="{{ block.settings.multiply_price_by_quantity }}"
+        data-apply-subscription-discount="{{ block.settings.apply_selected_subscription_discount }}"
+        data-save-badge-type="{{ block.settings.save_badge_display_type | default: 'percentage' }}"
         style="margin-top: {{ block.settings.price_margin_top }}px !important; margin-bottom: {{ block.settings.price_margin_bottom }}px !important;"
       >
         {% assign current_variant = product.selected_or_first_available_variant %}
@@ -408,21 +428,123 @@
             %}
               {{ block.settings.custom_save_amount }}
             {% else %}
-              {{ block.settings.custom_save_text | default: settings.save_text | default: 'SAVE' }}
+              {{ block.settings.custom_save_text | default: settings.save_text | default: 'SAVE' }} 
               {% if block.settings.save_badge_display_type == 'percentage'
                 or block.settings.save_badge_display_type == blank
               %}
-                {{ discount_percentage }}%
+                 <span data-save-percentage>{{ discount_percentage }}</span>%
               {% elsif block.settings.save_badge_display_type == 'dollar_amount' %}
                 {% assign dollar_discount = compare_at_price | minus: price %}
-                {{ dollar_discount | money }}
-              {% else %}
-                {{ discount_percentage }}%
+                <span data-save-dollar>{{ dollar_discount | money }}</span>
+              {% else %} 
+                 <span data-save-percentage>{{ discount_percentage }}</span>%
               {% endif %}
             {% endif %}
           </span>
         {% endif %}
       </div>
+      <script>
+        (function() {
+          const blockId = 'block-{{ block.id }}';
+          const container = document.getElementById(blockId);
+          if (!container) return;
+
+          const multiplyByQuantity = container.dataset.multiplyByQuantity !== 'false';
+          const applySubscriptionDiscount = container.dataset.applySubscriptionDiscount !== 'false';
+          const saveBadgeType = container.dataset.saveBadgeType || 'percentage';
+          const variants = {{ product.variants | json }};
+
+          function getForm() {
+            return (typeof Elixir_GetProductForm === 'function' && Elixir_GetProductForm()) || document.querySelector('.shop-add-to-cart-wrapper form[action*="/cart/add"]');
+          }
+
+          function getQuantity() {
+            const form = getForm();
+            if (!form) return 1;
+            const input = form.querySelector('input[name="quantity"]');
+            const qty = input ? parseInt(input.value, 10) : 1;
+            return isNaN(qty) || qty < 1 ? 1 : qty;
+          }
+
+          function getVariantFromForm() {
+            const id = (typeof Elixir_GetProductFormVariantId === 'function' && Elixir_GetProductFormVariantId()) || null;
+            if (!id) return variants.length ? variants[0] : null;
+            return variants.find(function(v) { return v.id.toString() === String(id); }) || null;
+          }
+
+          function updatePriceDisplay(variant) {
+            if (!variant) return;
+            const qty = getQuantity();
+            const compareAt = variant.compare_at_price != null ? variant.compare_at_price : (variant.compareAtPrice != null ? variant.compareAtPrice : 0);
+            const result = Elixir_GetDisplayPrice({
+              price: variant.price,
+              quantity: qty,
+              multiplyByQuantity: multiplyByQuantity,
+              compareAtPrice: compareAt,
+              applySubscriptionDiscount: applySubscriptionDiscount
+            });
+            const priceTotal = result.price;
+            const compareTotal = result.compareAtPrice;
+            const isOnSale = compareTotal > 0 && compareTotal > priceTotal;
+
+            const priceEl = container.querySelector('.shop-product-price-block');
+            const comparePriceEl = container.querySelector('.shop-compare-price');
+            const saveBadge = container.querySelector('.shop-save-price');
+            const percentageEl = container.querySelector('[data-save-percentage]');
+            const dollarEl = container.querySelector('[data-save-dollar]');
+
+            if (priceEl) priceEl.textContent = Elixir_FormatMoney(priceTotal);
+            if (priceEl) priceEl.classList.toggle('on-sale', isOnSale);
+
+            if (comparePriceEl) {
+              if (isOnSale) {
+                comparePriceEl.textContent = Elixir_FormatMoney(compareTotal);
+                comparePriceEl.style.display = '';
+              } else {
+                comparePriceEl.style.display = 'none';
+              }
+            }
+
+            if (saveBadge) {
+              if (isOnSale) {
+                saveBadge.style.display = '';
+                if (saveBadgeType === 'percentage' && percentageEl) {
+                  const discount = Math.round(((compareTotal - priceTotal) / compareTotal) * 100);
+                  percentageEl.textContent = discount;
+                } else if (saveBadgeType === 'dollar_amount' && dollarEl) {
+                  dollarEl.textContent = Elixir_FormatMoney(compareTotal - priceTotal);
+                }
+              } else {
+                saveBadge.style.display = 'none';
+              }
+            }
+          }
+
+          function runUpdate() {
+            const variant = getVariantFromForm();
+            updatePriceDisplay(variant);
+          }
+
+          document.addEventListener('simple-variant-picker:variantChange', function(event) {
+            const variant = event.detail && event.detail.variant;
+            if (variant) updatePriceDisplay(variant);
+          });
+
+          document.addEventListener('quantity:changed', runUpdate);
+
+          document.addEventListener('quantity_break:changed', runUpdate);
+
+          document.addEventListener('subscriptionContext:updated', runUpdate);
+
+          document.addEventListener('DOMContentLoaded', function() {
+            runUpdate();
+          });
+
+          if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(runUpdate, 0);
+          }
+        })();
+      </script>
 
       <!-- Inline styles to ensure price styling works correctly -->
       <style>
@@ -449,6 +571,13 @@
           {% if block.settings.save_badge_enable_border %}
           border: {{ block.settings.save_badge_border_width | default: 1 }}px {{ block.settings.save_badge_border_style | default: 'solid' }} {{ block.settings.save_badge_border_color | default: '#000000' }} !important;
           {% endif %}
+          {% unless block.settings.show_save_badge %}
+          display: none !important;
+          {% endunless %}
+        }
+
+        #block-{{ block.id }} .shop-save-price span {
+          margin-left:5px;
         }
 
         @media (max-width: 767px) {
@@ -464,19 +593,39 @@
 
     {% when 'award_badge' %}
       <div class="shop-award-badge" id="block-{{ block.id }}" {{ block.shopify_attributes }}>
-        {{ block.settings.award_badge_text }}
+        {%- if block.settings.award_badge_icon != blank -%}
+          <img 
+            class="award-badge-icon" 
+            src="{{ block.settings.award_badge_icon | image_url: width: 64 }}" 
+            alt="{{ block.settings.award_badge_icon.alt | escape }}" 
+            width="{{ block.settings.award_badge_icon_size }}" 
+            height="{{ block.settings.award_badge_icon_size }}"
+            loading="lazy"
+          >
+        {%- endif -%}
+        <span class="award-badge-text">{{ block.settings.award_badge_text }}</span>
       </div>
 
       <style>
         #block-{{ block.id }} {
-          background-color: {{ block.settings.award_badge_bg_color }};
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: {{ block.settings.award_badge_bg_gradient }};
           color: {{ block.settings.award_badge_text_color }} !important;
           border: 1px solid {{ block.settings.award_badge_border_color }};
           border-radius: {{ block.settings.award_badge_border_radius }}px;
           margin-top: {{ block.settings.award_badge_margin_top }}px;
           margin-bottom: {{ block.settings.award_badge_margin_bottom }}px;
           font-size: {{ block.settings.award_badge_font_size }}px;
-          font-weight: {{ block.settings.award_badge_font_weight }};
+          padding: 6px 12px;
+        }
+
+        #block-{{ block.id }} .award-badge-icon {
+          width: {{ block.settings.award_badge_icon_size }}px;
+          height: {{ block.settings.award_badge_icon_size }}px;
+          object-fit: contain;
+          flex-shrink: 0;
         }
 
         @media (max-width: 767px) {
@@ -656,7 +805,7 @@
           {%- form 'product',
             product,
             id: product_form_id,
-            class: 'form',
+            class: 'form product-buy-form-pdp product-buy-form--{{ section.id }}',
             novalidate: 'novalidate',
             data-type: 'add-to-cart-form'
           -%}
@@ -672,96 +821,104 @@
               {% endif %}
               class="product-variant-id"
             >
+            <input
+              type="hidden"
+              name="selling_plan"
+              value=""
+            >
 
             <button
               type="submit"
               id="ProductSubmitButton-{{ section.id }}"
               name="add"
+              data-persistent-text="{{ button_text_for_initial_render | escape }}"
+              data-show-price="{% if block.settings.show_price_in_button != false %}true{% else %}false{% endif %}"
               {% if block.settings.button_behavior == 'skip_to_checkout' %}
-                onclick="skipToCheckout()"
+                onclick="skipToCheckout(event)"
               {% endif %}
               class="shop-add-to-cart-button {% if product.selected_or_first_available_variant.available == false %} sold-out{% endif %} product-form__submit {% unless settings.enable_global_button_styling and block.settings.use_global_button_styling %}disable-global-button-styling{% endunless %}"
               style="
+                {%- liquid
+                  assign use_global_styling = false
+                  if settings.enable_global_button_styling and block.settings.use_global_button_styling
+                    assign use_global_styling = true
+                  endif
+                -%}
+                {% if use_global_styling %}
+                  /* Apply global button styling inline to ensure proper precedence */
+                  --button-text-font-size: var(--global-button-font-size, 14px);
+                  --button-text-color: var(--global-button-text-color, #FFFFFF) !important;
+                  --button-price-color: var(--global-button-text-color, #FFFFFF) !important;
+                  --button-hover-color: var(--global-button-hover-bg-color, #D63953);
+                  padding: var(--global-button-padding-y, 12px) 20px !important;
+                  font-size: var(--global-button-font-size, 14px) !important;
+                  font-weight: var(--global-button-font-weight, 700) !important;
+                  letter-spacing: var(--global-button-letter-spacing, 1px) !important;
+                  text-transform: var(--global-button-text-transform, none) !important;
+                  border-radius: var(--global-button-radius, 8px) !important;
+                  {% if settings.enable_button_gradient %}
+                  background: linear-gradient({{ settings.button_gradient_direction | default: 'to bottom' }}, {{ settings.button_gradient_start | default: '#EF4A65' }}, {{ settings.button_gradient_end | default: '#D63953' }}) !important;
+                  {% else %}
+                  background-color: var(--global-button-bg-color, #EF4A65) !important;
+                  {% endif %}
+                  color: var(--global-button-text-color, #FFFFFF) !important;
+                  border: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
+				  border-bottom: var(--global-button-bottom-border-width, 0px) solid var(--global-button-bottom-border-color, #000000) !important;
+                {% else %}
+                  --button-text-font-size: {{ block.settings.custom_button_font_size | default: 14 }}px;
                   {%- liquid
-                    assign use_global_styling = false
-                    if settings.enable_global_button_styling and block.settings.use_global_button_styling
-                      assign use_global_styling = true
+                    comment
+                      Always prioritize block settings over theme colors when use_global_button_styling is false
+                    endcomment
+                    if block.settings.button_text_color != blank
+                      assign final_button_text_color = block.settings.button_text_color
+                    elsif section.settings.use_theme_colors
+                      if settings.global_section_button_text_color != blank
+                        assign final_button_text_color = settings.global_section_button_text_color
+                      else
+                        assign final_button_text_color = settings.global_section_background_color
+                      endif
+                    else
+                      assign final_button_text_color = button_text_color
+                    endif
+
+                    if block.settings.buy_box_button_bg_color != blank
+                      assign final_button_bg_color = block.settings.buy_box_button_bg_color
+                    elsif section.settings.use_theme_colors
+                      if settings.global_section_button_color != blank
+                        assign final_button_bg_color = settings.global_section_button_color
+                      else
+                        assign final_button_bg_color = settings.global_section_accent_1_color
+                      endif
+                    else
+                      assign final_button_bg_color = button_bg_color
+                    endif
+
+                    if block.settings.buy_box_button_hover_color != blank
+                      assign final_button_hover_color = block.settings.buy_box_button_hover_color
+                    elsif section.settings.use_theme_colors
+                      if settings.global_section_button_color != blank
+                        assign final_button_hover_color = settings.global_section_button_color | color_darken: 5
+                      else
+                        assign final_button_hover_color = settings.global_section_accent_1_color | color_darken: 5
+                      endif
+                    else
+                      assign final_button_hover_color = button_hover_color
                     endif
                   -%}
-                  {% if use_global_styling %}
-                    /* Apply global button styling inline to ensure proper precedence */
-                    --button-text-font-size: var(--global-button-font-size, 14px);
-                    --button-text-color: var(--global-button-text-color, #FFFFFF) !important;
-                    --button-price-color: var(--global-button-text-color, #FFFFFF) !important;
-                    --button-hover-color: var(--global-button-hover-bg-color, #D63953);
-                    padding: var(--global-button-padding-y, 12px) 20px !important;
-                    font-size: var(--global-button-font-size, 14px) !important;
-                    font-weight: var(--global-button-font-weight, 700) !important;
-                    letter-spacing: var(--global-button-letter-spacing, 1px) !important;
-                    text-transform: var(--global-button-text-transform, none) !important;
-                    border-radius: var(--global-button-radius, 8px) !important;
-                    {% if settings.enable_button_gradient %}
-                    background: linear-gradient({{ settings.button_gradient_direction | default: 'to bottom' }}, {{ settings.button_gradient_start | default: '#EF4A65' }}, {{ settings.button_gradient_end | default: '#D63953' }}) !important;
-                    {% else %}
-                    background-color: var(--global-button-bg-color, #EF4A65) !important;
-                    {% endif %}
-                    color: var(--global-button-text-color, #FFFFFF) !important;
-                    border: var(--global-button-border-width, 0px) solid var(--global-button-border-color, #EF4A65) !important;
-                  {% else %}
-                    --button-text-font-size: {{ block.settings.custom_button_font_size | default: 14 }}px;
-                    {%- liquid
-                      comment
-                        Always prioritize block settings over theme colors when use_global_button_styling is false
-                      endcomment
-                      if block.settings.button_text_color != blank
-                        assign final_button_text_color = block.settings.button_text_color
-                      elsif section.settings.use_theme_colors
-                        if settings.global_section_button_text_color != blank
-                          assign final_button_text_color = settings.global_section_button_text_color
-                        else
-                          assign final_button_text_color = settings.global_section_background_color
-                        endif
-                      else
-                        assign final_button_text_color = button_text_color
-                      endif
-
-                      if block.settings.buy_box_button_bg_color != blank
-                        assign final_button_bg_color = block.settings.buy_box_button_bg_color
-                      elsif section.settings.use_theme_colors
-                        if settings.global_section_button_color != blank
-                          assign final_button_bg_color = settings.global_section_button_color
-                        else
-                          assign final_button_bg_color = settings.global_section_accent_1_color
-                        endif
-                      else
-                        assign final_button_bg_color = button_bg_color
-                      endif
-
-                      if block.settings.buy_box_button_hover_color != blank
-                        assign final_button_hover_color = block.settings.buy_box_button_hover_color
-                      elsif section.settings.use_theme_colors
-                        if settings.global_section_button_color != blank
-                          assign final_button_hover_color = settings.global_section_button_color | color_darken: 5
-                        else
-                          assign final_button_hover_color = settings.global_section_accent_1_color | color_darken: 5
-                        endif
-                      else
-                        assign final_button_hover_color = button_hover_color
-                      endif
-                    -%}
-                    --button-text-color: {{ final_button_text_color }} !important;
-                    --button-price-color: {{ final_button_text_color }} !important;
-                    --button-bg-color: {{ final_button_bg_color }};
-                    --button-hover-color: {{ final_button_hover_color }};
-                    padding: {{ block.settings.custom_button_padding_y | default: 12 }}px 20px;
-                    font-size: {{ block.settings.custom_button_font_size | default: 14 }}px;
-                    letter-spacing: var(--global-button-letter-spacing, 1px);
-                    font-weight: var(--global-button-font-weight, 700);
-                  background-color: var(--button-bg-color);
-                  border-radius: {{ block.settings.card_border_radius | default: 8 }}px;
-                  color: {{ final_button_text_color }};
-                  /* Global hover effects are handled by button-styling.css */
-                  {% endif %}
+                  --button-text-color: {{ final_button_text_color }} !important;
+                  --button-price-color: {{ final_button_text_color }} !important;
+                  --button-bg-color: {{ final_button_bg_color }};
+                  --button-hover-color: {{ final_button_hover_color }};
+                  padding: {{ block.settings.custom_button_padding_y | default: 12 }}px 20px;
+                  font-size: {{ block.settings.custom_button_font_size | default: 14 }}px;
+                  letter-spacing: var(--global-button-letter-spacing, 1px);
+                  font-weight: var(--global-button-font-weight, 700);
+                background-color: var(--button-bg-color);
+                border-radius: {{ block.settings.card_border_radius | default: 8 }}px;
+                color: {{ final_button_text_color }};
+                /* Global hover effects are handled by button-styling.css */
+                {% endif %}
               "
               {% if product.selected_or_first_available_variant.available == false %}
                 disabled
@@ -770,6 +927,9 @@
               {% if block.settings.button_text_override != blank %}
                 data-text-override="true"
                 data-persistent-text="{{ button_text_for_initial_render }}"
+              {% endif %}
+              {% if block.settings.show_price_in_button != false %}
+                data-show-price="true"
               {% endif %}
             >
               {% if button_icon != 'none' and icon_position == 'left' %}
@@ -871,7 +1031,7 @@
                                         display: flex;
                                         align-items: center;
                                         justify-content: center;
-                                      "
+                  "
                 >
                   {% case button_icon %}
                     {% when 'cart' %}
@@ -959,141 +1119,71 @@
       </style>
 
       <script>
-        // Helper function to ensure button text override works correctly
-
-        function skipToCheckout() {
-          setTimeout(() => {
-            window.location.href='/checkout'
-          }, 300)
+        /* Add to cart and redirect to checkout */
+        function skipToCheckout(e) {
+          e.preventDefault();
+          if (!Elixir_ProductFormExists()) return;
+          var form = Elixir_GetProductForm();
+          fetch('/cart/add.js', {
+            method: 'POST',
+            body: new FormData(form)
+          }).then(function (r) {
+            if (r.ok) window.location.href = '/checkout';
+          });
         }
 
+        // Add to Cart button: when "Show price in button" is on, keep price in sync via Elixir_GetDisplayPrice and standard events
         document.addEventListener('DOMContentLoaded', function () {
-          if(showPriceButton) {
-            const productInfoContainer = document.querySelector('.shop-product-info');
-            if(!productInfoContainer) return;
+          if (typeof Elixir_ProductFormExists !== 'function' || !Elixir_ProductFormExists()) return;
+          if (!showPriceButton) return;
 
-            const mainAtcBtn = document.querySelector('.shop-add-to-cart-button');
+          const mainAtcBtn = document.querySelector('.shop-add-to-cart-button');
+          const btnTextEl = mainAtcBtn && mainAtcBtn.querySelector('.button-text');
+          if (!mainAtcBtn || !btnTextEl) return;
 
-            const variantSelectorBlock = document.querySelector('.simple-variant-picker');
-            const quantityBreakBlock = document.querySelector('.quantity-break-container');
-            const quantityBundleBlock = document.querySelector('.quantity-bundle-selector');
-            const quantityBundleCustomPrice = quantityBundleBlock?.dataset.customPrice === 'true';
-            
-            const variants = JSON.parse(`{{ product.variants | json }}`);
-
-						const amountFormatter = (amount, showSymbol = false) => {
-							if (amount === null || amount === undefined || amount === '') return '';
-
-							const cents = typeof amount === 'number' ? amount : parseFloat(amount);
-							if (Number.isNaN(cents)) return '';
-
-							const rate = parseFloat(window.Shopify?.currency?.rate) || 1;
-							const normalizedCents = Math.round(cents * rate);
-
-							if (typeof Shopify !== 'undefined' && typeof Shopify.formatMoney === 'function') {
-								const formatString = showSymbol
-									? Shopify.money_with_currency_format ||
-										Shopify.money_format ||
-										window.Shopify?.currency?.active_format ||
-										'{{amount}}'
-									: Shopify.money_without_currency_format ||
-										Shopify.money_format ||
-										window.Shopify?.currency?.active_format ||
-										'{{amount}}';
-								return Shopify.formatMoney(normalizedCents, formatString);
-							}
-
-							const currency = window.Shopify?.currency?.active || 'USD';
-							const normalizedAmount = normalizedCents / 100;
-
-							return new Intl.NumberFormat(undefined, {
-								style: showSymbol ? 'currency' : 'decimal',
-								currency,
-								minimumFractionDigits: currency === 'JPY' ? 0 : 2,
-								maximumFractionDigits: currency === 'JPY' ? 0 : 2
-							}).format(normalizedAmount);
-						};
-
-            const getSelectedVariant = () => {
-              if(!variantSelectorBlock) return;
-
-              let currentVariant = null;
-
-              const selectedOptions = variantSelectorBlock.querySelectorAll('input:checked, select');
-
-              if(selectedOptions.length > 0) {
-                const variantTitle = Array.from(selectedOptions).map(option => option.value).join(' / ');
-
-                const selectedVariant = variants.filter(variant => variant.title === variantTitle)[0];
-
-                if(selectedVariant) currentVariant = selectedVariant
-              }
-
-              return currentVariant;
-            }
-
-            const getSelectedBundle = () => {
-              if(!quantityBreakBlock) return;
-
-              let bundle = {
-                price: `{{ product.selected_or_first_available_variant.price | money }}`,
-                comparePrice: `{{ product.selected_or_first_available_variant.compare_at_price | money }}`,
-              }
-
-              const selectedBundle = quantityBreakBlock.querySelector('.quantity-break-option-container:has(input:checked)');
-
-              if(selectedBundle) {
-                const price = selectedBundle.querySelector('.quantity-break-price');
-                const comparePrice = selectedBundle.querySelector('.quantity-break-original-price');
-
-                if(price) bundle.price = price.innerText;
-                if(comparePrice) bundle.comparePrice = comparePrice.innerText;
-              }
-
-              return bundle;
-            }
-
-            const updateBtnText = () => {
-              if (quantityBundleCustomPrice) {
-                return;
-              }
-              const btnText = mainAtcBtn.querySelector('.button-text') || null;
-              const persistentText = mainAtcBtn.dataset.persistentText || '{{ button_text_for_initial_render }}';
-
-              let btnTextWithPriceText = `${persistentText} - [price]<span class="compare-price">([comparePrice])</span>`;
-
-              if(quantityBreakBlock) {
-                const { price, comparePrice } = getSelectedBundle();
-
-                btnTextWithPriceText = btnTextWithPriceText.replace('[price]', price);
-
-                if(comparePrice && comparePrice !== '') {
-                  btnTextWithPriceText = btnTextWithPriceText.replace('[comparePrice]', comparePrice);
-                } else {
-                  btnTextWithPriceText = btnTextWithPriceText.replace('<span class="compare-price">([comparePrice])</span>', '');
-                }
-              } else if(variantSelectorBlock) {
-                const selectedVariant = getSelectedVariant();
-
-                if(!selectedVariant) return;
-
-                const variantPrice = amountFormatter(selectedVariant.price, true) || null;
-                const variantComparePrice = amountFormatter(selectedVariant.compare_at_price, true) || null;
-
-                btnTextWithPriceText = btnTextWithPriceText.replace('[price]', variantPrice);
-                
-                if(variantComparePrice) {
-                  btnTextWithPriceText = btnTextWithPriceText.replace('[comparePrice]', variantComparePrice);
-                } else {
-                  btnTextWithPriceText = btnTextWithPriceText.replace('<span class="compare-price">([comparePrice])</span>', '');
-                }
-              }
-
-              btnText.innerHTML = btnTextWithPriceText;
-            }
-
-            productInfoContainer.addEventListener('change', updateBtnText);
+          const variants = {{ product.variants | json }};
+          function getForm() {
+            return (typeof Elixir_GetProductForm === 'function' && Elixir_GetProductForm()) || document.querySelector('.shop-add-to-cart-wrapper form[action*="/cart/add"]');
           }
+          function getQuantity() {
+            const form = getForm();
+            if (!form) return 1;
+            const input = form.querySelector('input[name="quantity"]');
+            const qty = input ? parseInt(input.value, 10) : 1;
+            return isNaN(qty) || qty < 1 ? 1 : qty;
+          }
+          function getVariantFromForm() {
+            const id = typeof Elixir_GetProductFormVariantId === 'function' ? Elixir_GetProductFormVariantId() : null;
+            if (id == null) return variants.length ? variants[0] : null;
+            return variants.find(function (v) { return v.id.toString() === String(id); }) || variants[0] || null;
+          }
+          function updateAddToCartButtonPrice() {
+            const variant = getVariantFromForm();
+            if (!variant) return;
+            if (typeof Elixir_GetDisplayPrice !== 'function' || typeof Elixir_FormatMoney !== 'function') return;
+            const qty = getQuantity();
+            const compareAt = variant.compare_at_price != null ? variant.compare_at_price : (variant.compareAtPrice != null ? variant.compareAtPrice : 0);
+            const result = Elixir_GetDisplayPrice({
+              price: variant.price,
+              quantity: qty,
+              multiplyByQuantity: true,
+              compareAtPrice: compareAt,
+              applySubscriptionDiscount: true
+            });
+            const persistentText = mainAtcBtn.dataset.persistentText || addToCartButtonText || 'Add to cart';
+            let html = persistentText + ' - ' + Elixir_FormatMoney(result.price);
+            if (result.compareAtPrice > result.price && result.compareAtPrice > 0) {
+              html += ' <span class="compare-price">(' + Elixir_FormatMoney(result.compareAtPrice) + ')</span>';
+            }
+            btnTextEl.innerHTML = html;
+          }
+
+          document.addEventListener('simple-variant-picker:variantChange', updateAddToCartButtonPrice);
+          document.addEventListener('quantity:changed', updateAddToCartButtonPrice);
+          document.addEventListener('quantity_break:changed', updateAddToCartButtonPrice);
+          document.addEventListener('subscriptionContext:updated', updateAddToCartButtonPrice);
+          updateAddToCartButtonPrice();
+        });
 
 
 
@@ -1129,7 +1219,6 @@
 
           // Initial run
           restorePersistentButtonText(); {% endcomment %}
-        });
       </script>
 
       {% render 'guarantee-badges',
@@ -1138,11 +1227,13 @@
         badge_1_icon: block.settings.badge_1_icon,
         badge_1_custom_icon: block.settings.badge_1_custom_icon,
         badge_1_custom_image: block.settings.badge_1_custom_image,
+        badge_1_dot_color: block.settings.badge_1_dot_color,
         badge_2_show: block.settings.badge_2_show,
         badge_2_text: block.settings.badge_2_text,
         badge_2_icon: block.settings.badge_2_icon,
         badge_2_custom_icon: block.settings.badge_2_custom_icon,
         badge_2_custom_image: block.settings.badge_2_custom_image,
+        badge_2_dot_color: block.settings.badge_2_dot_color,
         icon_color: block.settings.icon_color,
         text_color: block.settings.text_color,
         container_margin_top: block.settings.container_margin_top,
@@ -1187,6 +1278,7 @@
         highlight_color: custom_highlight_color,
         dot_color: block.settings.dot_color,
         bg_color: shipping_bg_color,
+        enable_background: block.settings.enable_background,
         font_size: block.settings.font_size,
         margin_top: block.settings.margin_top,
         margin_bottom: block.settings.margin_bottom,
@@ -1633,6 +1725,8 @@
         use_icon: block.settings.use_icon,
         custom_icon: block.settings.custom_icon,
         icon_size: block.settings.icon_size,
+        font_size_desktop: block.settings.font_size_desktop,
+        font_size_mobile: block.settings.font_size_mobile,
         alignment: block.settings.text_alignment,
         block: block
       %}
@@ -1643,16 +1737,84 @@
     {% when 'custom_text' %}
       <div class="custom-text-block-container-{{ block.id }}">
         <div class="custom-text-block-{{ block.id }}" {{ block.shopify_attributes }}>
-        <div class="custom-text-wrapper">
-          <div class="custom-text-content">
-            {% if block.settings.show_divider %}
-              <div class="custom-text-with-divider">
-                {% if block.settings.text_align == 'right' %}
-                  <div class="divider-line"></div>
-                {% elsif block.settings.text_align == 'center' %}
-                  <div class="divider-line"></div>
-                {% endif %}
+          <div class="custom-text-wrapper">
+            <div class="custom-text-content">
+              {% if block.settings.show_divider %}
+                <div class="custom-text-with-divider">
+                  {% if block.settings.text_align == 'right' %}
+                    <div class="divider-line"></div>
+                  {% elsif block.settings.text_align == 'center' %}
+                    <div class="divider-line"></div>
+                  {% endif %}
 
+                  <div class="custom-text-main">
+                    {% if block.settings.show_icon %}
+                      <div class="custom-text-icon">
+                        {% if block.settings.use_image_icon and block.settings.icon_image != blank %}
+                          <img
+                            src="{{ block.settings.icon_image | image_url: width: 72 }}"
+                            srcset="{{ block.settings.icon_image | image_url: width: 72 }} 1x, {{ block.settings.icon_image | image_url: width: 144 }} 2x"
+                            alt="Icon"
+                            loading="lazy"
+                            width="{{ block.settings.icon_size }}"
+                            height="{{ block.settings.icon_size }}"
+                            style="width: {{ block.settings.icon_size }}px; height: {{ block.settings.icon_size }}px; object-fit: contain;"
+                          >
+                        {% elsif block.settings.custom_icon != blank %}
+                          {{ block.settings.custom_icon }}
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                    <div class="custom-text-main-text-content">
+                      {% if block.settings.show_accent_text and block.settings.accent_text_position == 'before' %}
+                        <div class="custom-text-accent">{{ block.settings.accent_text }}</div>
+                      {% endif %}
+
+                      {% if block.settings.show_accent_text and block.settings.accent_text_position == 'inline' %}
+                        {% assign accent_placeholder = '[ACCENT]' %}
+                        {% if block.settings.text contains accent_placeholder %}
+                          {% assign text_parts = block.settings.text | split: accent_placeholder %}
+                          {{ text_parts[0] -}}
+                          <span class="custom-text-accent-inline">{{ block.settings.accent_text }}</span>
+                          {{- text_parts[1] }}
+                        {% else %}
+                          <span class="custom-text-accent-inline">{{ block.settings.accent_text }}</span>
+                          {{ block.settings.text }}
+                        {% endif %}
+                      {% else %}
+                        {{ block.settings.text }}
+                      {% endif %}
+
+                      {% if block.settings.show_accent_text and block.settings.accent_text_position == 'after' %}
+                        <div class="custom-text-accent">{{ block.settings.accent_text }}</div>
+                      {% endif %}
+                    </div>
+                    {% if block.settings.show_after_icon %}
+                      <div class="custom-text-after-icon">
+                        {% if block.settings.use_image_after_icon and block.settings.after_icon_image != blank %}
+                          <img
+                            src="{{ block.settings.after_icon_image | image_url: width: 72 }}"
+                            srcset="{{ block.settings.after_icon_image | image_url: width: 72 }} 1x, {{ block.settings.after_icon_image | image_url: width: 144 }} 2x"
+                            alt="After Icon"
+                            loading="lazy"
+                            width="{{ block.settings.after_icon_size }}"
+                            height="{{ block.settings.after_icon_size }}"
+                            style="width: {{ block.settings.after_icon_size }}px; height: {{ block.settings.after_icon_size }}px; object-fit: contain;"
+                          >
+                        {% elsif block.settings.after_custom_icon != blank %}
+                          {{ block.settings.after_custom_icon }}
+                        {% endif %}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  {% if block.settings.text_align == 'left' %}
+                    <div class="divider-line"></div>
+                  {% elsif block.settings.text_align == 'center' %}
+                    <div class="divider-line"></div>
+                  {% endif %}
+                </div>
+              {% else %}
                 <div class="custom-text-main">
                   {% if block.settings.show_icon %}
                     <div class="custom-text-icon">
@@ -1684,7 +1846,8 @@
                         <span class="custom-text-accent-inline">{{ block.settings.accent_text }}</span>
                         {{- text_parts[1] }}
                       {% else %}
-                        <span class="custom-text-accent-inline">{{ block.settings.accent_text }}</span> {{ block.settings.text }}
+                        <span class="custom-text-accent-inline">{{ block.settings.accent_text }}</span>
+                        {{ block.settings.text }}
                       {% endif %}
                     {% else %}
                       {{ block.settings.text }}
@@ -1712,81 +1875,15 @@
                     </div>
                   {% endif %}
                 </div>
+              {% endif %}
 
-                {% if block.settings.text_align == 'left' %}
-                  <div class="divider-line"></div>
-                {% elsif block.settings.text_align == 'center' %}
-                  <div class="divider-line"></div>
-                {% endif %}
-              </div>
-            {% else %}
-              <div class="custom-text-main">
-                {% if block.settings.show_icon %}
-                  <div class="custom-text-icon">
-                    {% if block.settings.use_image_icon and block.settings.icon_image != blank %}
-                      <img
-                        src="{{ block.settings.icon_image | image_url: width: 72 }}"
-                        srcset="{{ block.settings.icon_image | image_url: width: 72 }} 1x, {{ block.settings.icon_image | image_url: width: 144 }} 2x"
-                        alt="Icon"
-                        loading="lazy"
-                        width="{{ block.settings.icon_size }}"
-                        height="{{ block.settings.icon_size }}"
-                        style="width: {{ block.settings.icon_size }}px; height: {{ block.settings.icon_size }}px; object-fit: contain;"
-                      >
-                    {% elsif block.settings.custom_icon != blank %}
-                      {{ block.settings.custom_icon }}
-                    {% endif %}
-                  </div>
-                {% endif %}
-                <div class="custom-text-main-text-content">
-                  {% if block.settings.show_accent_text and block.settings.accent_text_position == 'before' %}
-                    <div class="custom-text-accent">{{ block.settings.accent_text }}</div>
-                  {% endif %}
-
-                  {% if block.settings.show_accent_text and block.settings.accent_text_position == 'inline' %}
-                    {% assign accent_placeholder = '[ACCENT]' %}
-                    {% if block.settings.text contains accent_placeholder %}
-                      {% assign text_parts = block.settings.text | split: accent_placeholder %}
-                      {{ text_parts[0] -}}
-                      <span class="custom-text-accent-inline">{{ block.settings.accent_text }}</span>{{ text_parts[1] }}
-                    {% else %}
-                      <span class="custom-text-accent-inline">{{ block.settings.accent_text }}</span> {{ block.settings.text }}
-                    {% endif %}
-                  {% else %}
-                    {{ block.settings.text }}
-                  {% endif %}
-
-                  {% if block.settings.show_accent_text and block.settings.accent_text_position == 'after' %}
-                    <div class="custom-text-accent">{{ block.settings.accent_text }}</div>
-                  {% endif %}
+              {% if block.settings.show_description and block.settings.description != blank %}
+                <div class="custom-text-description">
+                  {{ block.settings.description }}
                 </div>
-                {% if block.settings.show_after_icon %}
-                  <div class="custom-text-after-icon">
-                    {% if block.settings.use_image_after_icon and block.settings.after_icon_image != blank %}
-                      <img
-                        src="{{ block.settings.after_icon_image | image_url: width: 72 }}"
-                        srcset="{{ block.settings.after_icon_image | image_url: width: 72 }} 1x, {{ block.settings.after_icon_image | image_url: width: 144 }} 2x"
-                        alt="After Icon"
-                        loading="lazy"
-                        width="{{ block.settings.after_icon_size }}"
-                        height="{{ block.settings.after_icon_size }}"
-                        style="width: {{ block.settings.after_icon_size }}px; height: {{ block.settings.after_icon_size }}px; object-fit: contain;"
-                      >
-                    {% elsif block.settings.after_custom_icon != blank %}
-                      {{ block.settings.after_custom_icon }}
-                    {% endif %}
-                  </div>
-                {% endif %}
-              </div>
-            {% endif %}
-
-            {% if block.settings.show_description and block.settings.description != blank %}
-              <div class="custom-text-description">
-                {{ block.settings.description }}
-              </div>
-            {% endif %}
+              {% endif %}
+            </div>
           </div>
-        </div>
         </div>
       </div>
 
@@ -1816,8 +1913,11 @@
             {% else %}
             background-color: {{ block.settings.container_bg }};
             {% endif %}
-            padding: {{ block.settings.container_padding_top | default: 10 }}px {{ block.settings.container_padding_h | default: 14 }}px {{ block.settings.container_padding_bottom | default: 10 }}px {{ block.settings.container_padding_h | default: 14 }}px;
+            padding: {{ block.settings.container_padding_v | default: 10 }}px {{ block.settings.container_padding_h | default: 14 }}px;
             border-radius: {{ block.settings.border_radius }}px;
+            {% if block.settings.show_border %}
+              border: {{ block.settings.border_width | default: 1 }}px solid {{ block.settings.border_color | default: '#E0E0E0' }};
+            {% endif %}
           {% endif %}
         }
 
@@ -2252,7 +2352,8 @@
         show_radio_buttons: block.settings.show_radio_buttons,
         enable_variant_selection: block.settings.enable_variant_selection,
         enable_single_variant_selection: block.settings.enable_single_variant_selection,
-        use_dashed_border_unselected: block.settings.use_dashed_border_unselected,
+                unselected_border_width: block.settings.unselected_border_width,
+        unselected_border_style: block.settings.unselected_border_style,
         show_option_1: block.settings.show_option_1,
         show_option_2: block.settings.show_option_2,
         show_option_3: block.settings.show_option_3,
@@ -2292,6 +2393,8 @@
         border_color: block.settings.border_color,
         background_color: block.settings.background_color,
         best_deal_border_color: block.settings.best_deal_border_color,
+        selected_border_width: block.settings.selected_border_width,
+        selected_border_style: block.settings.selected_border_style,
         best_deal_background_color: block.settings.best_deal_background_color,
         enable_selected_gradient: block.settings.enable_selected_gradient,
         selected_gradient_start: block.settings.selected_gradient_start,
@@ -2314,8 +2417,9 @@
         gap_between_options: block.settings.gap_between_options,
         option_padding_vertical: block.settings.option_padding_vertical,
         option_padding_horizontal: block.settings.option_padding_horizontal,
+        main_content_gap: block.settings.main_content_gap,
         option_min_height: block.settings.option_min_height,
-        image_size: block.settings.image_size,
+        image_height: block.settings.image_height,
         savings_text_format: block.settings.savings_text_format,
         enable_individual_savings_text: block.settings.enable_individual_savings_text,
         option_1_savings_text: block.settings.option_1_savings_text,
@@ -2323,6 +2427,7 @@
         option_3_savings_text: block.settings.option_3_savings_text,
         option_4_savings_text: block.settings.option_4_savings_text,
         show_savings_text: block.settings.show_savings_text,
+        show_individual_savings_text: block.settings.show_individual_savings_text,
         center_titles_when_no_savings: block.settings.center_titles_when_no_savings,
         custom_savings_text_color: block.settings.custom_savings_text_color,
         custom_savings_font_size: block.settings.custom_savings_font_size,
@@ -2335,13 +2440,67 @@
         option_3_compare_at_price: block.settings.option_3_compare_at_price,
         option_4_custom_price: block.settings.option_4_custom_price,
         option_4_compare_at_price: block.settings.option_4_compare_at_price,
+        option_1_show_free_gift: block.settings.option_1_show_free_gift,
+        option_1_free_gift_count: block.settings.option_1_free_gift_count,
+        option_1_free_gift_text: block.settings.option_1_free_gift_text,
+        option_1_free_gift_icon: block.settings.option_1_free_gift_icon,
+        option_1_free_gift_icon_size: block.settings.option_1_free_gift_icon_size,
+        option_1_free_gift_font_size: block.settings.option_1_free_gift_font_size,
+        option_1_free_gift_border_radius: block.settings.option_1_free_gift_border_radius,
+        option_1_free_gift_bg_color: block.settings.option_1_free_gift_bg_color,
+        option_1_free_gift_use_gradient: block.settings.option_1_free_gift_use_gradient,
+        option_1_free_gift_gradient_start: block.settings.option_1_free_gift_gradient_start,
+        option_1_free_gift_gradient_end: block.settings.option_1_free_gift_gradient_end,
+        option_1_free_gift_text_color: block.settings.option_1_free_gift_text_color,
+        option_1_free_gift_border_color: block.settings.option_1_free_gift_border_color,
+        option_2_show_free_gift: block.settings.option_2_show_free_gift,
+        option_2_free_gift_count: block.settings.option_2_free_gift_count,
+        option_2_free_gift_text: block.settings.option_2_free_gift_text,
+        option_2_free_gift_icon: block.settings.option_2_free_gift_icon,
+        option_2_free_gift_icon_size: block.settings.option_2_free_gift_icon_size,
+        option_2_free_gift_font_size: block.settings.option_2_free_gift_font_size,
+        option_2_free_gift_border_radius: block.settings.option_2_free_gift_border_radius,
+        option_2_free_gift_bg_color: block.settings.option_2_free_gift_bg_color,
+        option_2_free_gift_use_gradient: block.settings.option_2_free_gift_use_gradient,
+        option_2_free_gift_gradient_start: block.settings.option_2_free_gift_gradient_start,
+        option_2_free_gift_gradient_end: block.settings.option_2_free_gift_gradient_end,
+        option_2_free_gift_text_color: block.settings.option_2_free_gift_text_color,
+        option_2_free_gift_border_color: block.settings.option_2_free_gift_border_color,
+        option_3_show_free_gift: block.settings.option_3_show_free_gift,
+        option_3_free_gift_count: block.settings.option_3_free_gift_count,
+        option_3_free_gift_text: block.settings.option_3_free_gift_text,
+        option_3_free_gift_icon: block.settings.option_3_free_gift_icon,
+        option_3_free_gift_icon_size: block.settings.option_3_free_gift_icon_size,
+        option_3_free_gift_font_size: block.settings.option_3_free_gift_font_size,
+        option_3_free_gift_border_radius: block.settings.option_3_free_gift_border_radius,
+        option_3_free_gift_bg_color: block.settings.option_3_free_gift_bg_color,
+        option_3_free_gift_use_gradient: block.settings.option_3_free_gift_use_gradient,
+        option_3_free_gift_gradient_start: block.settings.option_3_free_gift_gradient_start,
+        option_3_free_gift_gradient_end: block.settings.option_3_free_gift_gradient_end,
+        option_3_free_gift_text_color: block.settings.option_3_free_gift_text_color,
+        option_3_free_gift_border_color: block.settings.option_3_free_gift_border_color,
+        option_4_show_free_gift: block.settings.option_4_show_free_gift,
+        option_4_free_gift_count: block.settings.option_4_free_gift_count,
+        option_4_free_gift_text: block.settings.option_4_free_gift_text,
+        option_4_free_gift_icon: block.settings.option_4_free_gift_icon,
+        option_4_free_gift_icon_size: block.settings.option_4_free_gift_icon_size,
+        option_4_free_gift_font_size: block.settings.option_4_free_gift_font_size,
+        option_4_free_gift_border_radius: block.settings.option_4_free_gift_border_radius,
+        option_4_free_gift_bg_color: block.settings.option_4_free_gift_bg_color,
+        option_4_free_gift_use_gradient: block.settings.option_4_free_gift_use_gradient,
+        option_4_free_gift_gradient_start: block.settings.option_4_free_gift_gradient_start,
+        option_4_free_gift_gradient_end: block.settings.option_4_free_gift_gradient_end,
+        option_4_free_gift_text_color: block.settings.option_4_free_gift_text_color,
+        option_4_free_gift_border_color: block.settings.option_4_free_gift_border_color,
         variant_selector_border_color: block.settings.variant_selector_border_color,
         variant_selector_background_color: block.settings.variant_selector_background_color,
         variant_selector_text_color: block.settings.variant_selector_text_color,
-        variant_container_border_color: block.settings.variant_container_border_color,
         variant_container_background_color: block.settings.variant_container_background_color,
         variant_label_color: block.settings.variant_label_color,
-        show_variant_container_border: block.settings.show_variant_container_border,
+        show_variant_option_divider: block.settings.show_variant_option_divider,
+        variant_option_divider_color: block.settings.variant_option_divider_color,
+        show_variant_row_divider: block.settings.show_variant_row_divider,
+        variant_row_divider_color: block.settings.variant_row_divider_color,
         preselected_option: block.settings.preselected_option,
         enable_badge_border: block.settings.enable_badge_border,
         badge_border_color: block.settings.badge_border_color,
@@ -2350,24 +2509,22 @@
         enable_option_1_badge_border: block.settings.enable_option_1_badge_border,
         option_1_badge_border_color: block.settings.option_1_badge_border_color,
         option_1_badge_border_width: block.settings.option_1_badge_border_width,
-        option_1_badge_border_style: block.settings.option_1_badge_border_style,
         enable_option_2_badge_border: block.settings.enable_option_2_badge_border,
         option_2_badge_border_color: block.settings.option_2_badge_border_color,
         option_2_badge_border_width: block.settings.option_2_badge_border_width,
-        option_2_badge_border_style: block.settings.option_2_badge_border_style,
         enable_option_3_badge_border: block.settings.enable_option_3_badge_border,
         option_3_badge_border_color: block.settings.option_3_badge_border_color,
         option_3_badge_border_width: block.settings.option_3_badge_border_width,
-        option_3_badge_border_style: block.settings.option_3_badge_border_style,
         enable_option_4_badge_border: block.settings.enable_option_4_badge_border,
         option_4_badge_border_color: block.settings.option_4_badge_border_color,
         option_4_badge_border_width: block.settings.option_4_badge_border_width,
-        option_4_badge_border_style: block.settings.option_4_badge_border_style,
         hide_compare_at_price_option_1: block.settings.hide_compare_at_price_option_1,
         hide_compare_at_price_option_2: block.settings.hide_compare_at_price_option_2,
         hide_compare_at_price_option_3: block.settings.hide_compare_at_price_option_3,
         hide_compare_at_price_option_4: block.settings.hide_compare_at_price_option_4,
         title_font_size: block.settings.title_font_size,
+        price_font_size: block.settings.price_font_size,
+        compare_price_font_size: block.settings.compare_price_font_size,
         variant_label_font_size: block.settings.variant_label_font_size,
         title_color: block.settings.title_color,
         title_font_weight: block.settings.title_font_weight,
@@ -2380,12 +2537,14 @@
         option_hover_background_color: block.settings.option_hover_background_color,
         block: block,
         include_variant_option_1: block.settings.include_variant_option_1,
+        variant_option_1_display_type: block.settings.variant_option_1_display_type,
         include_variant_option_2: block.settings.include_variant_option_2,
+        variant_option_2_display_type: block.settings.variant_option_2_display_type,
         include_variant_option_3: block.settings.include_variant_option_3,
+        variant_option_3_display_type: block.settings.variant_option_3_display_type,
         hide_product_title_in_variants: block.settings.hide_product_title_in_variants,
         show_variant_images_instead_of_swatches: block.settings.show_variant_images_instead_of_swatches,
         hide_quantity_break_variant_images: block.settings.hide_quantity_break_variant_images,
-        variant_image_thumb_full_width: block.settings.variant_image_thumb_full_width,
         stack_variant_layout: block.settings.stack_variant_layout,
         enable_color_swatches: block.settings.enable_color_swatches,
         swatch_size: block.settings.swatch_size,
@@ -2395,6 +2554,13 @@
         swatch_container_border_color: block.settings.swatch_container_border_color,
         variant_select_border_radius: block.settings.variant_select_border_radius,
         swatch_selected_border_color: block.settings.swatch_selected_border_color,
+        size_button_background_color: block.settings.size_button_background_color,
+        size_button_text_color: block.settings.size_button_text_color,
+        size_button_border_color: block.settings.size_button_border_color,
+        size_button_selected_border_color: block.settings.size_button_selected_border_color,
+        size_button_border_width: block.settings.size_button_border_width,
+        size_button_selected_border_width: block.settings.size_button_selected_border_width,
+        size_button_font_size: block.settings.size_button_font_size,
         max_swatches_per_row: block.settings.max_swatches_per_row,
         color_swatch_mapping: block.settings.color_swatch_mapping,
         variant_image_size: block.settings.variant_image_size,
@@ -2410,7 +2576,8 @@
       %}
 
     {% when 'premium_attachment_kit' %}
-      {% render 'premium-attachment-kit',
+      {%
+        render 'premium-attachment-kit',
         block: block,
         section: section,
         apply_to_product: block.settings.apply_to_product,
@@ -2440,56 +2607,57 @@
         item_1_price: block.settings.item_1_price,
         item_1_compare_price: block.settings.item_1_compare_price,
         item_1_icon: block.settings.item_1_icon,
-        item_1_product: block.settings.item_1_product | default: settings.item_1_product,
+        item_1_product: block.settings.item_1_product,
         item_2_name: block.settings.item_2_name,
         item_2_price: block.settings.item_2_price,
         item_2_compare_price: block.settings.item_2_compare_price,
         item_2_icon: block.settings.item_2_icon,
-        item_2_product: block.settings.item_2_product | default: settings.item_2_product,
+        item_2_product: block.settings.item_2_product,
         item_3_name: block.settings.item_3_name,
         item_3_price: block.settings.item_3_price,
         item_3_compare_price: block.settings.item_3_compare_price,
         item_3_icon: block.settings.item_3_icon,
-        item_3_product: block.settings.item_3_product | default: settings.item_3_product,
+        item_3_product: block.settings.item_3_product,
         item_4_name: block.settings.item_4_name,
         item_4_price: block.settings.item_4_price,
         item_4_compare_price: block.settings.item_4_compare_price,
         item_4_icon: block.settings.item_4_icon,
-        item_4_product: block.settings.item_4_product | default: settings.item_4_product,
+        item_4_product: block.settings.item_4_product,
         item_5_name: block.settings.item_5_name,
         item_5_price: block.settings.item_5_price,
         item_5_compare_price: block.settings.item_5_compare_price,
         item_5_icon: block.settings.item_5_icon,
-        item_5_product: block.settings.item_5_product | default: settings.item_5_product,
+        item_5_product: block.settings.item_5_product,
         item_6_name: block.settings.item_6_name,
         item_6_price: block.settings.item_6_price,
         item_6_compare_price: block.settings.item_6_compare_price,
         item_6_icon: block.settings.item_6_icon,
-        item_6_product: block.settings.item_6_product | default: settings.item_6_product,
+        item_6_product: block.settings.item_6_product,
         item_7_name: block.settings.item_7_name,
         item_7_price: block.settings.item_7_price,
         item_7_compare_price: block.settings.item_7_compare_price,
         item_7_icon: block.settings.item_7_icon,
-        item_7_product: block.settings.item_7_product | default: settings.item_7_product,
+        item_7_product: block.settings.item_7_product,
         item_8_name: block.settings.item_8_name,
         item_8_price: block.settings.item_8_price,
         item_8_compare_price: block.settings.item_8_compare_price,
         item_8_icon: block.settings.item_8_icon,
-        item_8_product: block.settings.item_8_product | default: settings.item_8_product,
+        item_8_product: block.settings.item_8_product,
         item_9_name: block.settings.item_9_name,
         item_9_price: block.settings.item_9_price,
         item_9_compare_price: block.settings.item_9_compare_price,
         item_9_icon: block.settings.item_9_icon,
-        item_9_product: block.settings.item_9_product | default: settings.item_9_product,
+        item_9_product: block.settings.item_9_product,
         item_10_name: block.settings.item_10_name,
         item_10_price: block.settings.item_10_price,
         item_10_compare_price: block.settings.item_10_compare_price,
         item_10_icon: block.settings.item_10_icon,
-        item_10_product: block.settings.item_10_product | default: settings.item_10_product,
-        rely_on_product: block.settings.rely_on_product | default: settings.rely_on_product
+        item_10_product: block.settings.item_10_product,
+        rely_on_product: block.settings.rely_on_product
       %}
     {% when 'product_tabs' %}
       {% render 'product-tabs',
+        num_tabs: block.settings.num_tabs,
         block_heading: block.settings.block_heading,
         block_heading_color: block.settings.block_heading_color,
         block_heading_size: block.settings.block_heading_size,
@@ -2506,6 +2674,7 @@
         tab_active_background: block.settings.tab_active_background,
         tab_active_color: block.settings.tab_active_color,
         tab_border_color: block.settings.tab_border_color,
+        tab_divider_color: block.settings.tab_divider_color,
         content_text_color: block.settings.content_text_color,
         content_text_size: block.settings.content_text_size,
         tab1_title: block.settings.tab1_title,
@@ -2518,6 +2687,10 @@
         tab1_author_title: block.settings.tab1_author_title,
         tab1_author_title_font_size: block.settings.tab1_author_title_font_size,
         tab1_author_title_color: block.settings.tab1_author_title_color,
+        tab1_author_title_background: block.settings.tab1_author_title_background,
+        tab1_author_title_padding_v: block.settings.tab1_author_title_padding_v,
+        tab1_author_title_padding_h: block.settings.tab1_author_title_padding_h,
+        tab1_author_title_border_radius: block.settings.tab1_author_title_border_radius,
         tab1_author_date: block.settings.tab1_author_date,
         tab2_title: block.settings.tab2_title,
         tab2_show_icons: block.settings.tab2_show_icons,
@@ -2582,7 +2755,10 @@
         tab3_sublabel_font_size: block.settings.tab3_sublabel_font_size,
         tab3_value_font_size: block.settings.tab3_value_font_size,
         tab3_disclaimer_font_size: block.settings.tab3_disclaimer_font_size,
+        tab3_hide_table_borders: block.settings.tab3_hide_table_borders,
         tab3_header_text_color: block.settings.tab3_header_text_color,
+        tab3_row_background_color: block.settings.tab3_row_background_color,
+        tab3_border_color: block.settings.tab3_border_color,
         tab3_label_color: block.settings.tab3_label_color,
         tab3_sublabel_color: block.settings.tab3_sublabel_color,
         tab3_value_color: block.settings.tab3_value_color,
@@ -2707,8 +2883,8 @@
       {% if block.settings.enable_carousel %}
         <!-- Customer Review Carousel -->
         {% comment %} Collect all customer_review_item blocks from the section {% endcomment %}
-        {% assign review_items = section.blocks | where: "type", "customer_review_item" %}
-        
+        {% assign review_items = section.blocks | where: 'type', 'customer_review_item' %}
+
         {% if review_items.size > 0 %}
           <div class="customer-review-carousel-container" id="customer-review-carousel-{{ block.id }}">
             <div class="customer-review-carousel">
@@ -2721,6 +2897,7 @@
                         review_text: review_block.settings.review_text,
                         rating: review_block.settings.rating,
                         avatar_url: review_block.settings.avatar_url,
+                        show_avatar: review_block.settings.show_avatar,
                         use_theme_colors: block.settings.use_theme_colors,
                         background_color_start: block.settings.background_color_start,
                         background_color_end: block.settings.background_color_end,
@@ -2745,12 +2922,15 @@
                   {% endif %}
                 {% endfor %}
               </div>
-              
+
               {% if block.settings.show_navigation %}
                 <div class="customer-review-pagination">
                   {% for review_block in review_items %}
                     {% if review_block.settings.reviewer_name != blank %}
-                      <button class="pagination-dot{% if forloop.first %} active{% endif %}" data-slide="{{ forloop.index0 }}"></button>
+                      <button
+                        class="pagination-dot{% if forloop.first %} active{% endif %}"
+                        data-slide="{{ forloop.index0 }}"
+                      ></button>
                     {% endif %}
                   {% endfor %}
                 </div>
@@ -2758,14 +2938,14 @@
             </div>
           </div>
         {% endif %}
-        
+
         <style>
           .customer-review-carousel-container {
             margin: 15px 0;
             width: 100%;
             overflow: hidden;
           }
-          
+
           .customer-review-carousel {
             position: relative;
             overflow: visible;
@@ -2774,7 +2954,7 @@
             flex-direction: column;
             align-items: center;
           }
-          
+
           .customer-review-slides {
             display: flex;
             width: 80%;
@@ -2785,11 +2965,11 @@
             cursor: grab;
             user-select: none;
           }
-          
+
           .customer-review-slides:active {
             cursor: grabbing;
           }
-          
+
           .customer-review-slide {
             min-width: 100%;
             width: 100%;
@@ -2798,7 +2978,7 @@
             justify-content: center;
             align-items: center;
           }
-          
+
           .customer-review-slide .customer-review-card {
             width: 100%;
             max-width: 100%;
@@ -2806,7 +2986,7 @@
             transition: box-shadow 0.3s ease;
             {% endif %}
           }
-          
+
           /* Center/active slide styling */
           .customer-review-slide.active .customer-review-card {
             z-index: 2;
@@ -2814,7 +2994,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             {% endif %}
           }
-          
+
           .customer-review-pagination {
             display: flex;
             justify-content: center;
@@ -2822,7 +3002,7 @@
             margin-top: 16px;
             width: 100%;
           }
-          
+
           .pagination-dot {
             width: 8px;
             height: 8px;
@@ -2844,19 +3024,19 @@
             max-height: 8px !important;
             flex-shrink: 0 !important;
           }
-          
+
           .pagination-dot:hover,
           .pagination-dot.active {
             background-color: {{ block.settings.pagination_dot_active_color | default: '#333333' }} !important;
             transform: scale(1);
           }
-          
+
           @media (max-width: 767px) {
             .customer-review-slide .customer-review-card {
               width: 100%;
               max-width: 100%;
             }
-            
+
             .customer-review-slide.active .customer-review-card {
               {% if block.settings.show_active_shadow %}
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -2864,16 +3044,16 @@
             }
           }
         </style>
-        
+
         <script>
-          document.addEventListener('DOMContentLoaded', function() {
+          document.addEventListener('DOMContentLoaded', function () {
             const carousel = document.getElementById('customer-review-carousel-{{ block.id }}');
             if (!carousel) return;
-            
+
             const slidesContainer = carousel.querySelector('.customer-review-slides');
             const slides = carousel.querySelectorAll('.customer-review-slide');
             const dots = carousel.querySelectorAll('.pagination-dot');
-            
+
             // Start with the middle card
             const middleIndex = Math.floor(slides.length / 2);
             let currentSlide = middleIndex;
@@ -2881,7 +3061,7 @@
             let currentX = 0;
             let isDragging = false;
             let startTransform = 0;
-            
+
             function goToSlide(index, instant = false) {
               // Infinite scroll logic - normalize the index
               if (index >= slides.length) {
@@ -2891,82 +3071,82 @@
               } else {
                 currentSlide = index;
               }
-              
+
               // Calculate the offset to center the active slide
               // Container is 80% width and centered by parent
               // Each slide is 100% of container width with 12px gap
               // Add small offset to shift more to the left
               const slideOffset = currentSlide * 100;
               const leftOffset = -3; // Shift 5% more to the left
-              
+
               if (instant) {
                 slidesContainer.style.transition = 'none';
               }
-              
+
               slidesContainer.style.transform = `translateX(calc(${leftOffset}% - ${slideOffset}%))`;
-              
+
               if (instant) {
                 // Force reflow
                 slidesContainer.offsetHeight;
                 slidesContainer.style.transition = 'transform 0.4s ease-out';
               }
-              
+
               // Update active class on slides
               slides.forEach((slide, i) => {
                 slide.classList.toggle('active', i === currentSlide);
               });
-              
+
               // Update dots
               dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === currentSlide);
               });
             }
-            
+
             function nextSlide() {
               goToSlide(currentSlide + 1);
             }
-            
+
             function prevSlide() {
               goToSlide(currentSlide - 1);
             }
-            
+
             // Dot navigation
             dots.forEach((dot, index) => {
               dot.addEventListener('click', () => {
                 goToSlide(index);
               });
             });
-            
+
             // Touch/Swipe functionality
             function handleStart(e) {
               isDragging = true;
               startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
               const leftOffset = -5;
-              startTransform = leftOffset - (currentSlide * 100);
+              startTransform = leftOffset - currentSlide * 100;
               slidesContainer.style.transition = 'none';
             }
-            
+
             function handleMove(e) {
               if (!isDragging) return;
               e.preventDefault();
-              
+
               currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
               const diff = currentX - startX;
               const containerWidth = slidesContainer.offsetWidth;
               const percentMoved = (diff / containerWidth) * 100;
-              
+
               slidesContainer.style.transform = `translateX(${startTransform + percentMoved}%)`;
             }
-            
+
             function handleEnd(e) {
               if (!isDragging) return;
               isDragging = false;
-              
+
               slidesContainer.style.transition = 'transform 0.4s ease-out';
-              
+
               const diff = currentX - startX;
               const threshold = 50; // Minimum swipe distance
-              
+
               if (Math.abs(diff) > threshold) {
                 if (diff > 0) {
                   // Swiped right - go to previous
@@ -2980,20 +3160,20 @@
                 goToSlide(currentSlide);
               }
             }
-            
+
             // Mouse events
             slidesContainer.addEventListener('mousedown', handleStart);
             document.addEventListener('mousemove', handleMove);
             document.addEventListener('mouseup', handleEnd);
-            
+
             // Touch events
             slidesContainer.addEventListener('touchstart', handleStart, { passive: false });
             slidesContainer.addEventListener('touchmove', handleMove, { passive: false });
             slidesContainer.addEventListener('touchend', handleEnd);
-            
+
             // Prevent text selection while dragging
             slidesContainer.addEventListener('dragstart', (e) => e.preventDefault());
-            
+
             // Initialize with the middle card
             goToSlide(middleIndex);
           });
@@ -3004,6 +3184,7 @@
           review_text: block.settings.review_text,
           rating: block.settings.rating,
           avatar_url: block.settings.avatar_url,
+          show_avatar: block.settings.show_avatar,
           use_theme_colors: block.settings.use_theme_colors,
           background_color_start: block.settings.background_color_start,
           background_color_end: block.settings.background_color_end,
@@ -3099,11 +3280,13 @@
         badge_1_icon: block.settings.badge_1_icon,
         badge_1_custom_icon: block.settings.badge_1_custom_icon,
         badge_1_custom_image: block.settings.badge_1_custom_image,
+        badge_1_dot_color: block.settings.badge_1_dot_color,
         badge_2_show: block.settings.badge_2_show,
         badge_2_text: block.settings.badge_2_text,
         badge_2_icon: block.settings.badge_2_icon,
         badge_2_custom_icon: block.settings.badge_2_custom_icon,
         badge_2_custom_image: block.settings.badge_2_custom_image,
+        badge_2_dot_color: block.settings.badge_2_dot_color,
         icon_color: block.settings.icon_color,
         text_color: block.settings.text_color,
         container_margin_top: block.settings.container_margin_top,
@@ -3148,7 +3331,7 @@
         block: block
       %}
 
-    {% when 'product_labels' %}
+  {% when 'product_labels' %}
       {% render 'product-labels',
         label_1_show: block.settings.label_1_show,
         label_1_icon: block.settings.label_1_icon,
@@ -3193,10 +3376,16 @@
         label_3_serving_text_color: block.settings.label_3_serving_text_color,
         label_3_border_color: block.settings.label_3_border_color,
         container_gap: block.settings.container_gap,
+        labels_justify_content: block.settings.labels_justify_content,
+        labels_wrapper_padding_top: block.settings.labels_wrapper_padding_top,
+        labels_wrapper_padding_bottom: block.settings.labels_wrapper_padding_bottom,
         labels_wrapper_left_padding: block.settings.labels_wrapper_left_padding,
+        labels_wrapper_padding_right: block.settings.labels_wrapper_padding_right,
         label_bg_color: block.settings.label_bg_color,
         label_border_color: block.settings.label_border_color,
         label_border_radius: block.settings.label_border_radius,
+        label_layout: block.settings.label_layout,
+        container_layout: block.settings.container_layout,
         label_padding_v: block.settings.label_padding_v,
         label_padding_h: block.settings.label_padding_h,
         icon_bg_start: block.settings.icon_bg_start,
@@ -3231,15 +3420,12 @@
         serving_info_color: block.settings.serving_info_color,
         serving_info_font_size: block.settings.serving_info_font_size,
         serving_info_font_size_mobile: block.settings.serving_info_font_size_mobile,
-        label_padding_v_desktop: block.settings.label_padding_v_desktop,
-        label_padding_h_desktop: block.settings.label_padding_h_desktop,
         label_padding_v_mobile: block.settings.label_padding_v_mobile,
         label_padding_h_mobile: block.settings.label_padding_h_mobile,
         margin_top: block.settings.margin_top,
         margin_bottom: block.settings.margin_bottom,
         block: block
       %}
-
     {% when 'custom_product_field' %}
       {% assign field_id = 'custom_field_' | append: block.id %}
       {% assign property_name = block.settings.property_name | default: 'Personalization' %}
@@ -3340,6 +3526,7 @@
 
       <script>
         document.addEventListener('DOMContentLoaded', function() {
+          if (typeof Elixir_ProductFormExists !== 'function' || !Elixir_ProductFormExists()) return;
           const field = document.getElementById('{{ field_id }}');
           const wrapper = document.getElementById('wrapper-{{ field_id }}');
           {% if block.settings.max_length > 0 %}
@@ -3415,7 +3602,7 @@
             {% endif %}
 
             // Store original cart form submission for line item properties
-            const cartForm = document.querySelector('form[action*="/cart/add"]');
+            const cartForm = (typeof Elixir_GetProductForm === 'function' && Elixir_GetProductForm()) || document.querySelector('form[action*="/cart/add"]');
             if (cartForm && field.name.includes('properties')) {
               field.addEventListener('input', function() {
                 // Auto-save to session storage for persistence
@@ -3444,6 +3631,15 @@
       {% render 'variant-selector-clean', block: block, product: product %}
 
     {% when 'selling_out_fast' %}
-      {% render 'selling-out-fast', block: block %}
+      {% render 'selling-out-fast', block: block, product: product %}
+
+    {% when 'subscribe_save' %}
+      {% render 'subscribe-and-save', block: block %}
+
+    {% when 'deal_timer' %}
+      {% render 'deal-timer', block: block %}
+
+    {% when 'bundle_and_save' %}
+      {% render 'bundle-and-save', block: block %}
   {% endcase %}
 {% endfor %}

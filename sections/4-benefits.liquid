@@ -1,22 +1,5 @@
 {% comment %} Google Fonts for accent text customization {% endcomment %}
-{% if section.settings.override_global_accent %}
-  {% if section.settings.accent_font_family != 'inherit' and section.settings.accent_font_family != 'serif' %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {% case section.settings.accent_font_family %}
-      {% when 'Georgia Pro' %}
-        <link href="https://fonts.googleapis.com/css2?family=Georgia+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
-      {% when 'Bodoni Moda' %}
-        <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;0,6..96,800;1,6..96,400;1,6..96,500;1,6..96,600;1,6..96,700;1,6..96,800&display=swap" rel="stylesheet">
-      {% when 'Instrument Serif' %}
-        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-      {% when 'DM Serif Text' %}
-        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
-      {% when 'Nothing You Could Do' %}
-        <link href="https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap" rel="stylesheet">
-    {% endcase %}
-  {% endif %}
-{% endif %}
+{% render 'accent-font-loader' %}
 
 {% liquid
   assign display_mode = section.settings.image_display_mode
@@ -118,11 +101,15 @@
     {% endif %}
   }
   
-  #benefits-{{ section.id }} .benefits-grid__heading {
+  #benefits-{{ section.id }} .benefits-grid__heading,
+  #benefits-{{ section.id }} .benefits-grid__heading * {
     color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.heading_color }}{% endif %} !important;
     font-size: {{ section.settings.heading_size_mobile }}px !important;
-    line-height: {{ section.settings.heading_line_height_mobile | default: 1.2 }} !important;
+    line-height: {{ section.settings.heading_line_height_mobile }} !important;
     text-align: {{ section.settings.heading_alignment_mobile }} !important;
+  }
+  
+  #benefits-{{ section.id }} .benefits-grid__heading {
     margin-bottom: {{ section.settings.heading_bottom_margin | default: 16 }}px !important;
   }
   
@@ -234,10 +221,14 @@
   #benefits-{{ section.id }} .benefit-item__icon {
     {% unless section.settings.hide_icon_background %}
       background: {% if section.settings.use_theme_colors %}{{ settings.global_accent_text_gradient_dark }}{% else %}{{ section.settings.icon_background | default: 'linear-gradient(135deg, #EF4A65, #FF6B9D)' }}{% endif %};
+      border-radius: {{ section.settings.icon_border_radius | default: 50 }}% !important;
     {% endunless %}
     {% if section.settings.hide_icon_background %}
       background: transparent !important;
-      border-radius: 0 !important;
+      border-radius: {{ section.settings.icon_border_radius | default: 50 }}% !important;
+    {% endif %}
+    {% if section.settings.enable_icon_border %}
+      border: {{ section.settings.icon_border_width | default: 2 }}px {{ section.settings.icon_border_style | default: 'solid' }} {{ section.settings.icon_border_color | default: '#000000' }} !important;
     {% endif %}
     {% if section.settings.enable_icon_shadow %}
       {% assign shadow_color_rgb = section.settings.icon_shadow_color | color_to_rgb | remove: 'rgb(' | remove: ')' %}
@@ -261,10 +252,11 @@
       max-width: {{ section.settings.content_max_width_no_image | default: 600 }}px !important;
     }
     
-    #benefits-{{ section.id }} .benefits-grid__heading {
+    #benefits-{{ section.id }} .benefits-grid__heading,
+    #benefits-{{ section.id }} .benefits-grid__heading * {
       color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.heading_color }}{% endif %} !important;
       font-size: {{ section.settings.heading_size_desktop }}px !important;
-      line-height: {{ section.settings.heading_line_height_desktop | default: 1.2 }} !important;
+      line-height: {{ section.settings.heading_line_height_desktop }} !important;
       text-align: {{ section.settings.heading_alignment_desktop }} !important;
     }
     
@@ -323,8 +315,25 @@
       text-align: {{ section.settings.heading_alignment_desktop }} !important;
     }
     
+    #benefits-{{ section.id }} .benefits-grid__items {
+      {% if section.settings.benefit_content_alignment_desktop == 'left' %}
+        justify-items: start !important;
+      {% else %}
+        justify-items: center !important;
+      {% endif %}
+    }
+
     #benefits-{{ section.id }} .benefit-item {
       text-align: {{ section.settings.benefit_content_alignment_desktop }} !important;
+      {% if section.settings.benefit_content_alignment_desktop == 'left' %}
+        align-items: flex-start !important;
+        margin-left: 0 !important;
+        margin-right: auto !important;
+      {% else %}
+        align-items: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      {% endif %}
     }
     
     #benefits-{{ section.id }} .benefit-item__icon {
@@ -376,12 +385,20 @@
   {% if block.settings.use_custom_icon_size %}
     <style>
       /* Block {{ block.id }} custom icon sizing */
+      #benefits-{{ section.id }} .benefits-grid__items .benefit-item[data-block-id="{{ block.id }}"] .benefit-item__icon {
+        width: {{ block.settings.icon_container_size_mobile | default: section.settings.benefit_icon_container_size_mobile | default: 60 }}px !important;
+        height: {{ block.settings.icon_container_size_mobile | default: section.settings.benefit_icon_container_size_mobile | default: 60 }}px !important;
+      }
       #benefits-{{ section.id }} .benefits-grid__items .benefit-item[data-block-id="{{ block.id }}"] .benefit-item__icon-image,
       #benefits-{{ section.id }} .benefits-grid__items .benefit-item[data-block-id="{{ block.id }}"] .benefit-item__icon-svg {
         width: {{ block.settings.icon_size_mobile | default: 30 }}px !important;
         height: {{ block.settings.icon_size_mobile | default: 30 }}px !important;
       }
       @media screen and (min-width: 768px) {
+        #benefits-{{ section.id }} .benefits-grid__items .benefit-item[data-block-id="{{ block.id }}"] .benefit-item__icon {
+          width: {{ block.settings.icon_container_size_desktop | default: section.settings.benefit_icon_container_size_desktop | default: 60 }}px !important;
+          height: {{ block.settings.icon_container_size_desktop | default: section.settings.benefit_icon_container_size_desktop | default: 60 }}px !important;
+        }
         #benefits-{{ section.id }} .benefits-grid__items .benefit-item[data-block-id="{{ block.id }}"] .benefit-item__icon-image,
         #benefits-{{ section.id }} .benefits-grid__items .benefit-item[data-block-id="{{ block.id }}"] .benefit-item__icon-svg {
           width: {{ block.settings.icon_size_desktop | default: 30 }}px !important;
@@ -395,6 +412,7 @@
 {% schema %}
 {
   "name": "4 Benefits",
+  "tag": "section",
   "class": "shopify-section--four-benefits-new", 
   "disabled_on": {
     "groups": ["header", "footer", "aside"]
@@ -874,6 +892,51 @@
       "info": "Remove the circular background behind icons"
     },
     {
+      "type": "range",
+      "id": "icon_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "%",
+      "label": "Icon Circle Border Radius",
+      "default": 50,
+      "info": "50% = fully round, 0% = square"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_icon_border",
+      "label": "Enable Icon Circle Border",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "icon_border_width",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Icon Border Width",
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "icon_border_style",
+      "label": "Icon Border Style",
+      "options": [
+        {"value": "solid", "label": "Solid"},
+        {"value": "dashed", "label": "Dashed"},
+        {"value": "dotted", "label": "Dotted"},
+        {"value": "double", "label": "Double"}
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "color",
+      "id": "icon_border_color",
+      "label": "Icon Border Color",
+      "default": "#000000"
+    },
+    {
       "type": "header",
       "content": "Icon Drop Shadow"
     },
@@ -1189,13 +1252,36 @@
         },
         {
           "type": "range",
+          "id": "icon_container_size_mobile",
+          "min": 30,
+          "max": 150,
+          "step": 5,
+          "unit": "px",
+          "label": "Mobile Icon Container Size",
+          "default": 60,
+          "visible_if": "{{ block.settings.use_custom_icon_size == true }}"
+        },
+        {
+          "type": "range",
+          "id": "icon_container_size_desktop",
+          "min": 40,
+          "max": 200,
+          "step": 5,
+          "unit": "px",
+          "label": "Desktop Icon Container Size",
+          "default": 60,
+          "visible_if": "{{ block.settings.use_custom_icon_size == true }}"
+        },
+        {
+          "type": "range",
           "id": "icon_size_mobile",
           "min": 15,
           "max": 200,
           "step": 5,
           "unit": "px",
           "label": "Mobile Icon Size",
-          "default": 30
+          "default": 30,
+          "visible_if": "{{ block.settings.use_custom_icon_size == true }}"
         },
         {
           "type": "range",
@@ -1205,7 +1291,8 @@
           "step": 5,
           "unit": "px",
           "label": "Desktop Icon Size",
-          "default": 30
+          "default": 30,
+          "visible_if": "{{ block.settings.use_custom_icon_size == true }}"
         }
       ]
     }

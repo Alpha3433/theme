@@ -32,9 +32,9 @@
 }
 .global-accent-text {
   color: var(--highlight-color);
-  font-style: var(--accent-text-style);
-  font-family: var(--accent-text-font-family);
-  font-weight: var(--accent-text-weight);
+  font-style: var(--font-accent-style, var(--accent-text-style, normal)) !important;
+  font-family: var(--font-accent-family, var(--accent-text-font-family)) !important;
+  font-weight: var(--font-accent-weight, var(--accent-text-weight, 400)) !important;
 }
 .steps-container {
   display: flex;

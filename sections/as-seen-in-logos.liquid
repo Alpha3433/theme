@@ -56,8 +56,16 @@
       color: {{ section.settings.text_color }};
     {% endif %}
     
-    border-top: {{ section.settings.border_width }}px solid {{ section.settings.border_color }};
-    border-bottom: {{ section.settings.border_width }}px solid {{ section.settings.border_color }};
+    {% if section.settings.enable_top_border %}
+      border-top: {{ section.settings.top_border_width }}px solid {{ section.settings.top_border_color }};
+    {% else %}
+      border-top: none;
+    {% endif %}
+    {% if section.settings.enable_bottom_border %}
+      border-bottom: {{ section.settings.bottom_border_width }}px solid {{ section.settings.bottom_border_color }};
+    {% else %}
+      border-bottom: none;
+    {% endif %}
   }
 
   #section-{{ section.id }} .as-seen-in-title {
@@ -100,9 +108,12 @@
   {% endfor %}
 {%- endstyle -%}
 
-<section id="section-{{ section.id }}" class="as-seen-in-section page-fade-in" data-section-id="{{ section.id }}">
+<section id="section-{{ section.id }}" class="as-seen-in-section {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" data-section-id="{{ section.id }}">
   {% if section.settings.section_title != blank %}
-    <h2 class="as-seen-in-title">{{ section.settings.section_title }}</h2>
+    {% assign heading_tag = section.settings.heading_tag %}
+    <{{ heading_tag }} class="as-seen-in-title">
+      {{ section.settings.section_title }}
+    </{{ heading_tag }}>
   {% endif %}
   
   <div class="logo-container">
@@ -447,6 +458,46 @@ document.addEventListener('DOMContentLoaded', function() {
       "unit": "px", 
       "label": "Heading Font Size (Desktop)",
       "default": 25
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading Tag",
+      "default": "h2",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "h4",
+          "label": "H4"
+        },
+        {
+          "value": "h5",
+          "label": "H5"
+        },
+        {
+          "value": "h6",
+          "label": "H6"
+        },
+        {
+          "value": "p",
+          "label": "P"
+        },
+        {
+          "value": "span",
+          "label": "Span"
+        }
+      ]
     },
     {
       "type": "range",

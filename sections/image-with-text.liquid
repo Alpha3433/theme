@@ -17,7 +17,7 @@
   {% endif %}
 {% endif %}
 
-<div class="image-text-section page-fade-in" id="image-text-section-{{ section.id }}" style="
+<div class="image-text-section {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" id="image-text-section-{{ section.id }}" style="
   {% if section.settings.use_theme_colors %}
     {% if section.settings.inverse_theme_colors %}
       background-color: {{ settings.global_section_text_color }};
@@ -36,7 +36,29 @@
     <div class="image-text-container-wrapper">
   {% endif %}
     <div class="image-text-container">
-      <div class="image-text-content {% if section.settings.image_position == 'right' %}image-right{% else %}image-left{% endif %}{% if section.settings.mobile_image_full_width %} mobile-media-full-width{% endif %}">
+      <div class="image-text-content {% if section.settings.image_position == 'right' %}image-right{% else %}image-left{% endif %}{% if section.settings.mobile_image_full_width %} mobile-media-full-width{% endif %}{% if section.settings.heading_above_image_mobile %} heading-above-image-mobile{% endif %}">
+      
+      {%- comment -%} Mobile Heading Above Image - Only shown on mobile when setting is enabled {%- endcomment -%}
+      {% if section.settings.heading_above_image_mobile %}
+        <div class="mobile-heading-above-image">
+          {% for block in section.blocks %}
+            {% if block.type == 'heading' %}
+              <div {{ block.shopify_attributes }}>
+                {% if block.settings.heading_text != blank %}
+                  <h2 class="image-text-heading" data-block-id="{{ block.id }}-mobile">
+                    {{ block.settings.heading_text }} 
+                    {% if block.settings.heading_accent != blank %}
+                      <span class="accent-text{% unless block.settings.override_global_accent %} global-accent-text{% endunless %}" data-block-id="{{ block.id }}-mobile">{{ block.settings.heading_accent }}</span>
+                    {% endif %}
+                  </h2>
+                {% endif %}
+              </div>
+              {% break %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      
       <div class="media-column{% if section.settings.mobile_image_full_width %} mobile-full-width{% endif %}{% if section.settings.use_background_image %} background-image-mode{% endif %}"{% if section.settings.use_background_image and section.settings.image != blank %} style="background-image: url('{{ section.settings.image | image_url: width: 1600 }}'); background-size: {{ section.settings.background_image_size }}; background-position: {{ section.settings.background_image_position }}; background-repeat: no-repeat;"{% endif %}>
         {% unless section.settings.use_background_image %}
           {% if section.settings.video != blank %}
@@ -81,7 +103,7 @@
         {% for block in section.blocks %}
           {% case block.type %}
             {% when 'heading' %}
-              <div {{ block.shopify_attributes }}>
+              <div class="heading-block-wrapper{% if section.settings.heading_above_image_mobile %} hide-on-mobile{% endif %}" {{ block.shopify_attributes }}>
                 {% if block.settings.heading_text != blank %}
                   <h2 class="image-text-heading" data-block-id="{{ block.id }}" style="
                     {% comment %} margin-top: {{ block.settings.margin_top }}px;
@@ -101,10 +123,15 @@
                   margin-top: {{ block.settings.margin_top }}px;
                   margin-bottom: {{ block.settings.margin_bottom }}px;
                   {% if block.settings.use_background %}
+                    {% if block.settings.background_type == 'gradient' %}
+                      background: linear-gradient({{ block.settings.gradient_angle | default: 90 }}deg, {{ block.settings.gradient_color_1 | default: '#667eea' }}, {{ block.settings.gradient_color_2 | default: '#764ba2' }});
+                    {% else %}
                     background-color: {{ block.settings.background_color }};
+                    {% endif %}
                     padding: {{ block.settings.padding_vertical }}px {{ block.settings.padding_horizontal }}px;
                     border-radius: {{ block.settings.border_radius }}px;
                     display: inline-block;
+                    width: fit-content;
                     {% if block.settings.border_width > 0 %}
                       border: {{ block.settings.border_width }}px {{ block.settings.border_style }} {{ block.settings.border_color }};
                     {% endif %}
@@ -128,6 +155,27 @@
                 data-block-id="{{ block.id }}"
                 {{ block.shopify_attributes }}>
                 {{ block.settings.paragraph_text }}
+              </div>
+              
+            {% when 'rating_text' %}
+              <div class="image-text-rating" style="
+                color: {{ block.settings.text_color | default: '#333333' }};
+                font-size: {{ block.settings.font_size_mobile | default: 14 }}px;
+                margin-top: {{ block.settings.margin_top | default: 0 }}px;
+                margin-bottom: {{ block.settings.margin_bottom | default: 10 }}px;"
+                data-block-id="{{ block.id }}"
+                {{ block.shopify_attributes }}>
+                <style>
+                  [data-block-id="{{ block.id }}"] {
+                    font-size: {{ block.settings.font_size_mobile | default: 14 }}px;
+                  }
+                  @media screen and (min-width: 768px) {
+                    [data-block-id="{{ block.id }}"] {
+                      font-size: {{ block.settings.font_size_desktop | default: 14 }}px;
+                    }
+                  }
+                </style>
+                {{ block.settings.text }}
               </div>
               
             {% when 'bullet_list' %}
@@ -154,7 +202,7 @@
                     padding: {{ block.settings.pill_padding_vertical }}px {{ block.settings.pill_padding_horizontal }}px;
                     margin-bottom: {{ block.settings.pill_spacing }}px;"{% endif %}>
                     {% if block.settings.list_item_1_image != blank %}
-                      <div class="item-icon"><img src="{{ block.settings.list_item_1_image | image_url: width: 100 }}" alt="" loading="lazy"></div>
+                      <div class="item-icon"><img src="{{ block.settings.list_item_1_image | image_url: width: 100 }}" alt="{{ block.settings.list_item_1_image.alt | escape }}" loading="lazy"></div>
                     {% elsif block.settings.list_item_1_svg != blank %}
                       <div class="item-icon">{{ block.settings.list_item_1_svg }}</div>
                     {% endif %}
@@ -170,7 +218,7 @@
                     padding: {{ block.settings.pill_padding_vertical }}px {{ block.settings.pill_padding_horizontal }}px;
                     margin-bottom: {{ block.settings.pill_spacing }}px;"{% endif %}>
                     {% if block.settings.list_item_2_image != blank %}
-                      <div class="item-icon"><img src="{{ block.settings.list_item_2_image | image_url: width: 100 }}" alt="" loading="lazy"></div>
+                      <div class="item-icon"><img src="{{ block.settings.list_item_2_image | image_url: width: 100 }}" alt="{{ block.settings.list_item_2_image.alt | escape }}" loading="lazy"></div>
                     {% elsif block.settings.list_item_2_svg != blank %}
                       <div class="item-icon">{{ block.settings.list_item_2_svg }}</div>
                     {% endif %}
@@ -186,7 +234,7 @@
                     padding: {{ block.settings.pill_padding_vertical }}px {{ block.settings.pill_padding_horizontal }}px;
                     margin-bottom: {{ block.settings.pill_spacing }}px;"{% endif %}>
                     {% if block.settings.list_item_3_image != blank %}
-                      <div class="item-icon"><img src="{{ block.settings.list_item_3_image | image_url: width: 100 }}" alt="" loading="lazy"></div>
+                      <div class="item-icon"><img src="{{ block.settings.list_item_3_image | image_url: width: 100 }}" alt="{{ block.settings.list_item_3_image.alt | escape }}" loading="lazy"></div>
                     {% elsif block.settings.list_item_3_svg != blank %}
                       <div class="item-icon">{{ block.settings.list_item_3_svg }}</div>
                     {% endif %}
@@ -202,7 +250,7 @@
                     padding: {{ block.settings.pill_padding_vertical }}px {{ block.settings.pill_padding_horizontal }}px;
                     margin-bottom: {{ block.settings.pill_spacing }}px;"{% endif %}>
                     {% if block.settings.list_item_4_image != blank %}
-                      <div class="item-icon"><img src="{{ block.settings.list_item_4_image | image_url: width: 100 }}" alt="" loading="lazy"></div>
+                      <div class="item-icon"><img src="{{ block.settings.list_item_4_image | image_url: width: 100 }}" alt="{{ block.settings.list_item_4_image.alt | escape }}" loading="lazy"></div>
                     {% elsif block.settings.list_item_4_svg != blank %}
                       <div class="item-icon">{{ block.settings.list_item_4_svg }}</div>
                     {% endif %}
@@ -218,7 +266,7 @@
                     padding: {{ block.settings.pill_padding_vertical }}px {{ block.settings.pill_padding_horizontal }}px;
                     margin-bottom: {{ block.settings.pill_spacing }}px;"{% endif %}>
                     {% if block.settings.list_item_5_image != blank %}
-                      <div class="item-icon"><img src="{{ block.settings.list_item_5_image | image_url: width: 100 }}" alt="" loading="lazy"></div>
+                      <div class="item-icon"><img src="{{ block.settings.list_item_5_image | image_url: width: 100 }}" alt="{{ block.settings.list_item_5_image.alt | escape }}" loading="lazy"></div>
                     {% elsif block.settings.list_item_5_svg != blank %}
                       <div class="item-icon">{{ block.settings.list_item_5_svg }}</div>
                     {% endif %}
@@ -234,7 +282,7 @@
                     padding: {{ block.settings.pill_padding_vertical }}px {{ block.settings.pill_padding_horizontal }}px;
                     margin-bottom: {{ block.settings.pill_spacing }}px;"{% endif %}>
                     {% if block.settings.list_item_6_image != blank %}
-                      <div class="item-icon"><img src="{{ block.settings.list_item_6_image | image_url: width: 100 }}" alt="" loading="lazy"></div>
+                      <div class="item-icon"><img src="{{ block.settings.list_item_6_image | image_url: width: 100 }}" alt="{{ block.settings.list_item_6_image.alt | escape }}" loading="lazy"></div>
                     {% elsif block.settings.list_item_6_svg != blank %}
                       <div class="item-icon">{{ block.settings.list_item_6_svg }}</div>
                     {% endif %}
@@ -446,8 +494,7 @@
 <style>
   #image-text-section-{{ section.id }} {
     width: 100%;
-    overflow-x: hidden;
-    overflow-y: visible;
+    overflow: hidden;
     border-radius: {{ section.settings.section_border_radius | default: 0 }}px;
     {% if section.settings.contain_section %}
       padding: {{ section.settings.container_padding_vertical_mobile }}px {{ section.settings.container_padding_horizontal_mobile }}px;
@@ -497,7 +544,7 @@
     }
     
     #image-text-section-{{ section.id }} .image-text-container {
-      overflow: visible;
+      overflow: hidden;
       box-sizing: border-box;
     }
     
@@ -553,6 +600,46 @@
     }
   }
   
+  /* Mobile Heading Above Image */
+  #image-text-section-{{ section.id }} .mobile-heading-above-image {
+    display: none;
+    width: 100%;
+    order: -1;
+  }
+  
+  @media screen and (max-width: 990px) {
+    {% if section.settings.heading_above_image_mobile %}
+      #image-text-section-{{ section.id }} .mobile-heading-above-image {
+        display: block;
+        padding: 0 {{ section.settings.mobile_text_padding_horizontal | default: 16 }}px;
+        margin-bottom: {{ section.settings.content_spacing | default: 20 }}px;
+        {% if section.settings.text_align == 'center' %}
+          text-align: center;
+        {% elsif section.settings.text_align == 'right' %}
+          text-align: right;
+        {% else %}
+          text-align: left;
+        {% endif %}
+      }
+      
+      /* Hide the heading in text-column on mobile when heading above image is enabled */
+      #image-text-section-{{ section.id }} .heading-block-wrapper.hide-on-mobile {
+        display: none;
+      }
+    {% endif %}
+  }
+  
+  @media screen and (min-width: 991px) {
+    #image-text-section-{{ section.id }} .mobile-heading-above-image {
+      display: none !important;
+    }
+    
+    /* Always show heading in text-column on desktop */
+    #image-text-section-{{ section.id }} .heading-block-wrapper.hide-on-mobile {
+      display: block;
+    }
+  }
+  
   #image-text-section-{{ section.id }} .media-column {
     width: 100%;
     padding: {{ section.settings.image_padding }}px;
@@ -583,19 +670,21 @@
   {% if section.settings.enable_image_fade_mask %}
     #image-text-section-{{ section.id }} .media-column {
       {% if section.settings.image_position == 'left' %}
-        -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 10%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 50%);
-        mask-image: linear-gradient(to left, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 10%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 50%);
+        /* Image on left: fade the right edge (where it meets text) - starts opaque on left, fades to transparent on right */
+        -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%);
+        mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 40%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 100%);
       {% else %}
-        -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 10%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 50%);
-        mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 10%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,1) 50%);
+        /* Image on right: fade the left edge (where it meets text) - starts transparent on left, fades to opaque on right */
+        -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 100%);
+        mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 100%);
       {% endif %}
     }
 
     @media screen and (max-width: 990px) {
-
       #image-text-section-{{ section.id }} .media-column {
-        -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,1) 70%);
-        mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,1) 70%);
+        /* Mobile: fade bottom edge (where it meets text below) */
+        -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0.3) 85%, rgba(0,0,0,0) 100%);
+        mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 50%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0.3) 85%, rgba(0,0,0,0) 100%);
       }
     }
   {% endif %}
@@ -688,7 +777,7 @@
     box-sizing: border-box;
   }
   
-  /* Ensure heading wrapper div takes full width */
+  /* Allow text blocks to span full column width by default */
   #image-text-section-{{ section.id }} .text-column > div {
     width: 100%;
     max-width: 100%;
@@ -805,6 +894,20 @@
     margin-top: 0;
     margin-bottom: 0;
     letter-spacing: var(--letter-spacing-heading);
+  }
+  
+  /* Subtitle wrapper - shrink to fit content width */
+  #image-text-section-{{ section.id }} .subtitle-wrapper {
+    width: fit-content !important;
+    max-width: 100% !important;
+    display: inline-block !important;
+    {% if section.settings.text_align == 'center' %}
+      align-self: center;
+    {% elsif section.settings.text_align == 'right' %}
+      align-self: flex-end;
+    {% else %}
+      align-self: flex-start;
+    {% endif %}
   }
   
   /* Image Text Divider Styles */
@@ -1141,7 +1244,7 @@
     
     #image-text-section-{{ section.id }} .text-column {
       width: {{ section.settings.text_column_width }}%;
-      flex-shrink: 0;
+      flex-shrink: 1;
       min-width: 0; /* Allow flex item to shrink below content size */
     }
 
@@ -1706,7 +1809,7 @@
   /* Mobile full-width media styles */
   @media (max-width: 990px) {
     #image-text-section-{{ section.id }} .image-text-content.mobile-media-full-width {
-      gap: 0;
+      gap: {{ section.settings.mobile_full_width_gap | default: 0 }}px;
     }
     
     #image-text-section-{{ section.id }} .media-column.mobile-full-width {
@@ -1746,15 +1849,9 @@
       overflow: hidden;
     }
     
-    /* Ensure container allows text overflow while preventing horizontal scroll */
+    /* Ensure container allows overflow */
     #image-text-section-{{ section.id }} .image-text-container {
       overflow-x: hidden;
-      overflow-y: visible;
-    }
-    
-    /* Ensure text column content is not clipped */
-    #image-text-section-{{ section.id }} .text-column {
-      overflow: visible !important;
     }
   }
 
@@ -1772,29 +1869,6 @@
   /* Removed global color override to allow individual paragraph colors to work */
 
   /* Removed global color override to allow individual bullet list colors to work */
-
-  /* Load-in animation */
-  .page-fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Add slight delay for staggered effect on multiple sections */
-  .page-fade-in:nth-child(2) { animation-delay: 0.1s; }
-  .page-fade-in:nth-child(3) { animation-delay: 0.2s; }
-  .page-fade-in:nth-child(4) { animation-delay: 0.3s; }
   
   /* Icon block styles */
   .icon-block {
@@ -2256,6 +2330,13 @@
       "label": "Image position (mobile)"
     },
     {
+      "type": "checkbox",
+      "id": "heading_above_image_mobile",
+      "label": "Show Heading Above Image (Mobile)",
+      "default": false,
+      "info": "On mobile, display only the heading above the image while keeping other content blocks below the image"
+    },
+    {
       "type": "select",
       "id": "text_align",
       "options": [
@@ -2389,7 +2470,7 @@
       "type": "range",
       "id": "padding_top_desktop",
       "min": 0,
-      "max": 150,
+      "max": 100,
       "step": 5,
       "unit": "px",
       "label": "Top Padding (Desktop)",
@@ -2399,7 +2480,7 @@
       "type": "range",
       "id": "padding_bottom_desktop",
       "min": 0,
-      "max": 150,
+      "max": 100,
       "step": 5,
       "unit": "px",
       "label": "Bottom Padding (Desktop)",
@@ -2424,6 +2505,17 @@
       "unit": "px",
       "label": "Content Spacing (Mobile)",
       "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mobile_full_width_gap",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile Full Width Image Gap",
+      "default": 0,
+      "info": "Gap between image and content when 'Mobile Image Full Width' is enabled"
     },
     {
       "type": "range",
@@ -3514,10 +3606,47 @@
           "default": false
         },
         {
+          "type": "select",
+          "id": "background_type",
+          "label": "Background Type",
+          "options": [
+            { "value": "solid", "label": "Solid Color" },
+            { "value": "gradient", "label": "Gradient" }
+          ],
+          "default": "solid",
+          "visible_if": "{{ block.settings.use_background }}"
+        },
+        {
           "type": "color",
           "id": "background_color",
           "label": "Background Color",
-          "default": "#f5f5f5"
+          "default": "#f5f5f5",
+          "visible_if": "{{ block.settings.use_background and block.settings.background_type == 'solid' }}"
+        },
+        {
+          "type": "color",
+          "id": "gradient_color_1",
+          "label": "Gradient Start Color",
+          "default": "#667eea",
+          "visible_if": "{{ block.settings.use_background and block.settings.background_type == 'gradient' }}"
+        },
+        {
+          "type": "color",
+          "id": "gradient_color_2",
+          "label": "Gradient End Color",
+          "default": "#764ba2",
+          "visible_if": "{{ block.settings.use_background and block.settings.background_type == 'gradient' }}"
+        },
+        {
+          "type": "range",
+          "id": "gradient_angle",
+          "min": 0,
+          "max": 360,
+          "step": 15,
+          "unit": "°",
+          "label": "Gradient Angle",
+          "default": 90,
+          "visible_if": "{{ block.settings.use_background and block.settings.background_type == 'gradient' }}"
         },
         {
           "type": "range",
@@ -3621,6 +3750,64 @@
           "id": "paragraph_color",
           "label": "Paragraph Color",
           "default": "#333333"
+        }
+      ]
+    },
+    {
+      "type": "rating_text",
+      "name": "Rating Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Rating Text",
+          "default": "Rated 4.7/5 by 2,752 Happy Dog Owners"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text Color",
+          "default": "#333333"
+        },
+        {
+          "type": "range",
+          "id": "font_size_mobile",
+          "min": 10,
+          "max": 30,
+          "step": 1,
+          "unit": "px",
+          "label": "Font Size (Mobile)",
+          "default": 14
+        },
+        {
+          "type": "range",
+          "id": "font_size_desktop",
+          "min": 10,
+          "max": 30,
+          "step": 1,
+          "unit": "px",
+          "label": "Font Size (Desktop)",
+          "default": 14
+        },
+        {
+          "type": "range",
+          "id": "margin_top",
+          "min": -20,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Top Margin",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "margin_bottom",
+          "min": -20,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "label": "Bottom Margin",
+          "default": 10
         }
       ]
     },

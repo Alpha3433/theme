@@ -23,25 +23,16 @@ Performance - Optimized the code structure for better loading
    &display=swap');
  {% endif %}
 
-.reviews-transformation-section {
+.section-{{ section.id }}.reviews-transformation-section {
   --section-max-width: {{ section.settings.section_width }}px;
   background-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.section_background }}{% endif %} !important;
 }
 
-/* Center cards on desktop when setting is enabled */
-{% if section.settings.center_cards_desktop %}
-@media screen and (min-width: 768px) {
-  .reviews-transformation-section .reviews-container {
-    justify-content: center !important;
-  }
-}
-{% endif %}
-
  /* Header Styles with increased specificity */
- .reviews-transformation-section .reviews-subtitle,
- .reviews-transformation-section .reviews-subtitle.section-title,
- .reviews-transformation-section .reviews-subtitle.heading,
- .reviews-transformation-section .reviews-subtitle.h1 {
+ .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle,
+ .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.section-title,
+ .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.heading,
+ .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.h1 {
    {% unless section.settings.custom_heading_styling %}
      font-size: 3.5rem !important;
      font-weight: var(--font-weight-bold) !important;
@@ -55,12 +46,13 @@ Performance - Optimized the code structure for better loading
  }
 
  /* Enhanced accent text styling with global and local customization options */
- .reviews-transformation-section .global-accent-text,
- .reviews-transformation-section .reviews-subtitle .global-accent-text,
- .reviews-transformation-section .custom-accent-text {
+ .section-{{ section.id }}.reviews-transformation-section .global-accent-text,
+ .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle .global-accent-text,
+ .section-{{ section.id }}.reviews-transformation-section .custom-accent-text {
    {% comment %} Always apply core accent text styling {% endcomment %}
    padding: 2px 4px !important;
    margin: -2px -4px !important;
+   margin-left: calc({{ section.settings.accent_text_margin_left }}px - 4px) !important;
    display: inline-block !important;
    letter-spacing: var(--letter-spacing-heading) !important;
    
@@ -119,48 +111,52 @@ Performance - Optimized the code structure for better loading
    {% endif %}
  }
 
- .reviews-transformation-section .reviews-description {
+ .section-{{ section.id }}.reviews-transformation-section .reviews-section-header {
+   margin-bottom: {{ section.settings.header_margin_bottom | default: 10 }}px;
+ }
+
+ .section-{{ section.id }}.reviews-transformation-section .reviews-description {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.description_color }}{% endif %} !important;
    font-size: {{ section.settings.description_font_size | default: 16 }}px !important;
    margin-bottom: {{ section.settings.description_bottom_margin }}px !important;
  }
 
  /* Summary Stars */
- .reviews-transformation-section .reviews-summary-star {
+ .section-{{ section.id }}.reviews-transformation-section .reviews-summary-star {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.summary_star_color }}{% endif %} !important;
  }
 
  /* Rating Stars (in rating-stars container) */
- .reviews-transformation-section .rating-stars .reviews-summary-star {
+ .section-{{ section.id }}.reviews-transformation-section .rating-stars .reviews-summary-star {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.summary_star_color }}{% endif %} !important;
  }
 
  /* Rating Summary Stars - More specific targeting */
- .reviews-transformation-section .rating-summary-wrapper .rating-stars .star {
+ .section-{{ section.id }}.reviews-transformation-section .rating-summary-wrapper .rating-stars .star {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.summary_star_color }}{% endif %} !important;
  }
 
 /* Carousel Review Stars - Clean Implementation */
-.reviews-transformation-section .carousel-review-star.star-filled {
+.section-{{ section.id }}.reviews-transformation-section .carousel-review-star.star-filled {
   color: {% if section.settings.use_theme_colors %}{{ settings.global_section_accent_1_color }}{% else %}{{ section.settings.star_filled_color }}{% endif %} !important;
   opacity: 1 !important;
   filter: none !important;
 }
 
-.reviews-transformation-section .carousel-review-star.star-empty {
+.section-{{ section.id }}.reviews-transformation-section .carousel-review-star.star-empty {
   color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color | color_lighten: 40 }}{% else %}{{ section.settings.star_empty_color }}{% endif %} !important;
   opacity: 1 !important;
   filter: none !important;
 }
 
  /* Carousel Review Star Size */
- .reviews-transformation-section .carousel-review-star {
+ .section-{{ section.id }}.reviews-transformation-section .carousel-review-star {
    width: {{ section.settings.carousel_review_star_size }}px !important;
    height: {{ section.settings.carousel_review_star_size }}px !important;
  }
 
- .reviews-transformation-section .review-stars .carousel-review-star,
- .reviews-transformation-section .carousel-review-header .carousel-review-star {
+ .section-{{ section.id }}.reviews-transformation-section .review-stars .carousel-review-star,
+ .section-{{ section.id }}.reviews-transformation-section .carousel-review-header .carousel-review-star {
    width: {{ section.settings.carousel_review_star_size }}px !important;
    height: {{ section.settings.carousel_review_star_size }}px !important;
  }
@@ -168,7 +164,7 @@ Performance - Optimized the code structure for better loading
 /* Navigation buttons now use global-nav-button snippet */
 
  /* Review Card */
- .reviews-transformation-section .review-card {
+ .section-{{ section.id }}.reviews-transformation-section .review-card {
    width: {{ section.settings.card_width }}px;
    border-radius: {{ section.settings.card_border_radius }}px;
    border: 1px solid {% if section.settings.use_theme_colors %}#e0e0e0{% else %}{{ section.settings.card_border_color }}{% endif %};
@@ -177,23 +173,23 @@ Performance - Optimized the code structure for better loading
  }
 
  /* Review Image Container */
- .reviews-transformation-section .review-image-container {
+ .section-{{ section.id }}.reviews-transformation-section .review-image-container {
    border-top-left-radius: {{ section.settings.card_border_radius }}px;
    border-top-right-radius: {{ section.settings.card_border_radius }}px;
  }
 
- .reviews-transformation-section .empty-image {
+ .section-{{ section.id }}.reviews-transformation-section .empty-image {
    background-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color | color_lighten: 10 }}{% else %}#f0f0f0{% endif %} !important;
  }
 
  /* Review Text */
- .reviews-transformation-section .review-text {
+ .section-{{ section.id }}.reviews-transformation-section .review-text {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.review_text_color }}{% endif %} !important;
    font-size: {{ section.settings.review_text_size }}px !important;
  }
 
  /* Reviewer Info */
- .reviews-transformation-section .reviewer-info {
+ .section-{{ section.id }}.reviews-transformation-section .reviewer-info {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.reviewer_info_color }}{% endif %} !important;
    background-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.reviewer_info_bg_color }}{% endif %} !important;
    font-size: {{ section.settings.reviewer_info_font_size }}px !important;
@@ -203,30 +199,33 @@ Performance - Optimized the code structure for better loading
    {% endif %}
  }
 
- .reviews-transformation-section .carousel-reviewer-name,
- .reviews-transformation-section .reviewer-age {
+ .section-{{ section.id }}.reviews-transformation-section .carousel-reviewer-name,
+ .section-{{ section.id }}.reviews-transformation-section .reviewer-age {
    font-size: {{ section.settings.reviewer_info_font_size }}px !important;
  }
 
- .reviews-transformation-section .verified-badge {
+ .section-{{ section.id }}.reviews-transformation-section .verified-badge {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.verified_badge_color }}{% endif %} !important;
    font-size: {{ section.settings.verified_badge_font_size }}px !important;
  }
 
- .reviews-transformation-section .verified-icon {
+ .section-{{ section.id }}.reviews-transformation-section .verified-icon {
    width: {{ section.settings.verified_badge_font_size | times: 1.2 }}px !important;
    height: {{ section.settings.verified_badge_font_size | times: 1.2 }}px !important;
    margin-right: 3px !important;
    vertical-align: middle !important;
+   color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.verified_icon_color }}{% endif %} !important;
  }
 
  /* Product Purchased */
- .reviews-transformation-section .product-purchased {
+ .section-{{ section.id }}.reviews-transformation-section .product-purchased {
+   border-width: {{ section.settings.product_border_width }}px !important;
+   border-style: {{ section.settings.product_border_style }} !important;
    border-color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color | color_lighten: 70 }}{% else %}{{ section.settings.product_border_color }}{% endif %} !important;
    background-color: {{ section.settings.product_bg_color }} !important;
  }
 
- .reviews-transformation-section .product-info {
+ .section-{{ section.id }}.reviews-transformation-section .product-info {
    flex: 1 !important;
    overflow: visible !important;
    display: flex !important;
@@ -236,12 +235,17 @@ Performance - Optimized the code structure for better loading
    justify-content: center !important;
  }
 
- .reviews-transformation-section .product-purchased-container {
+ .section-{{ section.id }}.reviews-transformation-section .product-label {
+   display: none !important;
+   letter-spacing: 0.08em !important;
+ }
+
+ .section-{{ section.id }}.reviews-transformation-section .product-purchased-container {
    width: 100% !important;
    overflow: visible !important;
  }
 
- .reviews-transformation-section .review-product-title {
+ .section-{{ section.id }}.reviews-transformation-section .review-product-title {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.product_title_color }}{% endif %} !important;
    font-size: {{ section.settings.product_title_font_size }}px !important;
    word-wrap: break-word !important;
@@ -256,28 +260,29 @@ Performance - Optimized the code structure for better loading
    overflow: visible !important;
  }
 
- .reviews-transformation-section .product-price {
+ .section-{{ section.id }}.reviews-transformation-section .product-price {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_accent_1_color }}{% else %}{{ section.settings.product_price_color }}{% endif %} !important;
    font-size: {{ section.settings.product_price_font_size }}px !important;
    letter-spacing: var(--letter-spacing-body);
  }
 
- .reviews-transformation-section .product-compare-price {
+ .section-{{ section.id }}.reviews-transformation-section .product-compare-price {
+   color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color | color_lighten: 40 }}{% else %}{{ section.settings.product_compare_price_color }}{% endif %} !important;
    font-size: {{ section.settings.product_compare_price_font_size }}px !important;
    letter-spacing: var(--letter-spacing-body);
  }
 
- .reviews-transformation-section .product-purchase-date {
+ .section-{{ section.id }}.reviews-transformation-section .product-purchase-date {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color | color_lighten: 20 }}{% else %}{{ section.settings.purchase_date_color }}{% endif %} !important;
    font-size: {{ section.settings.purchase_date_font_size }}px !important;
  }
 
- .reviews-transformation-section .purchase-date-icon {
+ .section-{{ section.id }}.reviews-transformation-section .purchase-date-icon {
    stroke: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color | color_lighten: 20 }}{% else %}{{ section.settings.purchase_date_icon_color }}{% endif %} !important;
  }
 
  /* Rating Summary */
- .reviews-transformation-section .reviews-rating-summary {
+ .section-{{ section.id }}.reviews-transformation-section .reviews-rating-summary {
    {% if section.settings.enable_rating_summary_gradient %}
      background: linear-gradient({{ section.settings.rating_summary_gradient_direction }}, {{ section.settings.rating_summary_gradient_start }}, {{ section.settings.rating_summary_gradient_end }}) !important;
    {% else %}
@@ -287,41 +292,42 @@ Performance - Optimized the code structure for better loading
      border: {{ section.settings.rating_summary_border_width }}px {{ section.settings.rating_summary_border_style }} {{ section.settings.rating_summary_border_color }};
    {% endif %}
    border-radius: {{ section.settings.rating_summary_border_radius | default: 50 }}px;
+   margin-bottom: {{ section.settings.rating_summary_margin_bottom | default: 0 }}px;
  }
 
- .reviews-transformation-section .rating-text {
+ .section-{{ section.id }}.reviews-transformation-section .rating-text {
    color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.summary_text_color }}{% endif %} !important;
    font-size: {{ section.settings.rating_summary_font_size | default: 13 }}px !important;
  }
 
- .reviews-transformation-section .rating-text p {
+ .section-{{ section.id }}.reviews-transformation-section .rating-text p {
    margin: 0 !important;
    color: inherit !important;
    font-size: inherit !important;
  }
 
- .reviews-transformation-section .rating-text strong {
+ .section-{{ section.id }}.reviews-transformation-section .rating-text strong {
    font-weight: bold !important;
  }
 
 /* Responsive overrides */
 @media (max-width: 768px) {
-  .reviews-transformation-section .review-card {
+  .section-{{ section.id }}.reviews-transformation-section .review-card {
     width: {{ section.settings.card_width_tablet | default: 300 }}px;
   }
    
-   .reviews-transformation-section .review-text {
+   .section-{{ section.id }}.reviews-transformation-section .review-text {
      font-size: {{ section.settings.review_text_size }}px !important;
    }
    
-   .reviews-transformation-section .rating-text {
+   .section-{{ section.id }}.reviews-transformation-section .rating-text {
      font-size: {{ section.settings.rating_summary_font_size | default: 13 }}px !important;
    }
    
-   .reviews-transformation-section .reviews-subtitle,
-   .reviews-transformation-section .reviews-subtitle.section-title,
-   .reviews-transformation-section .reviews-subtitle.heading,
-   .reviews-transformation-section .reviews-subtitle.h1 {
+   .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle,
+   .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.section-title,
+   .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.heading,
+   .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.h1 {
     {% if section.settings.custom_heading_styling %}
       font-size: {{ section.settings.heading_font_size_mobile | default: 48 }}px !important;
       line-height: {{ section.settings.heading_line_height | default: 1.2 }} !important;
@@ -332,22 +338,22 @@ Performance - Optimized the code structure for better loading
  }
 
 @media (max-width: 480px) {
-  .reviews-transformation-section .review-card {
+  .section-{{ section.id }}.reviews-transformation-section .review-card {
     width: {{ section.settings.card_width_mobile | default: 280 }}px;
   }
    
-   .reviews-transformation-section .review-text {
+   .section-{{ section.id }}.reviews-transformation-section .review-text {
      font-size: {{ section.settings.review_text_size_mobile | default: section.settings.review_text_size | minus: 2 }}px !important;
    }
    
-   .reviews-transformation-section .rating-text {
+   .section-{{ section.id }}.reviews-transformation-section .rating-text {
      font-size: {{ section.settings.rating_summary_font_size | default: 13 }}px !important;
    }
   
-  .reviews-transformation-section .reviews-subtitle,
-  .reviews-transformation-section .reviews-subtitle.section-title,
-  .reviews-transformation-section .reviews-subtitle.heading,
-  .reviews-transformation-section .reviews-subtitle.h1 {
+  .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle,
+  .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.section-title,
+  .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.heading,
+  .section-{{ section.id }}.reviews-transformation-section .reviews-subtitle.h1 {
     {% if section.settings.custom_heading_styling %}
       font-size: {{ section.settings.heading_font_size_mobile | default: 48 }}px !important;
       line-height: {{ section.settings.heading_line_height | default: 1.2 }} !important;
@@ -358,17 +364,18 @@ Performance - Optimized the code structure for better loading
  }
 
 /* New CSS rules for wrapping images */
-.reviews-transformation-section .image-wrapped {
+.section-{{ section.id }}.reviews-transformation-section .image-wrapped {
   height: auto;
 }
 
 /* Ensure navigation buttons are clickable */
-.reviews-transformation-section .reviews-navigation-container {
+.section-{{ section.id }}.reviews-transformation-section .reviews-navigation-container {
   position: relative;
-  z-index: 10;
+  z-index: 1;
+  margin-top: {{ section.settings.navigation_margin_top | default: 5 }}px;
 }
 
-.reviews-transformation-section .reviews-navigation {
+.section-{{ section.id }}.reviews-transformation-section .reviews-navigation {
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -376,19 +383,35 @@ Performance - Optimized the code structure for better loading
   z-index: 10;
 }
 
-.reviews-transformation-section .global-nav-button,
-.reviews-transformation-section .nav-button {
+.section-{{ section.id }}.reviews-transformation-section .global-nav-button,
+.section-{{ section.id }}.reviews-transformation-section .nav-button {
   pointer-events: auto !important;
   cursor: pointer !important;
   position: relative;
   z-index: 11;
+}
+
+/* Swiper carousel: hide until ready to prevent flicker */
+.reviews-transformation-section .reviews-carousel-swiper.swiper {
+  overflow: hidden;
+  transition: opacity 0.15s ease-out;
+}
+.reviews-transformation-section .reviews-carousel-swiper--pending {
+  opacity: 0;
+  pointer-events: none;
+}
+.reviews-transformation-section .reviews-carousel-swiper .swiper-slide {
+  width: auto;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 {%- endstyle -%}
 
 {{ 'customer-reviews-carousel.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'customer-reviews-carousel.js' | asset_url }}" defer></script>
 
-<div class="reviews-transformation-section">
+{% assign reviews_anchor = section.settings.anchor_id | default: 'reviews' %}
+<div class="reviews-transformation-section section-{{ section.id }}" id="{{ reviews_anchor }}" data-center-cards-desktop="{{ section.settings.center_cards_desktop }}" data-center-cards-mobile="{{ section.settings.center_cards_mobile }}">
  <div class="rating-summary-wrapper">
    <div class="reviews-rating-summary" style="
      {% if section.settings.use_theme_colors %}
@@ -433,9 +456,11 @@ Performance - Optimized the code structure for better loading
    {% endif %}
  </div>
 
- <div class="reviews-container" data-scroll-amount="{{ section.settings.scroll_amount }}">
+ <div class="reviews-container reviews-carousel-swiper swiper reviews-carousel-swiper--pending" data-scroll-amount="{{ section.settings.scroll_amount }}" data-section-id="{{ section.id }}">
+   <div class="swiper-wrapper">
    {% for block in section.blocks %}
      {% if block.type == 'review' %}
+       <div class="swiper-slide">
        <div class="review-card" {{ block.shopify_attributes }}>
          <div class="review-image-container{% if block.settings.wrap_image %} image-wrapped{% endif %}">
            {% if block.settings.review_image != blank %}
@@ -497,15 +522,16 @@ Performance - Optimized the code structure for better loading
              <div class="product-purchased">
                <div class="product-details">
                  {% if block.settings.product_reference != blank %}
-                   {% assign product = all_products[block.settings.product_reference] %}
+                   {% assign product = block.settings.product_reference %}
+                   {% assign product_image = product.featured_image | default: product.featured_media.preview_image %}
                    <div class="review-product-image">
-                     {% if product.featured_image != blank %}
+                     {% if product_image != blank %}
                        <img 
-                         src="{{ product.featured_image | image_url: width: 120 }}" 
-                         srcset="{{ product.featured_image | image_url: width: 60 }} 60w,
-                                 {{ product.featured_image | image_url: width: 120 }} 120w,
-                                 {{ product.featured_image | image_url: width: 180 }} 180w,
-                                 {{ product.featured_image | image_url: width: 240 }} 240w"
+                         src="{{ product_image | image_url: width: 120 }}" 
+                         srcset="{{ product_image | image_url: width: 60 }} 60w,
+                                 {{ product_image | image_url: width: 120 }} 120w,
+                                 {{ product_image | image_url: width: 180 }} 180w,
+                                 {{ product_image | image_url: width: 240 }} 240w"
                          sizes="(max-width: 480px) 40px, (max-width: 768px) 50px, 55px"
                          alt="{{ product.title }}" 
                          width="55" 
@@ -588,8 +614,10 @@ Performance - Optimized the code structure for better loading
            {% endif %}
          </div>
        </div>
+       </div>
      {% endif %}
    {% endfor %}
+   </div>
  </div>
 
  <div class="reviews-navigation-container">
@@ -628,6 +656,13 @@ Performance - Optimized the code structure for better loading
      "content": "Section Settings"
    },
    {
+     "type": "text",
+     "id": "anchor_id",
+     "label": "Section anchor ID",
+     "default": "reviews",
+     "info": "Used for in-page links (e.g., enter \"reviews\" to link to #reviews)."
+   },
+   {
      "type": "range",
      "id": "section_width",
      "min": 800,
@@ -643,7 +678,14 @@ Performance - Optimized the code structure for better loading
      "id": "center_cards_desktop",
      "label": "Center Cards on Desktop",
      "default": true,
-     "info": "When enabled, cards will be centered when there aren't enough to fill the width"
+     "info": "When enabled, cards will be centered on desktop and tablet devices"
+   },
+   {
+     "type": "checkbox",
+     "id": "center_cards_mobile",
+     "label": "Center Cards on Mobile",
+     "default": false,
+     "info": "When enabled, cards will be centered on mobile devices"
    },
    {
      "type": "color",
@@ -846,20 +888,31 @@ Performance - Optimized the code structure for better loading
      "default": 48,
      "info": "Default is 3.4rem (approximately 48px)"
    },
-   {
-     "type": "range",
-     "id": "heading_line_height",
-     "min": 0.8,
-     "max": 2.0,
-     "step": 0.1,
-     "unit": "x",
-     "label": "Heading Line Height",
-     "default": 1.2
-   },
-   {
-     "type": "header",
-    "content": "Subtitle / Subheading"
-   },
+  {
+    "type": "range",
+    "id": "heading_line_height",
+    "min": 0.8,
+    "max": 2.0,
+    "step": 0.1,
+    "unit": "x",
+    "label": "Heading Line Height",
+    "default": 1.2
+  },
+  {
+    "type": "range",
+    "id": "header_margin_bottom",
+    "min": 0,
+    "max": 60,
+    "step": 2,
+    "unit": "px",
+    "label": "Header Section Margin Bottom",
+    "default": 10,
+    "info": "Space below the header section (title + subtitle)"
+  },
+  {
+    "type": "header",
+   "content": "Subtitle / Subheading"
+  },
    {
      "type": "checkbox",
      "id": "show_description",
@@ -962,20 +1015,31 @@ Performance - Optimized the code structure for better loading
      "default": 12,
      "info": "Horizontal padding for navigation buttons"
    },
-   {
-     "type": "range",
-     "id": "scroll_amount",
-     "min": 200,
-     "max": 800,
-     "step": 20,
-     "unit": "px",
-     "label": "Scroll Amount",
-     "default": 360
-   },
-   {
-     "type": "header",
-     "content": "Card Styling"
-   },
+  {
+    "type": "range",
+    "id": "scroll_amount",
+    "min": 200,
+    "max": 800,
+    "step": 20,
+    "unit": "px",
+    "label": "Scroll Amount",
+    "default": 360
+  },
+  {
+    "type": "range",
+    "id": "navigation_margin_top",
+    "min": 0,
+    "max": 60,
+    "step": 1,
+    "unit": "px",
+    "label": "Navigation Margin Top",
+    "default": 5,
+    "info": "Space above the navigation buttons"
+  },
+  {
+    "type": "header",
+    "content": "Card Styling"
+  },
    {
      "type": "range",
      "id": "card_width",
@@ -1260,18 +1324,6 @@ Performance - Optimized the code structure for better loading
      "content": "Product Purchased"
    },
    {
-     "type": "text",
-     "id": "product_label",
-     "label": "Product Label",
-     "default": "Item Purchased"
-   },
-   {
-     "type": "color",
-     "id": "product_label_color",
-     "label": "Product Label Color",
-     "default": "#000000"
-   },
-   {
      "type": "color",
      "id": "product_title_color",
      "label": "Product Title Color",
@@ -1319,6 +1371,12 @@ Performance - Optimized the code structure for better loading
      "unit": "px",
      "label": "Compare At Price Font Size",
      "default": 10
+   },
+   {
+     "type": "color",
+     "id": "product_compare_price_color",
+     "label": "Compare At Price Color",
+     "default": "#9b9b9b"
    },
    {
      "type": "range",
@@ -1408,6 +1466,16 @@ Performance - Optimized the code structure for better loading
      "id": "rating_summary_bg_color",
      "label": "Rating Summary Background",
      "default": "#FEF6E6"
+   },
+   {
+     "type": "range",
+     "id": "rating_summary_margin_bottom",
+     "min": 0,
+     "max": 100,
+     "step": 5,
+     "unit": "px",
+     "label": "Rating Summary Bottom Margin",
+     "default": 0
    },
    {
      "type": "header",

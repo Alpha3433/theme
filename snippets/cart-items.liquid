@@ -1,7 +1,132 @@
 {% liquid
   assign image_size = section.settings.cart_image_size | default: 120 | times: 1
+  assign enable_subscribe_cta = section.settings.enable_subscribe_cta | default: false
+  assign subscribe_cta_text = section.settings.subscribe_cta_text | default: 'Subscribe & Save'
+  assign subscribe_cta_text_color = section.settings.subscribe_cta_text_color | default: '#ffffff'
+  assign subscribe_cta_background_color = section.settings.subscribe_cta_background_color | default: '#000000'
+  assign subscribe_cta_border_color = section.settings.subscribe_cta_border_color | default: '#000000'
+  assign subscribe_cta_frequency_label = section.settings.subscribe_cta_frequency_label | default: 'Delivers every'
+  assign subscribe_cta_frequency_label_color = section.settings.subscribe_cta_frequency_label_color | default: '#6e6e6e'
+  assign subscribe_cta_frequency_select_color = section.settings.subscribe_cta_frequency_select_color | default: '#000000'
 %}
-<style>
+{% style %}
+  {% if enable_subscribe_cta %}
+    p.product-option {
+      margin-bottom: 5px;
+    }
+    .cart-item__subscription-name {
+      letter-spacing: var(--letter-spacing-body) !important;
+      font-size: 10px;
+    }
+    .cart-item__subscribe-button-wrapper {
+      margin-top: 0.75rem;
+      padding: 0 0.5rem;
+    }
+
+    .cart-item__subscribe-button {
+      width: 75%;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: {{ subscribe_cta_text_color }};
+      background-color: {{ subscribe_cta_background_color }};
+      border: 1px solid {{ subscribe_cta_border_color }};
+      border-radius: 100px !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      box-sizing: border-box;
+    }
+
+    .cart-item__subscribe-button-text {
+    }
+
+    .cart-item__subscribe-button-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: {{ subscribe_cta_text_color }};
+      flex-shrink: 0;
+    }
+
+    .cart-item__subscribe-button-icon svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+
+    .cart-item__subscribe-button:hover {
+      opacity: 0.9;
+    }
+
+    .cart-item__subscribe-button:after {
+      display: none !important;
+    }
+
+    .cart-item__subscribe-options {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      padding: 0 0.5rem;
+      padding-left: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      max-width: 90%;
+    }
+
+    .cart-item__subscribe-frequency-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      color: {{ subscribe_cta_frequency_label_color }};
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cart-item__subscribe-frequency-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: inherit;
+    }
+
+    .cart-item__subscribe-frequency-icon svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+
+    .cart-item__subscribe-frequency-select {
+      flex: 1;
+      padding: 0.5rem 0.25rem;
+      font-weight: bold; !important;
+      border: none;
+      border-radius: 4px;
+      background-color: #ffffff;
+      cursor: pointer;
+      min-width: 0;
+      max-width: fit-content;
+      color: {{ subscribe_cta_frequency_select_color }};
+    }
+
+    .cart-item__subscribe-frequency-select:hover {
+      border-color: #a0a0a0;
+    }
+
+    .cart-item__subscribe-frequency-select:focus {
+      outline: none;
+      border-color: {{ subscribe_cta_border_color }};
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    }
+  {% endif %}
+
   .cart-items .cartitem-free-product-label {
       font-size: {{ section.settings.cart_drawer_free_product_label_font_size | default: 13 }}px;
   }
@@ -33,8 +158,20 @@
   /* Product Option Font Size */
   .cart-drawer .product-option,
   .cart-drawer .product-option dt,
-  .cart-drawer .product-option dd
+  .cart-drawer .product-option dd,
   {
+    font-size: {{ section.settings.cart_title_font_size | minus: 6 | append: "px" }};
+  }
+
+  .cart-drawer .cart-item__subscribe-frequency-label
+  {
+    font-size: {{ section.settings.cart_title_font_size | minus: 6 | append: "px" }};
+  }
+
+  .cart-item__subscribe-frequency-select,
+  .cart-item__subscribe-frequency-select option,
+  .cart-item__subscribe-button {
+    font-weight: bold; !important;
     font-size: {{ section.settings.cart_title_font_size | minus: 6 | append: "px" }};
   }
 
@@ -77,6 +214,11 @@
     padding: {{ section.settings.price_saving_padding_y | default: 2 }}px {{ section.settings.price_saving_padding_x | default: 6 }}px;
   }
 
+  .gb-cart-drawer-lb .drawer__cart-items-wrapper .product-option.cart-item__subscription-name {
+    letter-spacing: var(--letter-spacing-body) !important;
+    font-weight: var(--font-weight-semibold);
+  }
+
   /* Cart Image Size Control */
   .cart-drawer .cart-item__media {
     width: {{ image_size }}px !important;
@@ -91,6 +233,42 @@
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
+    min-width: auto;
+    min-height: auto;
+  }
+
+  .cart-item__discount-allocations {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .cart-item__discount-allocations .discount-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: {{ section.settings.discount_tag_font_size }}px;
+    padding: 5px 7px;
+    border-radius: {{ section.settings.discount_tag_border_radius }}px;
+    background: {{ section.settings.discount_tag_bg_color }};
+    color: {{ section.settings.discount_tag_text_color }};
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .cart-item__discount-allocations .discount-tag span {
+    color: {{ section.settings.discount_tag_text_color }};
+  }
+
+  .cart-item__discount-allocations .discount-tag svg {
+    border-radius: 0 !important;
+    width: {{ section.settings.discount_tag_icon_size }}px;
+    height: auto;
+    transform: rotate(90deg);
   }
 
   @media only screen and (max-width: 767px)
@@ -152,13 +330,21 @@
       width: 100% !important;
       height: 100% !important;
       object-fit: cover !important;
+      min-width: auto;
+      min-height: auto;
     }
   }
-</style>
+{% endstyle %}
 <div class="drawer__cart-items-wrapper">
   <table class="cart-items" role="table">
     <tbody role="rowgroup">
       {%- for item in cart.items -%}
+        {%- liquid
+          assign has_selling_plans = false
+          if item.product.selling_plan_groups.size > 0
+            assign has_selling_plans = true
+          endif
+        -%}
         <tr
           {% if item.id == shipping_protection_id %}
             style="display:none;"
@@ -166,6 +352,8 @@
           id="CartDrawer-Item-{{ item.index | plus: 1 }}"
           class="cart-item {% if item.id == progress_bar_free_id %} gb-find-remove-product{% endif %}"
           role="row"
+          data-has-selling-plans="{{ has_selling_plans }}"
+          data-variant-id="{{ item.variant.id }}"
         >
           <td class="cart-item__media" role="cell" headers="CartDrawer-ColumnProductImage">
             {% if item.image %}
@@ -201,7 +389,7 @@
 
                 {%- if item.product.has_only_default_variant == false
                   or item.properties.size != 0
-                  or item.selling_plan_allocation != null
+                  or item.selling_plan_allocation != blank
                 -%}
                   <dl>
                     {%- if item.product.has_only_default_variant == false -%}
@@ -240,32 +428,41 @@
                     {%- endfor -%}
                   </dl>
 
-                  <p class="product-option">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+                  {%- comment -%} Calculate subscription options count for conditional display {%- endcomment -%}
+                  {%- if enable_subscribe_cta and item.selling_plan_allocation != blank -%}
+                    {%- liquid
+                      assign total_subscription_options_for_display = 0
+                      if item.product.selling_plan_groups.size > 0
+                        for group in item.product.selling_plan_groups
+                          for plan in group.selling_plans
+                            if plan.options.size > 0
+                              for option in plan.options
+                                assign total_subscription_options_for_display = total_subscription_options_for_display | plus: 1
+                              endfor
+                            endif
+                          endfor
+                        endfor
+                      endif
+                    -%}
+                  {%- endif -%}
+
+                  {%- comment -%} Product option text - shown when 1 subscription option OR when dropdown is hidden {%- endcomment -%}
+                  {% if item.selling_plan_allocation != blank %}
+                    <p
+                      class="product-option cart-item__subscription-name"
+                      style="{% if enable_subscribe_cta and total_subscription_options_for_display > 1 %}display: none;{% endif %}"
+                    >
+                      {{ item.selling_plan_allocation.selling_plan.name }}
+                    </p>
+                  {% endif %}
                 {%- endif -%}
               </div>
-              <div class="cart-item__price-wrapper">
-                {% if item.variant.compare_at_price > item.variant.price %}
-                  <div class="gb-price-drawer">
-                    <s class="cart-item__old-price">
-                      {{- item.variant.compare_at_price | times: item.quantity | money -}}
-                    </s>
-                    <strong class="cart-item__final-price">
-                      {% if item.final_line_price == 0 %}
-                        {{ 'general.cart.free' | t }}
-                      {% else %}
-                        {{ item.final_line_price | money }}
-                      {% endif %}
-                    </strong>
-                  </div>
-                  {% assign total_saving = item.variant.compare_at_price
-                    | minus: item.final_price
-                    | times: item.quantity
-                  %}
-                {% else %}
-                  <div class="gb-price-drawer">
-                    {% if item.original_price != item.final_line_price %}
+              <div class="cart-item__pricing-info">
+                <div class="cart-item__price-wrapper">
+                  {% if item.variant.compare_at_price > item.variant.price %}
+                    <div class="gb-price-drawer">
                       <s class="cart-item__old-price">
-                        {{- item.original_price | times: item.quantity | money -}}
+                        {{- item.variant.compare_at_price | times: item.quantity | money -}}
                       </s>
                       <strong class="cart-item__final-price">
                         {% if item.final_line_price == 0 %}
@@ -274,20 +471,151 @@
                           {{ item.final_line_price | money }}
                         {% endif %}
                       </strong>
-                    {% else %}
-                      {{ item.original_price | money }}
-                    {% endif %}
-                  </div>
-                  {% assign total_saving = item.original_price | minus: item.final_price | times: item.quantity %}
-                {% endif %}
-                {% if total_saving != 0 %}
-                  <div class="gb-price-drawer-saving">
-                    {{ 'SAVE' | t }}
-                    {{ total_saving | abs | money_without_trailing_zeros }}
-                  </div>
-                {% endif %}
+                    </div>
+                    {% assign total_saving = item.variant.compare_at_price
+                      | minus: item.final_price
+                      | times: item.quantity
+                    %}
+                  {% else %}
+                    <div class="gb-price-drawer">
+                      {% if item.original_line_price != item.final_line_price %}
+                        <s class="cart-item__old-price">
+                          {{- item.original_line_price | money -}}
+                        </s>
+                        <strong class="cart-item__final-price">
+                          {% if item.final_line_price == 0 %}
+                            {{ 'general.cart.free' | t }}
+                          {% else %}
+                            {{ item.final_line_price | money }}
+                          {% endif %}
+                        </strong>
+                      {% else %}
+                        {{ item.final_line_price | money }}
+                      {% endif %}
+                    </div>
+                    {% assign total_saving = item.original_line_price | minus: item.final_line_price %}
+                  {% endif %}
+                  {% if total_saving != 0 %}
+                    <div class="gb-price-drawer-saving">
+                      {{ 'SAVE' | t }}
+                      {{ total_saving | abs | money_without_trailing_zeros }}
+                    </div>
+                  {% endif %}
+                </div>
               </div>
             </div>
+
+            {%- comment -%} Subscription dropdown row - outside cart-details-wrapper but inside cart-item__details {%- endcomment -%}
+            {% if enable_subscribe_cta and item.product.selling_plan_groups.size > 0 %}
+              {%- liquid
+                assign has_active_subscription = false
+                if item.selling_plan_allocation != blank
+                  assign has_active_subscription = true
+                endif
+
+                assign total_subscription_options_dropdown = 0
+                assign first_plan_id_dropdown = ''
+                assign first_frequency_value_dropdown = ''
+                assign first_option_found_dropdown = false
+
+                for group in item.product.selling_plan_groups
+                  for plan in group.selling_plans
+                    if plan.options.size > 0
+                      for option in plan.options
+                        assign total_subscription_options_dropdown = total_subscription_options_dropdown | plus: 1
+
+                        if first_option_found_dropdown == false
+                          assign first_plan_id_dropdown = plan.id
+                          if option.value != blank
+                            assign first_frequency_value_dropdown = option.value
+                          elsif option.name != blank
+                            assign first_frequency_value_dropdown = option.name
+                          else
+                            assign first_frequency_value_dropdown = option
+                          endif
+                          assign first_option_found_dropdown = true
+                        endif
+                      endfor
+                    endif
+                  endfor
+                endfor
+              -%}
+              <div
+                class="cart-item__subscribe-options"
+                style="display: {% if has_active_subscription and total_subscription_options_dropdown > 1 %}flex{% else %}none{% endif %};"
+                data-variant-id="{{ item.variant.id }}"
+                data-has-subscription="{{ has_active_subscription }}"
+                data-total-options="{{ total_subscription_options_dropdown }}"
+              >
+                {% if total_subscription_options_dropdown > 1 %}
+                  <label
+                    for="cart-item-subscribe-frequency-{{ item.variant.id }}"
+                    class="cart-item__subscribe-frequency-label"
+                  >
+                    <span class="cart-item__subscribe-frequency-icon">
+                      <svg
+                        aria-hidden="true"
+                        focusable="false"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.75C10.3683 3.75 8.77326 4.23385 7.41655 5.14038C6.05984 6.0469 5.00242 7.33537 4.378 8.84286C3.75358 10.3504 3.5902 12.0092 3.90853 13.6095C4.22685 15.2098 5.01259 16.6798 6.16637 17.8336C7.32016 18.9874 8.79017 19.7732 10.3905 20.0915C11.9909 20.4098 13.6497 20.2464 15.1571 19.622C16.6646 18.9976 17.9531 17.9402 18.8596 16.5835C19.7661 15.2267 20.25 13.6317 20.25 12C20.25 11.5858 20.5858 11.25 21 11.25C21.4142 11.25 21.75 11.5858 21.75 12C21.75 13.9284 21.1782 15.8134 20.1068 17.4168C19.0355 19.0202 17.5127 20.2699 15.7312 21.0078C13.9496 21.7458 11.9892 21.9389 10.0979 21.5627C8.20656 21.1865 6.46927 20.2579 5.10571 18.8943C3.74215 17.5307 2.81355 15.7934 2.43735 13.9021C2.06114 12.0108 2.25422 10.0504 2.99218 8.26884C3.73013 6.48726 4.97982 4.96452 6.58319 3.89317C8.18657 2.82183 10.0716 2.25 12 2.25C14.7193 2.25 17.3141 3.32891 19.2598 5.19932L19.2703 5.20967L20.25 6.18934V3C20.25 2.58579 20.5858 2.25 21 2.25C21.4142 2.25 21.75 2.58579 21.75 3V8C21.75 8.41421 21.4142 8.75 21 8.75H16C15.5858 8.75 15.25 8.41421 15.25 8C15.25 7.58579 15.5858 7.25 16 7.25H19.1893L18.215 6.27566C16.5413 4.66918 14.3182 3.75 12 3.75Z" fill="currentColor"></path>
+                      </svg>
+                    </span>
+                    {{ subscribe_cta_frequency_label }}
+                  </label>
+                  <select
+                    id="cart-item-subscribe-frequency-{{ item.variant.id }}"
+                    class="cart-item__subscribe-frequency-select"
+                    data-variant-id="{{ item.variant.id }}"
+                    data-line-item-key="{{ item.key }}"
+                    data-item-id="{{ item.id }}"
+                  >
+                    {%- liquid
+                      assign first_option_set = false
+                    -%}
+                    {% for group in item.product.selling_plan_groups %}
+                      {% for plan in group.selling_plans %}
+                        {% if plan.options.size > 0 %}
+                          {% for option in plan.options %}
+                            {%- liquid
+                              assign option_value = ''
+                              assign option_text = ''
+
+                              if option.value != blank
+                                assign option_value = option.value
+                                assign option_text = option.value
+                              elsif option.name != blank
+                                assign option_value = option.name
+                                assign option_text = option.name
+                              else
+                                assign option_value = option
+                                assign option_text = option
+                              endif
+                            -%}
+                            <option
+                              value="{{ plan.id }}-{{ option_value }}"
+                              data-plan-id="{{ plan.id }}"
+                              data-frequency-value="{{ option_value }}"
+                              {% unless first_option_set %}
+                                selected
+                                assign first_option_set="true"
+                              {% endunless %}
+                            >
+                              {{ option_text }}
+                            </option>
+                          {% endfor %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endfor %}
+                    <option value="unsubscribe" data-plan-id="">Unsubscribe</option>
+                  </select>
+                {% endif %}
+              </div>
+            {% endif %}
 
             {%- liquid
               assign has_qty_rules = false
@@ -321,7 +649,7 @@
                         <span class="svg-wrapper content">
                           {{- 'icon-minus.svg' | inline_asset_content -}}
                         </span>
-                        <div class="spin-animation border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600">
+                        <div class="spin-animation">
                           <span></span>
                         </div>
                       </button>
@@ -351,7 +679,7 @@
                         <span class="svg-wrapper content">
                           {{- 'icon-plus.svg' | inline_asset_content -}}
                         </span>
-                        <div class="spin-animation border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600">
+                        <div class="spin-animation">
                           <span></span>
                         </div>
                       </button>
@@ -380,7 +708,7 @@
                             <path d="M3.9231 7.5H20.0767L19.1344 20.2216C19.0183 21.7882 17.7135 23 16.1426 23H7.85724C6.28636 23 4.98148 21.7882 4.86544 20.2216L3.9231 7.5Z" fill="currentColor"/>
                           </svg>
                         </span>
-                        <div class="spin-animation border-gray-300 h-20 w-20 animate-spin rounded-full border-8 border-t-blue-600">
+                        <div class="spin-animation">
                           <span></span>
                         </div>
                       </button>
@@ -401,18 +729,7 @@
                       {{ 'general.cart.free_gift' | t: count: item.quantity }}
                     </span>
                   {% endif %}
-                  <ul
-                    class="discounts list-unstyled"
-                    role="list"
-                    aria-label="{{ 'customer.order.discount' | t }}"
-                  >
-                    {%- for discount in item.line_level_discount_allocations -%}
-                      <li class="discounts__discount">
-                        {{- 'icon-discount.svg' | inline_asset_content -}}
-                        {{ discount.discount_application.title }}
-                      </li>
-                    {%- endfor -%}
-                  </ul>
+
                 </div>
                 {%- if has_qty_rules or has_vol_pricing -%}
                   <button
@@ -510,7 +827,105 @@
                   </span>
                 </div>
               </quantity-popover>
+              {%- if item.discount_allocations.size > 0 -%}
+                <div class="cart-item__discount-allocations">
+                  {%- for discount in item.discount_allocations -%}
+                    <div class="discount-tag">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-tag-icon lucide-tag"
+                      >
+                        <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>
+                      </svg>
+                      <span class="discount-label">{{ discount.discount_application.title }}</span>
+                    </div>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
             </div>
+
+            {%- comment -%} Subscribe & Save button - shown conditionally via JS and theme setting {%- endcomment -%}
+            {% if enable_subscribe_cta %}
+              {%- liquid
+                assign has_active_subscription = false
+                if item.selling_plan_allocation != blank
+                  assign has_active_subscription = true
+                endif
+
+                comment
+                  Count total subscription options across all plans
+                endcomment
+                assign total_subscription_options = 0
+                assign first_plan_id = ''
+                assign first_frequency_value = ''
+                assign first_option_found = false
+
+                if item.product.selling_plan_groups.size > 0
+                  for group in item.product.selling_plan_groups
+                    for plan in group.selling_plans
+                      if plan.options.size > 0
+                        for option in plan.options
+                          assign total_subscription_options = total_subscription_options | plus: 1
+
+                          if first_option_found == false
+                            assign first_plan_id = plan.id
+                            if option.value != blank
+                              assign first_frequency_value = option.value
+                            elsif option.name != blank
+                              assign first_frequency_value = option.name
+                            else
+                              assign first_frequency_value = option
+                            endif
+                            assign first_option_found = true
+                          endif
+                        endfor
+                      endif
+                    endfor
+                  endfor
+                endif
+              -%}
+
+              {%- comment -%} Subscribe button - only shown when NO active subscription {%- endcomment -%}
+              <div
+                class="cart-item__subscribe-button-wrapper"
+                style="display: none;"
+                data-has-subscription="{{ has_active_subscription }}"
+              >
+                <button
+                  type="button"
+                  class="cart-item__subscribe-button"
+                  data-variant-id="{{ item.variant.id }}"
+                  data-line-item-key="{{ item.key }}"
+                  data-item-id="{{ item.id }}"
+                  data-total-options="{{ total_subscription_options }}"
+                  data-first-plan-id="{{ first_plan_id }}"
+                  data-first-frequency="{{ first_frequency_value }}"
+                >
+                  <span class="cart-item__subscribe-button-text">{{ subscribe_cta_text }}</span>
+                  <span class="cart-item__subscribe-button-icon">
+                    <svg
+                      aria-hidden="true"
+                      focusable="false"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M6.30025 7.05028C6.30025 6.63607 6.63603 6.30028 7.05025 6.30028L16.9497 6.30028C17.364 6.30028 17.6997 6.63607 17.6997 7.05028L17.6997 16.9498C17.6997 17.364 17.364 17.6998 16.9497 17.6998C16.5355 17.6998 16.1997 17.364 16.1997 16.9498L16.1997 8.86094L7.58058 17.4801C7.28769 17.773 6.81281 17.773 6.51992 17.4801C6.22702 17.1872 6.22702 16.7123 6.51992 16.4194L15.1391 7.80028L7.05025 7.80028C6.63603 7.80028 6.30025 7.4645 6.30025 7.05028Z" fill="currentColor"></path>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+            {% endif %}
           </td>
         </tr>
 

@@ -1,6 +1,6 @@
 {{ 'product-faq.css' | asset_url | stylesheet_tag }}
 
-<div class="product-faq-section">
+<div class="product-faq-section {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
   {% for block in section.blocks %}
     {% render 'product-faq', block: block, product: product %}
   {% endfor %}

@@ -135,6 +135,7 @@
   const countryLocale = locale.includes("-") ? locale : `${locale}-${country}`;
 
   document.addEventListener('DOMContentLoaded', function() {
+      if (typeof Elixir_ProductFormExists !== 'function' || !Elixir_ProductFormExists()) return;
       const productPriceLabel = document.querySelector(".shop-product-price-block");
       const comparePriceLabel = document.querySelector(".shop-compare-price");
 

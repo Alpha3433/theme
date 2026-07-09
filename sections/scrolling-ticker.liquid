@@ -14,16 +14,6 @@
 {{ 'scrolling-ticker.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'scrolling-ticker.js' | asset_url }}" defer></script>
 
-<style>
-  .ticker-wrapper {
-    --background-color: {{ section.settings.background_color }};
-    --text-color: {{ section.settings.text_color }};
-    --ticker-font-weight: {{ section.settings.font_weight }};
-    --scroll-speed: {{ section.settings.scroll_speed }}s;
-    --divider-size: {{ section.settings.divider_size }}px;
-  }
-</style>
-
 {% assign ticker_content = '' %}
 {% for block in section.blocks %}
   {% if block.type == 'announcement' %}
@@ -40,10 +30,10 @@
         {% if section.settings.divider_type == 'text' %}
           {% assign divider_html = '<span>' | append: section.settings.divider_text | append: '</span>' %}
         {% elsif section.settings.divider_type == 'image' and section.settings.divider_image != blank %}
-          {% assign loop_divider_image_url = section.settings.divider_image | image_url: '40x' %}
+          {% assign loop_divider_image_url = section.settings.divider_image | image_url: width: 40 %}
           {% assign divider_html = '<img src="'
             | append: loop_divider_image_url
-            | append: '" alt="Divider" loading="lazy">'
+            | append: '" alt="Divider" loading="lazy" width="40" height="40">'
           %}
         {% else %}
           {% assign divider_html = '<span>+</span>' %}
@@ -58,7 +48,18 @@
   {% endif %}
 {% endfor %}
 
-<div class="ticker-wrapper">
+<div
+  class="ticker-wrapper"
+  style="
+    --background-color: {{ section.settings.background_color }};
+    --text-color: {{ section.settings.text_color }};
+    --ticker-font-weight: {{ section.settings.font_weight }};
+    --scroll-speed: {{ section.settings.scroll_speed }}s;
+    --divider-size: {{ section.settings.divider_size }}px;
+    --ticker-font-size-mobile: {{ section.settings.font_size_mobile }}px;
+    --ticker-font-size-desktop: {{ section.settings.font_size_desktop }}px;
+  "
+>
   <div class="ticker">
     <div class="ticker__track">
       {% comment %} Create 6 copies for seamless looping with no gaps {% endcomment %}
@@ -70,13 +71,13 @@
               {% if section.settings.divider_type == 'text' %}
                 <span>{{ section.settings.divider_text }}</span>
               {% elsif section.settings.divider_type == 'image' and section.settings.divider_image != blank %}
-                {% assign loop_divider_image_url = section.settings.divider_image | image_url: '40x' %}
+                {% assign loop_divider_image_url = section.settings.divider_image | image_url: width: 40 %}
                 <img
-                  src="{{ loop_divider_image_url | asset_url }}"
+                  src="{{ loop_divider_image_url }}"
                   alt="Divider"
                   loading="lazy"
-                  width=""
-                  height=""
+                  width="40"
+                  height="40"
                 >
               {% else %}
                 <span>+</span>
@@ -92,7 +93,7 @@
 {% schema %}
 {
   "name": "Scrolling Ticker",
-
+  "tag": "section",
   "settings": [
     {
       "type": "color",
@@ -129,6 +130,26 @@
         }
       ],
       "default": "600"
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Text Size (Mobile)",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "font_size_desktop",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Text Size (Desktop)",
+      "default": 16
     },
     {
       "type": "range",
@@ -183,7 +204,7 @@
       "type": "range",
       "id": "divider_size",
       "min": 10,
-      "max": 40,
+      "max": 60,
       "step": 2,
       "unit": "px",
       "label": "Image Size",

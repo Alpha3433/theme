@@ -29,6 +29,12 @@
   endcomment
   assign accent_font_weight_value = settings.accent_font_weight | default: '400' | plus: 0
   assign accent_font_with_weight = settings.type_accent_font | font_modify: 'weight', accent_font_weight_value
+  
+  comment
+    Load italic variant of accent font if italic style is enabled
+  endcomment
+  assign accent_font_italic = settings.type_accent_font | font_modify: 'style', 'italic'
+  assign accent_font_with_weight_italic = accent_font_with_weight | font_modify: 'style', 'italic'
 %}
 
 <style>
@@ -40,6 +46,12 @@
   {{ settings.type_accent_font | font_face: font_display: 'swap' }}
   {%- if accent_font_with_weight -%}
     {{ accent_font_with_weight | font_face: font_display: 'swap' }}
+  {%- endif -%}
+  {%- if accent_font_italic -%}
+    {{ accent_font_italic | font_face: font_display: 'swap' }}
+  {%- endif -%}
+  {%- if accent_font_with_weight_italic -%}
+    {{ accent_font_with_weight_italic | font_face: font_display: 'swap' }}
   {%- endif -%}
 
   :root {
@@ -75,6 +87,7 @@
     --color-link: {{ settings.global_section_accent_2_color.red }},{{ settings.global_section_accent_2_color.green }},{{ settings.global_section_accent_2_color.blue }};
     --color-badge-foreground: {{ settings.global_section_text_color.red }},{{ settings.global_section_text_color.green }},{{ settings.global_section_text_color.blue }};
     --color-header: {{ settings.global_header_color.red | default: 255 }},{{ settings.global_header_color.green | default: 255 }},{{ settings.global_header_color.blue | default: 255 }};
+    --color-header-border: {{ settings.header_border_color.rgb | default: '229, 229, 229' }};
     --color-footer: {{ settings.global_footer_color.red | default: 255 }},{{ settings.global_footer_color.green | default: 255 }},{{ settings.global_footer_color.blue | default: 255 }};
     --color-drawer: {{ settings.global_drawer_color.red | default: 255 }},{{ settings.global_drawer_color.green | default: 255 }},{{ settings.global_drawer_color.blue | default: 255 }};
     --color-drawer-text: {{ settings.global_drawer_text_color.red | default: 17 }},{{ settings.global_drawer_text_color.green | default: 17 }},{{ settings.global_drawer_text_color.blue | default: 17 }};
@@ -105,17 +118,37 @@
 
     --font-heading-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
     --font-heading-style: {{ settings.type_header_font.style }};
+    --font-heading-weight: {{ settings.type_header_font.weight }};
 
-    {% comment %} Accent font family - uses Shopify font picker {% endcomment %}
-    --font-accent-family: {{ settings.type_accent_font.family }}, {{ settings.type_accent_font.fallback_families }};
+    {% comment %} Accent font family {% endcomment %}
+    {% if settings.type_accent_font == 'inherit' %}
+      --font-accent-family: var(--font-body-family);
+    {% elsif settings.type_accent_font == 'serif' %}
+      --font-accent-family: serif;
+    {% elsif settings.type_accent_font.family == 'Georgia Pro' %}
+      --font-accent-family: 'Georgia Pro', Georgia, serif;
+    {% elsif settings.type_accent_font.family == 'Bodoni Moda' %}
+      --font-accent-family: 'Bodoni Moda', Georgia, serif;
+    {% elsif settings.type_accent_font.family == 'Instrument Serif' %}
+      --font-accent-family: 'Instrument Serif', Georgia, serif;
+    {% elsif settings.type_accent_font.family == 'DM Serif Text' %}
+      --font-accent-family: 'DM Serif Text', Georgia, serif;
+    {% elsif settings.type_accent_font.family == 'Nothing You Could Do' %}
+      --font-accent-family: 'Nothing You Could Do', cursive;
+    {% elsif settings.type_accent_font.family != blank %}
+      {% comment %} Any other font picker selection - use its built-in fallbacks {% endcomment %}
+      --font-accent-family: {{ settings.type_accent_font.family }}, {{ settings.type_accent_font.fallback_families }};
+    {% else %}
+      --font-accent-family: var(--font-body-family);
+    {% endif %}
 
     {% comment %} Accent font properties {% endcomment %}
-    --font-accent-style: {{ settings.type_accent_font.style }};
-    --font-accent-weight: {{ settings.accent_font_weight }};
+    {% comment %} Use the font picker's style if it's italic, otherwise check the manual italic setting {% endcomment %}
+    --font-accent-style: {% if settings.type_accent_font.style == 'italic' %}italic{% elsif settings.accent_font_style_italic %}italic{% else %}normal{% endif %};
+    --font-accent-weight: {{ settings.accent_font_weight | default: settings.type_accent_font.weight | default: 400 }};
     --font-accent-scale: {{ settings.accent_scale | divided_by: 100.0 }};
     --font-accent-letter-spacing: {{ settings.accent_letter_spacing }}px;
     --font-accent-text-transform: {{ settings.accent_text_transform }};
-    --font-accent-style: {% if settings.accent_font_style_italic %}italic{% else %}normal{% endif %};
 
     {% comment %} Debug: Ensure accent font is declared {% endcomment %}
     --global-accent-font: var(--font-accent-family);
@@ -138,7 +171,7 @@
     --media-shadow-blur-radius: {{ settings.media_shadow_blur }}px;
     --media-shadow-visible: {% if settings.media_shadow_opacity > 0 %}1{% else %}0{% endif %};
 
-    --page-width: {{ settings.page_width | divided_by: 10 }}rem;
+    --page-width: {{ settings.page_width }}px;
     --page-width-margin: {% if settings.page_width == '1600' %}2{% else %}0{% endif %}rem;
 
     --animate-spin: spin 1s linear infinite;
@@ -204,8 +237,15 @@
 
     --grid-desktop-vertical-spacing: {{ settings.spacing_grid_vertical }}px;
     --grid-desktop-horizontal-spacing: {{ settings.spacing_grid_horizontal }}px;
+    --page-desktop-horizontal-padding: {{ settings.page_desktop_horizontal_padding }}px;
+    --sections-desktop-horizontal-padding: {{ settings.sections_desktop_horizontal_padding }}px;
     --grid-mobile-vertical-spacing: {{ settings.spacing_grid_vertical | divided_by: 2 }}px;
     --grid-mobile-horizontal-spacing: {{ settings.spacing_grid_horizontal | divided_by: 2 }}px;
+    --page-desktop-horizontal-padding: {{ settings.page_desktop_horizontal_padding }}px;
+    --sections-desktop-horizontal-padding: {{ settings.sections_desktop_horizontal_padding }}px;
+    --sections-desktop-vertical-padding: {{ settings.sections_desktop_vertical_padding }}px;
+    --sections-mobile-horizontal-padding: {{ settings.sections_mobile_horizontal_padding }}px;
+    --sections-mobile-vertical-padding: {{ settings.sections_mobile_vertical_padding }}px;
 
     /* Text Box Variables */
     --text-boxes-border-opacity: {{ settings.text_boxes_border_opacity | divided_by: 100.0 }};

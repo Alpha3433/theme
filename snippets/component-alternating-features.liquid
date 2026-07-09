@@ -9,7 +9,7 @@
 {{ 'alternating-features.css' | asset_url | stylesheet_tag }}
 
 <div 
-  class="alternating-features page-fade-in" 
+  class="alternating-features  {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" 
   data-component="alternating-features"
   data-section-id="{{ section.id }}"
   data-use-theme-colors="{{ section.settings.use_theme_colors }}"
@@ -21,24 +21,40 @@
   data-icon-size="{{ section.settings.icon_size | default: 70 }}"
   data-feature-spacing="{{ section.settings.feature_spacing | default: 30 }}"
 >
+  {% assign use_side_heading = false %}
+  {% if section.settings.hide_main_image and section.settings.side_heading_layout %}
+    {% assign use_side_heading = true %}
+  {% endif %}
+
   <div class="alternating-features__container">
     
-    {% comment %} Section Title {% endcomment %}
-    {% if section.settings.title != blank or section.settings.title_accent != blank %}
-      <h2 class="alternating-features__title">
-        {% if section.settings.title != blank %}{{ section.settings.title }}{% endif %}
-        {% if section.settings.title_accent != blank %}
-          <span class="alternating-features__accent">{{ section.settings.title_accent }}</span>
-        {% endif %}
-      </h2>
-    {% endif %}
+    {% comment %} Section Title (above content unless side heading layout) {% endcomment %}
+    {% unless use_side_heading %}
+      {% if section.settings.title != blank or section.settings.title_accent != blank %}
+        <h2 class="alternating-features__title">
+          {% if section.settings.title != blank %}{{ section.settings.title }}{% endif %}
+          {% if section.settings.title_accent != blank %}
+            <span class="alternating-features__accent{% unless section.settings.override_global_accent %} global-accent-text{% endunless %}">{{ section.settings.title_accent }}</span>
+          {% endif %}
+        </h2>
+      {% endif %}
+      {% if section.settings.subheading != blank %}
+        <p class="alternating-features__subheading">{{ section.settings.subheading }}</p>
+      {% endif %}
+    {% endunless %}
     
-    <div class="alternating-features__content{% if section.settings.hide_main_image %} alternating-features__content--no-image{% endif %}">
+    {% assign show_image = false %}
+    {% unless section.settings.hide_main_image %}
+      {% if section.settings.main_image != blank %}
+        {% assign show_image = true %}
+      {% endif %}
+    {% endunless %}
+    <div class="alternating-features__content{% unless show_image %} alternating-features__content--no-image{% endunless %}{% if use_side_heading %} alternating-features__content--side-heading{% endif %}">
       
       {% comment %} Main Image Column {% endcomment %}
       {% unless section.settings.hide_main_image %}
-        <div class="alternating-features__image-column">
-          {% if section.settings.main_image != blank %}
+        {% if section.settings.main_image != blank %}
+          <div class="alternating-features__image-column">
             <img 
               src="{{ section.settings.main_image | image_url: width: 800 }}" 
               alt="{{ section.settings.title | default: 'Feature image' | escape }}"
@@ -47,18 +63,29 @@
               width="800"
               height="{{ 800 | divided_by: section.settings.main_image.aspect_ratio | round }}"
             >
-          {% else %}
-            <div class="alternating-features__image-placeholder" aria-hidden="true">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="2"/>
-                <polyline points="21,15 16,10 5,21" stroke="currentColor" stroke-width="2"/>
-              </svg>
-            </div>
-          {% endif %}
-        </div>
+          </div>
+        {% endif %}
       {% endunless %}
       
+      {% comment %} Side Heading Column (when hide image + side heading enabled) {% endcomment %}
+      {% if use_side_heading %}
+        {% if section.settings.title != blank or section.settings.title_accent != blank or section.settings.subheading != blank %}
+          <div class="alternating-features__heading-column">
+            {% if section.settings.title != blank or section.settings.title_accent != blank %}
+              <h2 class="alternating-features__title alternating-features__title--side">
+                {% if section.settings.title != blank %}{{ section.settings.title }}{% endif %}
+                {% if section.settings.title_accent != blank %}
+                  <span class="alternating-features__accent{% unless section.settings.override_global_accent %} global-accent-text{% endunless %}">{{ section.settings.title_accent }}</span>
+                {% endif %}
+              </h2>
+            {% endif %}
+            {% if section.settings.subheading != blank %}
+              <p class="alternating-features__subheading alternating-features__subheading--side">{{ section.settings.subheading }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+
       {% comment %} Features Column {% endcomment %}
       <div class="alternating-features__features-column">
         {% for block in section.blocks limit: 6 %}
@@ -160,6 +187,13 @@
       --section-text: {{ section.settings.heading_color | default: '#FFFFFF' }};
     {% endif %}
     
+    {% comment %} Subheading Color {% endcomment %}
+    {% if section.settings.use_theme_colors %}
+      --subheading-color: rgba({{ settings.global_section_text_color | default: '0,0,0' | color_to_rgb | remove: 'rgb(' | remove: ')' }}, 0.8);
+    {% else %}
+      --subheading-color: {{ section.settings.subheading_color | default: '#DDDDDD' }};
+    {% endif %}
+    
     {% comment %} Feature Title Color (individual feature titles) {% endcomment %}
     {% if section.settings.use_theme_colors %}
       --feature-title-color: {{ settings.global_section_text_color | default: '#000000' }};
@@ -201,6 +235,12 @@
     --section-border-radius: {{ section.settings.section_border_radius | default: 0 }}px;
     --section-title-size-desktop: {{ section.settings.section_title_size_desktop | default: 34 }}px;
     --section-title-size-mobile: {{ section.settings.section_title_size_mobile | default: 28 }}px;
+    --heading-alignment-mobile: {{ section.settings.heading_alignment_mobile | default: 'center' }};
+    --heading-alignment-desktop: {{ section.settings.heading_alignment_desktop | default: 'center' }};
+    --heading-line-height-mobile: {{ section.settings.heading_line_height_mobile | default: 1.2 }};
+    --heading-line-height-desktop: {{ section.settings.heading_line_height_desktop | default: 1.2 }};
+    --subheading-line-height-mobile: {{ section.settings.subheading_line_height_mobile | default: 1.5 }};
+    --subheading-line-height-desktop: {{ section.settings.subheading_line_height_desktop | default: 1.5 }};
     --icon-size: {{ section.settings.icon_size | default: 70 }}px;
     --icon-image-size: {{ section.settings.icon_image_size | default: 35 }}px;
     --icon-object-fit: {{ section.settings.icon_object_fit | default: 'contain' }};
@@ -209,6 +249,7 @@
     --divider-spacing-top: {{ section.settings.divider_spacing_top | default: 20 }}px;
     --divider-spacing-bottom: {{ section.settings.divider_spacing_bottom | default: 20 }}px;
     --image-border-radius: {{ section.settings.image_border_radius | default: 8 }}px;
+    --feature-image-object-fit: {{ section.settings.feature_image_object_fit | default: 'contain' }};
     --feature-title-size-mobile: {{ section.settings.feature_title_size_mobile | default: 14 }}px;
     --feature-title-size-desktop: {{ section.settings.feature_title_size_desktop | default: 16 }}px;
     --description-size-mobile: {{ section.settings.description_size_mobile | default: 13 }}px;
@@ -233,22 +274,22 @@
       {% if section.settings.accent_font_family != 'inherit' %}
         {% case section.settings.accent_font_family %}
           {% when 'serif' %}
-            font-family: serif;
+            font-family: serif !important;
           {% when 'Georgia Pro' %}
-            font-family: 'Georgia Pro', Georgia, serif;
+            font-family: 'Georgia Pro', Georgia, serif !important;
           {% when 'Bodoni Moda' %}
-            font-family: 'Bodoni Moda', Georgia, serif;
+            font-family: 'Bodoni Moda', Georgia, serif !important;
           {% when 'Instrument Serif' %}
-            font-family: 'Instrument Serif', Georgia, serif;
+            font-family: 'Instrument Serif', Georgia, serif !important;
           {% when 'DM Serif Text' %}
-            font-family: 'DM Serif Text', Georgia, serif;
+            font-family: 'DM Serif Text', Georgia, serif !important;
           {% when 'Nothing You Could Do' %}
-            font-family: 'Nothing You Could Do', cursive;
+            font-family: 'Nothing You Could Do', cursive !important;
         {% endcase %}
       {% endif %}
-      font-style: {{ section.settings.accent_font_style | default: 'normal' }};
+      font-style: {{ section.settings.accent_font_style | default: 'normal' }} !important;
       {% if section.settings.accent_font_weight != 'inherit' %}
-        font-weight: {{ section.settings.accent_font_weight }};
+        font-weight: {{ section.settings.accent_font_weight }} !important;
       {% endif %}
     {% endif %}
   }
@@ -258,6 +299,16 @@
       background-color: transparent !important;
     }
   {% endunless %}
+
+  .alternating-features[data-section-id="{{ section.id }}"] .alternating-features__icon-container--image .alternating-features__icon {
+    object-fit: var(--feature-image-object-fit, contain) !important;
+  }
+
+  {% if section.settings.bold_feature_title %}
+    .alternating-features[data-section-id="{{ section.id }}"] .alternating-features__feature-title {
+      font-weight: 700 !important;
+    }
+  {% endif %}
 </style>
 
 <script src="{{ 'alternating-features.js' | asset_url }}" defer></script>

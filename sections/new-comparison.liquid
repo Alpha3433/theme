@@ -1,38 +1,15 @@
 {% comment %} comparison.liquid {% endcomment %}
 
 {% comment %} Google Fonts for accent text customization {% endcomment %}
-{% if section.settings.override_global_accent %}
-  {% if section.settings.accent_font_family != 'inherit' and section.settings.accent_font_family != 'serif' %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {% case section.settings.accent_font_family %}
-      {% when 'Georgia Pro' %}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Georgia+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
-          rel="stylesheet"
-        >
-      {% when 'Bodoni Moda' %}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;0,6..96,800;1,6..96,400;1,6..96,500;1,6..96,600;1,6..96,700;1,6..96,800&display=swap"
-          rel="stylesheet"
-        >
-      {% when 'Instrument Serif' %}
-        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-      {% when 'DM Serif Text' %}
-        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
-      {% when 'Nothing You Could Do' %}
-        <link href="https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap" rel="stylesheet">
-    {% endcase %}
-  {% endif %}
-{% endif %}
+{% render 'accent-font-loader' %}
 
-<section class="comparison-section section-{{ section.id }}{% if section.settings.section_bg_image != blank %} comparison-section--has-bg{% endif %}">
+<section class="comparison-section section-{{ section.id }}{% if section.settings.section_bg_image != blank %} comparison-section--has-bg{% endif %} {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
   <div class="parent-div">
     {% if section.settings.section_bg_image != blank and section.settings.bg_image_position == 'fill' %}
       <img
         class="left-fill-image"
         src="{{ section.settings.section_bg_image | image_url: width: 1200 }}"
-        alt=""
+        alt="{{ section.settings.section_bg_image.alt | escape }}"
         width="1200"
         height="600"
       >
@@ -54,14 +31,6 @@
     </div>
 
     <div class="right-div">
-      <div class="brand-header">
-        <div class="table-col"></div>
-        <div class="brand-name" style="grid-column: 2;">
-          <h3>{{ section.settings.brand_name | default: 'Quasi' }}</h3>
-        </div>
-        <div class="table-col"></div>
-      </div>
-
       <div class="comparison-table">
         <div class="table-head">
           <div class="table-row">
@@ -73,7 +42,7 @@
               {% else %}
                 style="grid-column: 2; border-top-left-radius: 14px; border-top-right-radius: 14px; overflow: visible;"
               {% endif %}
-            ></div>
+            ><h3>{{ section.settings.brand_name | default: 'Quasi' }}</h3></div>
 
             <div class="table-col" style="grid-column: 3;">
               <p>{{ section.settings.other_brand_name | default: 'Other Brands' }}</p>
@@ -101,7 +70,7 @@
                           {%- assign icon_size = block.settings.feature_icon_size | default: 20 -%}
                           <img
                             src="{{ block.settings.feature_icon | image_url: width: icon_size }}"
-                            alt=""
+                            alt="{{ block.settings.feature_icon.alt | escape }}"
                             class="feature-icon"
                             width="{{ icon_size }}"
                             height="{{ icon_size }}"
@@ -459,7 +428,7 @@
       width: 100%;
     }
 
-    .section-{{ section.id }} .brand-name {
+    .section-{{ section.id }} .comparison-table .brand-col {
       padding: {{ section.settings.brand_name_padding }}px 10px;
       text-align: center;
       display: flex;
@@ -471,7 +440,7 @@
       font-size: {{ section.settings.brand_name_font_size_desktop }}px;
     }
 
-    .section-{{ section.id }} .brand-name h3 {
+    .section-{{ section.id }} .comparison-table .brand-col h3 {
       margin: 0;
       padding: 0;
       font-weight: {{ section.settings.brand_name_font_weight }};

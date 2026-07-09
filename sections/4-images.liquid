@@ -35,9 +35,25 @@
       color: {{ section.settings.main_heading_color }} !important;
     {% endif %}
     font-size: {{ section.settings.main_heading_font_size_desktop | default: 36 }}px;
+    line-height: {{ section.settings.main_heading_line_height_desktop | default: 1.2 }};
     letter-spacing: var(--letter-spacing-heading) !important;
     margin-top: {{ section.settings.main_heading_margin_top | default: 0 }}px;
     margin-bottom: {{ section.settings.main_heading_margin_bottom | default: 10 }}px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: {{ section.settings.text_alignment | default: 'center' }};
+    gap: 0 8px;
+    width: 100%;
+  }
+  
+  #media-{{ section.id }} .media-grid__heading-text {
+    display: inline;
+    font-weight: var(--font-weight-bold, 700);
+  }
+  
+  #media-{{ section.id }} .media-grid__accent {
+    display: inline-block !important;
   }
   
   #media-{{ section.id }} .media-grid__subtitle {
@@ -53,6 +69,8 @@
   
   /* Accent text styling */
   #media-{{ section.id }} .media-grid__accent {
+    padding: 0 4px;
+    margin: 0 -4px;
     {% if section.settings.use_theme_colors %}
       color: {{ settings.global_section_accent_1_color }} !important;
       background: {{ settings.global_accent_text_gradient_dark }} !important;
@@ -201,6 +219,7 @@
   @media (max-width: 749px) {
     #media-{{ section.id }} .media-grid__heading {
       font-size: {{ section.settings.main_heading_font_size_mobile | default: 28 }}px !important;
+      line-height: {{ section.settings.main_heading_line_height_mobile | default: 1.2 }};
     }
     
     #media-{{ section.id }} .media-grid__subtitle {
@@ -227,6 +246,7 @@
 {% schema %}
 {
   "name": "4 Images",
+  "tag": "section",
   "class": "shopify-section--media-grid-new",
   "settings": [
     {
@@ -382,6 +402,16 @@
     },
     {
       "type": "range",
+      "id": "main_heading_line_height_desktop",
+      "min": 0.7,
+      "max": 1.5,
+      "step": 0.1,
+      "label": "Main Heading Line Height - Desktop",
+      "default": 1.2,
+      "info": "Line height for screens 750px and above"
+    },
+    {
+      "type": "range",
       "id": "main_heading_font_size_mobile",
       "min": 18,
       "max": 60,
@@ -390,6 +420,16 @@
       "label": "Main Heading Font Size - Mobile",
       "default": 28,
       "info": "Font size for screens 749px and below"
+    },
+    {
+      "type": "range",
+      "id": "main_heading_line_height_mobile",
+      "min": 0.7,
+      "max": 1.5,
+      "step": 0.1,
+      "label": "Main Heading Line Height - Mobile",
+      "default": 1.2,
+      "info": "Line height for screens 749px and below"
     },
     {
       "type": "range",

@@ -28,7 +28,7 @@
   assign hide_description = hide_description | default: false
 -%}
 
-<div class="cards-grid" 
+<div class="cards-grid {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" 
      data-component="cards-grid" 
      data-layout="{{ layout }}" 
      data-cards-count="{{ cards_count }}"

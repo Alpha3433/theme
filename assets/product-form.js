@@ -5,6 +5,9 @@ customElements.get("product-form") ||
       constructor() {
         (super(), (this.originalButtonText = ""), (this.persistentTextActive = !1));
       }
+      isSoldOut() {
+        return this.submitButton && this.submitButton.classList.contains("sold-out");
+      }
       connectedCallback() {
         setTimeout(() => {
           if (((this.form = this.querySelector("form")), !this.form)) return;
@@ -23,22 +26,46 @@ customElements.get("product-form") ||
                 (this.submitButton.dataset.originalText = this.originalButtonText)),
               "true" === this.submitButton.dataset.textOverride && this.submitButtonText)
             ) {
-              // Use persistent text when text override is active
+              // Use persistent text when text override is active (never overwrite "Sold Out")
               this.persistentTextActive = !0;
-              const t = this.submitButton.dataset.persistentText;
-              if (t) ((this.submitButtonText.textContent = t), localStorage.setItem("addToCartButtonText", t));
-              else {
-                const t = localStorage.getItem("addToCartButtonText");
-                t && ((this.submitButtonText.textContent = t), (this.submitButton.dataset.persistentText = t));
+              if (!this.isSoldOut()) {
+                const showPrice = "true" === this.submitButton.dataset.showPrice;
+                const t = this.submitButton.dataset.persistentText;
+                if (t) {
+                  if (!showPrice || !this.submitButtonText.textContent.trim().startsWith(t.trim())) {
+                    this.submitButtonText.textContent = t;
+                  }
+                  localStorage.setItem("addToCartButtonText", t);
+                } else {
+                  const t = localStorage.getItem("addToCartButtonText");
+                  if (t) {
+                    if (!showPrice || !this.submitButtonText.textContent.trim().startsWith(t.trim())) {
+                      this.submitButtonText.textContent = t;
+                    }
+                    this.submitButton.dataset.persistentText = t;
+                  }
+                }
               }
             }
             else if (this.submitButton.classList.contains("has-persistent-text") && this.submitButtonText) {
               this.persistentTextActive = !0;
-              const t = this.submitButton.dataset.persistentText;
-              if (t) ((this.submitButtonText.textContent = t), localStorage.setItem("addToCartButtonText", t));
-              else {
-                const t = localStorage.getItem("addToCartButtonText");
-                t && ((this.submitButtonText.textContent = t), (this.submitButton.dataset.persistentText = t));
+              if (!this.isSoldOut()) {
+                const showPrice = "true" === this.submitButton.dataset.showPrice;
+                const t = this.submitButton.dataset.persistentText;
+                if (t) {
+                  if (!showPrice || !this.submitButtonText.textContent.trim().startsWith(t.trim())) {
+                    this.submitButtonText.textContent = t;
+                  }
+                  localStorage.setItem("addToCartButtonText", t);
+                } else {
+                  const t = localStorage.getItem("addToCartButtonText");
+                  if (t) {
+                    if (!showPrice || !this.submitButtonText.textContent.trim().startsWith(t.trim())) {
+                      this.submitButtonText.textContent = t;
+                    }
+                    this.submitButton.dataset.persistentText = t;
+                  }
+                }
               }
             }
             ((this.persistentTextActive || "true" === this.submitButton.dataset.textOverride) &&
@@ -56,8 +83,20 @@ customElements.get("product-form") ||
         if (this.persistentTextActive) {
           const e = this.submitButton.dataset.persistentText || localStorage.getItem("addToCartButtonText");
           if (!e) return;
+          const showPrice = "true" === this.submitButton.dataset.showPrice;
           ((this.buttonTextObserver = new MutationObserver((t) => {
-            this.submitButtonText.textContent !== e && (this.submitButtonText.textContent = e);
+            if (this.isSoldOut()) return;
+            const currentText = this.submitButtonText.textContent.trim();
+            const persistentText = e.trim();
+            if (showPrice) {
+              if (!currentText.startsWith(persistentText)) {
+                this.submitButtonText.textContent = e;
+              }
+            } else {
+              if (currentText !== persistentText) {
+                this.submitButtonText.textContent = e;
+              }
+            }
           })),
             this.buttonTextObserver.observe(this.submitButtonText, t));
         }
@@ -65,11 +104,42 @@ customElements.get("product-form") ||
       handleVariantChange(t) {
         this.submitButtonText &&
           setTimeout(() => {
+            if (this.isSoldOut()) return;
             if (this.persistentTextActive) {
-              const t = this.submitButton.dataset.persistentText || localStorage.getItem("addToCartButtonText");
-              t && (this.submitButtonText.textContent = t);
+              const showPrice = "true" === this.submitButton.dataset.showPrice;
+              if (!showPrice) {
+                const t = this.submitButton.dataset.persistentText || localStorage.getItem("addToCartButtonText");
+                t && (this.submitButtonText.textContent = t);
+              }
             }
           }, 50);
+      }
+      ensureSellingPlanValue() {
+        let planIdToUse = null;
+        try {
+          const sellingPlanInput = this.form.querySelector('input[name="selling_plan"]');
+          if (sellingPlanInput) {
+            if (sellingPlanInput.value) {
+              planIdToUse = sellingPlanInput.value;
+            } else {
+              const subscribeToggle = document.querySelector('.subscribe-save-wrapper input[type="checkbox"]:checked, .subscribe-save-wrapper-dynamic input[type="checkbox"]:checked');
+              if (subscribeToggle) {
+                const wrapper = subscribeToggle.closest('.subscribe-save-wrapper, .subscribe-save-wrapper-dynamic');
+                if (wrapper) {
+                  planIdToUse = wrapper.dataset.sellingPlanId || subscribeToggle.dataset.planId;
+                }
+                
+                if (planIdToUse) {
+                  sellingPlanInput.value = planIdToUse;
+                  sellingPlanInput.setAttribute('value', planIdToUse);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('⚠️ product-form.js: Error setting selling_plan:', error);
+        }
+        return planIdToUse;
       }
       onSubmitHandler(t) {
         if ((t.preventDefault(), "true" === this.submitButton.getAttribute("aria-disabled"))) return;
@@ -80,7 +150,11 @@ customElements.get("product-form") ||
 
         const e = fetchConfig("javascript");
         ((e.headers["X-Requested-With"] = "XMLHttpRequest"), delete e.headers["Content-Type"]);
+      
+        const planIdToUse = this.ensureSellingPlanValue();
+        
         const s = new FormData(this.form);
+        
 
         // Check if premium-attachment-kit has already added items[] inputs to the form
         const hasItemsInputs = this.form.querySelector('input[name^="items["]') !== null;
@@ -177,9 +251,14 @@ customElements.get("product-form") ||
           this.querySelector(".loading__spinner").classList.add("hidden"),
           this.error || "true" !== this.submitButton.dataset.textOverride)
         ) {
-          if (!this.error && this.persistentTextActive) {
+          if (!this.error && this.persistentTextActive && !this.isSoldOut()) {
+            const showPrice = "true" === this.submitButton.dataset.showPrice;
             const t = this.submitButton.dataset.persistentText || localStorage.getItem("addToCartButtonText");
-            t && this.submitButtonText && (this.submitButtonText.textContent = t);
+            if (t && this.submitButtonText) {
+              if (!showPrice || !this.submitButtonText.textContent.trim().startsWith(t.trim())) {
+                this.submitButtonText.textContent = t;
+              }
+            }
           }
         } else;
         CartPerformance.measureFromEvent("add:user-action", event);

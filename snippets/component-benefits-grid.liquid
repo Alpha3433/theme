@@ -31,8 +31,34 @@
   assign mobile_image_position = mobile_image_position | default: 'after_header'
 -%}
 
-<div class="benefits-grid" data-component="benefits-grid" data-layout="{{ layout }}" data-image-mode="{{ image_display_mode }}" id="benefits-{{ section_id }}" {% if image_display_mode == 'background' and has_image %}style="background-image: url('{{ image | image_url: width: 1600 }}');"{% endif %}>
+<div class="benefits-grid  {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" data-component="benefits-grid" data-layout="{{ layout }}" data-image-mode="{{ image_display_mode }}" data-mobile-image-position="{{ mobile_image_position }}" id="benefits-{{ section_id }}" {% if image_display_mode == 'background' and has_image %}style="background-image: url('{{ image | image_url: width: 1600 }}');"{% endif %}>
   <div class="benefits-grid__container">
+    
+    <!-- Image (Mobile: before header - placed OUTSIDE content for proper positioning) -->
+    {% if has_image and mobile_image_position == 'before_header' and image_display_mode != 'background' %}
+      <div class="benefits-grid__image benefits-grid__image--mobile benefits-grid__image--before-header">
+        <img 
+          src="{{ image | image_url: width: 1200 }}" 
+          srcset="{{ image | image_url: width: 600 }} 600w,
+                  {{ image | image_url: width: 800 }} 800w,
+                  {{ image | image_url: width: 1000 }} 1000w,
+                  {{ image | image_url: width: 1200 }} 1200w"
+          sizes="(max-width: 767px) 100vw, 50vw"
+          alt="{{ image.alt | default: 'Benefits illustration' | escape }}"
+          class="benefits-grid__image-element"
+          loading="lazy"
+          width="{{ image.width }}"
+          height="{{ image.height }}">
+      </div>
+    {% endif %}
+    
+    {% comment %} Mobile placeholder for background mode (before header position) {% endcomment %}
+    {% if image_display_mode == 'background' and mobile_image_position == 'before_header' %}
+      <div class="benefits-grid__image benefits-grid__image--mobile benefits-grid__image--mobile-placeholder" 
+           data-position="before-header" 
+           data-display-mode="{{ image_display_mode }}"
+           data-mobile-position="{{ mobile_image_position }}"></div>
+    {% endif %}
     
     <!-- Content Layout -->
     <div class="benefits-grid__content-wrapper{% unless has_image or image_display_mode == 'background' %} benefits-grid__content-wrapper--no-image{% endunless %}">
@@ -40,39 +66,12 @@
       <!-- Benefits Content -->
       <div class="benefits-grid__content">
         
-        <!-- Image (Mobile: before header) -->
-        {% if has_image and mobile_image_position == 'before_header' and image_display_mode != 'background' %}
-          <div class="benefits-grid__image benefits-grid__image--mobile benefits-grid__image--before-header">
-            <img 
-              src="{{ image | image_url: width: 1200 }}" 
-              srcset="{{ image | image_url: width: 600 }} 600w,
-                      {{ image | image_url: width: 800 }} 800w,
-                      {{ image | image_url: width: 1000 }} 1000w,
-                      {{ image | image_url: width: 1200 }} 1200w"
-              sizes="(max-width: 767px) 100vw, 50vw"
-              alt="{{ image.alt | default: 'Benefits illustration' | escape }}"
-              class="benefits-grid__image-element"
-              loading="lazy"
-              width="{{ image.width }}"
-              height="{{ image.height }}">
-          </div>
-        {% endif %}
-        
-        {% comment %} Mobile placeholder for background mode (before header position) {% endcomment %}
-        {% if image_display_mode == 'background' and mobile_image_position == 'before_header' %}
-          <!-- DEBUG: Mobile placeholder rendering (before header) -->
-          <div class="benefits-grid__image benefits-grid__image--mobile benefits-grid__image--mobile-placeholder" 
-               data-position="before-header" 
-               data-display-mode="{{ image_display_mode }}"
-               data-mobile-position="{{ mobile_image_position }}"></div>
-        {% endif %}
-        
         <!-- Header -->
-        {% if heading != blank or subtitle != blank %}
+        {% if heading != blank or heading_accent != blank or subtitle != blank %}
           <div class="benefits-grid__header">
-            {% if heading != blank %}
+            {% if heading != blank or heading_accent != blank %}
               <h2 class="benefits-grid__heading">
-                {{ heading }}
+                {% if heading != blank %}{{ heading }}{% endif %}
                 {% if heading_accent != blank %}
                   <span class="benefits-grid__heading-accent">{{ heading_accent }}</span>
                 {% endif %}

@@ -1,7 +1,7 @@
-{{ 'https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css' | stylesheet_tag }}
 {{ 'customer-reviews.css' | asset_url | stylesheet_tag }}
 
-<div class="reviews-section-outer page-fade-in" style="
+{% assign reviews_anchor = section.settings.anchor_id | default: 'reviews' %}
+<div class="reviews-section-outer {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" id="{{ reviews_anchor }}" style="
     border-radius: {{ section.settings.section_border_radius | default: 0 }}px;
     {% if section.settings.use_theme_colors %}
       background-color: {{ settings.global_section_background_color }};
@@ -20,7 +20,7 @@
       padding-left: {{ section.settings.padding_horizontal }}px;
       padding-right: {{ section.settings.padding_horizontal }}px;
     ">
-    <div class="swiper reviewSwiper" data-speed="{{ section.settings.slider_speed }}">
+    <div class="swiper reviewSwiper reviewSwiper--pending" data-speed="{{ section.settings.slider_speed }}">
       <div class="swiper-wrapper">
         {% for block in section.blocks %}
           {% if block.type == 'review_image' %}
@@ -227,37 +227,31 @@
 }
 {% endunless %}
 
-/* Load-in animation */
-.page-fade-in {
+.reviews-section-outer .reviewSwiper.swiper {
+  overflow: hidden;
+  transition: opacity 0.15s ease-out;
+}
+.reviews-section-outer .reviewSwiper--pending {
   opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.8s ease-out forwards;
+  pointer-events: none;
 }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Add slight delay for staggered effect on multiple sections */
-.page-fade-in:nth-child(2) { animation-delay: 0.1s; }
-.page-fade-in:nth-child(3) { animation-delay: 0.2s; }
-.page-fade-in:nth-child(4) { animation-delay: 0.3s; }
 </style>
 
 {% schema %}
 {
   "name": "Image Reviews",
+  "tag": "section",
   "settings": [
     {
       "type": "header",
       "content": "Section Padding"
+    },
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Section anchor ID",
+      "default": "reviews",
+      "info": "Used for in-page links (e.g., enter \"reviews\" to link to #reviews)."
     },
     {
       "type": "range",
@@ -844,5 +838,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js" defer></script>
 <script src="{{ 'customer-reviews-slider.js' | asset_url }}" defer></script>

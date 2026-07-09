@@ -1,112 +1,96 @@
-console.log('Loading customer reviews carousel script...');
+(function () {
+  "use strict";
 
-function initCarousel() {
-  console.log('Initializing carousel...');
-  
-  const section = document.querySelector('.reviews-transformation-section');
-  if (!section) {
-    console.error('Customer reviews section not found');
-    return;
+  function initCarousel(section) {
+    var container = section.querySelector(".reviews-carousel-swiper");
+    if (!container || container.swiper) return;
+
+    var prevButton = section.querySelector(".global-nav-button.prev, .nav-button.prev");
+    var nextButton = section.querySelector(".global-nav-button.next, .nav-button.next");
+
+    var swiperLoad =
+      typeof window.swiperCheckAndLoad === "function"
+        ? window.swiperCheckAndLoad()
+        : Promise.resolve();
+
+    swiperLoad.then(function () {
+      if (!container || container.swiper) return;
+      if (typeof window.Swiper === "undefined") return;
+
+      container.classList.remove("reviews-carousel-swiper--pending");
+
+      var spaceBetween = 20;
+      var slidesPerViewMobile = "auto";
+      var centerDesktop = section.dataset.centerCardsDesktop === 'true';
+      var centerMobile = section.dataset.centerCardsMobile === 'true';
+      var slideCount = container.querySelectorAll('.swiper-slide').length;
+      var isMobile = window.innerWidth < 768;
+      var shouldCenter = isMobile ? centerMobile : centerDesktop;
+      var initialSlide = shouldCenter ? Math.floor(slideCount / 2) : 0;
+
+      var breakpoints = {};
+      breakpoints[768] = { 
+        spaceBetween: spaceBetween, 
+        slidesPerView: "auto",
+        centeredSlides: centerDesktop,
+        centeredSlidesBounds: centerDesktop,
+        centerInsufficientSlides: centerDesktop
+      };
+
+      var swiperConfig = {
+      slidesPerView: slidesPerViewMobile,
+      spaceBetween: spaceBetween,
+      loop: false,
+      speed: 400,
+      centeredSlides: centerMobile,
+      centeredSlidesBounds: centerMobile,
+      centerInsufficientSlides: centerMobile,
+      initialSlide: initialSlide,
+        navigation: {
+          prevEl: prevButton,
+          nextEl: nextButton,
+          hideOnClick: false,
+          disabledClass: "nav-button-disabled"
+        },
+        breakpoints: breakpoints,
+        observer: true,
+        observeParents: true
+      };
+
+      var swiper = new window.Swiper(container, swiperConfig);
+
+      swiper.on('breakpoint', function() {
+        setTimeout(function() {
+          var isDesktop = window.innerWidth >= 768;
+          var shouldCenter = isDesktop ? centerDesktop : centerMobile;
+          var targetSlide = shouldCenter ? Math.floor(slideCount / 2) : 0;
+          swiper.slideTo(targetSlide, 0, false);
+        }, 50);
+      });
+    });
   }
-  
-  const container = section.querySelector('.reviews-container');
-  // Updated selector to work with global-nav-button snippet
-  const prevButton = section.querySelector('.global-nav-button.prev, .nav-button.prev');
-  const nextButton = section.querySelector('.global-nav-button.next, .nav-button.next');
-  
-  console.log('Section found:', !!section);
-  console.log('Container found:', !!container);
-  console.log('Prev button found:', !!prevButton);
-  console.log('Next button found:', !!nextButton);
-  
-  if (!container) {
-    console.error('Reviews container not found');
-    return;
-  }
-  
-  if (!prevButton || !nextButton) {
-    console.warn('Navigation buttons not found, carousel will be scroll-only');
-  }
-  
-  function getScrollAmount() {
-    const firstCard = container.querySelector('.review-card');
-    if (!firstCard) return 350;
-    const cardWidth = firstCard.offsetWidth;
-    const containerStyle = getComputedStyle(container);
-    const gap = parseInt(containerStyle.gap) || 20;
-    console.log('Card width:', cardWidth, 'Gap:', gap, 'Total scroll:', cardWidth + gap);
-    return cardWidth + gap;
-  }
-  
-  function isAtEnd() {
-    const scrollLeft = container.scrollLeft;
-    const scrollWidth = container.scrollWidth;
-    const clientWidth = container.clientWidth;
-    return scrollLeft + clientWidth >= scrollWidth - 5;
-  }
-  
-  function isAtBeginning() {
-    return container.scrollLeft <= 5;
-  }
-  
-  if (prevButton) {
-    prevButton.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('Prev button clicked');
-      if (isAtBeginning()) {
-        console.log('At beginning, scrolling to end');
-        container.scrollTo({
-          left: container.scrollWidth - container.clientWidth,
-          behavior: 'smooth'
-        });
-      } else {
-        const scrollAmount = getScrollAmount();
-        container.scrollBy({
-          left: -scrollAmount,
-          behavior: 'smooth'
-        });
+
+  function runInit() {
+    var sections = document.querySelectorAll(".reviews-transformation-section");
+    sections.forEach(function (section) {
+      if (section.querySelector(".reviews-carousel-swiper")) {
+        initCarousel(section);
       }
     });
   }
-  
-  if (nextButton) {
-    nextButton.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('Next button clicked');
-      if (isAtEnd()) {
-        console.log('At end, scrolling to beginning');
-        container.scrollTo({
-          left: 0,
-          behavior: 'smooth'
-        });
-      } else {
-        const scrollAmount = getScrollAmount();
-        container.scrollBy({
-          left: scrollAmount,
-          behavior: 'smooth'
-        });
-      }
-    });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", runInit);
+  } else {
+    runInit();
   }
-  
-  console.log('Navigation setup complete');
-}
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initCarousel);
-} else {
-  initCarousel();
-}
-
-// Also initialize after a delay for dynamic content
-setTimeout(initCarousel, 500);
-
-// Re-initialize when section is loaded in theme editor
-document.addEventListener('shopify:section:load', function(e) {
-  if (e.target.querySelector('.reviews-transformation-section')) {
-    setTimeout(initCarousel, 100);
-  }
-});
+  document.addEventListener("shopify:section:load", function (e) {
+    var section = e.target.querySelector && e.target.querySelector(".reviews-transformation-section");
+    if (section) {
+      initCarousel(section);
+    } else if (e.target.classList && e.target.classList.contains("reviews-transformation-section")) {
+      initCarousel(e.target);
+    }
+  });
+})();
