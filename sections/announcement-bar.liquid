@@ -5,36 +5,33 @@
   .announcement-text b {
     font-weight: 700 !important;
   }
-  {% if section.settings.hide_shine_effect %}
-    .announcement-bar.gradient-active::after {
-      display: none !important;
-    }
-  {% endif %}
 </style>
 
 <div class="section-announcement">
-  <div class="announcement-bar gradient-active" style="
-    {% if section.settings.use_theme_colors %}
-      background: linear-gradient(
-        -45deg,
-        {{ settings.global_section_accent_2_color }},
-        {{ settings.global_section_accent_1_color }},
-        {{ settings.global_section_accent_2_color }},
-        {{ settings.global_section_accent_1_color }}
-      );
-      background-size: 400% 400%;
-      animation: gradientAnimation 15s ease infinite;
-    {% else %}
-      background: linear-gradient(
-        -45deg,
-        {{ section.settings.gradient_color_1 }},
-        {{ section.settings.gradient_color_2 }},
-        {{ section.settings.gradient_color_3 }},
-        {{ section.settings.gradient_color_4 }}
-      );
-      background-size: 400% 400%;
-      animation: gradientAnimation 15s ease infinite;
-    {% endif %}
+  <div class="announcement-bar{% unless section.settings.hide_shine_effect %} shine-active{% endunless %}" style="
+    {% case section.settings.background_type %}
+      {% when 'solid' %}
+        background: {% if section.settings.use_theme_colors %}{{ settings.global_section_accent_1_color }}{% else %}{{ section.settings.solid_bg_color }}{% endif %};
+      {% when 'static_gradient' %}
+        background: {% if section.settings.use_theme_colors %}linear-gradient(-45deg, {{ settings.global_section_accent_2_color }}, {{ settings.global_section_accent_1_color }}){% else %}{{ section.settings.static_gradient_value }}{% endif %};
+      {% when 'animated_gradient' %}
+        background: linear-gradient(
+          -45deg,
+          {% if section.settings.use_theme_colors %}
+            {{ settings.global_section_accent_2_color }},
+            {{ settings.global_section_accent_1_color }},
+            {{ settings.global_section_accent_2_color }},
+            {{ settings.global_section_accent_1_color }}
+          {% else %}
+            {{ section.settings.gradient_color_1 }},
+            {{ section.settings.gradient_color_2 }},
+            {{ section.settings.gradient_color_3 }},
+            {{ section.settings.gradient_color_4 }}
+          {% endif %}
+        );
+        background-size: 400% 400%;
+        animation: gradientAnimation 15s ease infinite;
+    {% endcase %}
   ">
     <div class="announcement-text" style="color: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.text_color }}{% endif %};">
       {{ section.settings.announcement_text }}
@@ -130,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
 {% schema %}
 {
   "name": "Countdown Banner",
+  "tag": "section",
   "settings": [
     {
       "type": "checkbox",
@@ -228,13 +226,6 @@ document.addEventListener('DOMContentLoaded', function() {
       "content": "Style"
     },
     {
-      "type": "checkbox",
-      "id": "hide_shine_effect",
-      "label": "Hide Shine Effect",
-      "default": false,
-      "info": "Remove the animated shine/shimmer effect on the background"
-    },
-    {
       "type": "color",
       "id": "text_color",
       "label": "Text Color",
@@ -259,28 +250,64 @@ document.addEventListener('DOMContentLoaded', function() {
       "default": "#FFFFFF"
     },
     {
+      "type": "select",
+      "id": "background_type",
+      "label": "Section Background Type",
+      "options": [
+        { "value": "animated_gradient", "label": "Animated Gradient" },
+        { "value": "static_gradient", "label": "Static Gradient" },
+        { "value": "solid", "label": "Solid Color" }
+      ],
+      "default": "animated_gradient"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_shine_effect",
+      "label": "Hide Shine Effect",
+      "default": false,
+      "info": "Remove the animated shine/shimmer effect on the background"
+    },
+    {
+      "type": "color_background",
+      "id": "static_gradient_value",
+      "label": "Static Gradient",
+      "default": "linear-gradient(135deg, #FFF5EA, #FF99A9)",
+      "visible_if": "{{ section.settings.background_type == 'static_gradient' }}"
+    },
+    {
+      "type": "color",
+      "id": "solid_bg_color",
+      "label": "Solid Background Color",
+      "default": "#FF99A9",
+      "visible_if": "{{ section.settings.background_type == 'solid' }}"
+    },
+    {
       "type": "color",
       "id": "gradient_color_1",
       "label": "Gradient Color 1",
-      "default": "#FFF5EA"
+      "default": "#FFF5EA",
+      "visible_if": "{{ section.settings.background_type == 'animated_gradient' }}"
     },
     {
       "type": "color",
       "id": "gradient_color_2",
       "label": "Gradient Color 2",
-      "default": "#FFDAE0"
+      "default": "#FFDAE0",
+      "visible_if": "{{ section.settings.background_type == 'animated_gradient' }}"
     },
     {
       "type": "color",
       "id": "gradient_color_3",
       "label": "Gradient Color 3",
-      "default": "#FDFFE7"
+      "default": "#FDFFE7",
+      "visible_if": "{{ section.settings.background_type == 'animated_gradient' }}"
     },
     {
       "type": "color",
       "id": "gradient_color_4",
       "label": "Gradient Color 4",
-      "default": "#FF99A9"
+      "default": "#FF99A9",
+      "visible_if": "{{ section.settings.background_type == 'animated_gradient' }}"
     }
   ],
   "presets": [

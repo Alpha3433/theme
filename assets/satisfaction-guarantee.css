@@ -14,7 +14,10 @@
   position: relative;
 }
 .beauty-revolution-text {
-  margin-left: var(--beauty-revolution-margin-left);
+  margin-left: var(--accent-text-margin-right);
+}
+.accent-text {
+  margin-right: var(--accent-text-margin-right);
 }
 .guarantee-section__desktop {
   display: none;

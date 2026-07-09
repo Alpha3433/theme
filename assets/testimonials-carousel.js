@@ -284,10 +284,27 @@ class TestimonialsCarousel {
     });
   }
 }
-document.addEventListener("DOMContentLoaded", function () {
+const initTestimonialsCarousel = (container) => {
+  if (!container || container.dataset.carouselInitialized === "true") return;
+  container.dataset.carouselInitialized = "true";
+  const sectionId = container.id.replace("testimonials-", "");
+  new TestimonialsCarousel(sectionId);
+};
+
+const initTestimonialsCarousels = () => {
   const testimonialsContainers = document.querySelectorAll('[id^="testimonials-"]');
   testimonialsContainers.forEach((container) => {
-    const sectionId = container.id.replace("testimonials-", "");
-    new TestimonialsCarousel(sectionId);
+    initTestimonialsCarousel(container);
   });
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+  initTestimonialsCarousels();
+});
+
+document.addEventListener("shopify:section:load", function (event) {
+  const sectionId = event?.detail?.sectionId;
+  if (!sectionId) return;
+  const container = document.getElementById(`testimonials-${sectionId}`);
+  initTestimonialsCarousel(container);
 });

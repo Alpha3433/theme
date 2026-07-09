@@ -31,13 +31,20 @@
   /* Exclude shop-product-details blocks from app letter-spacing rules */
   .shop-product-section,
   .shop-product-info,
-  .shop-product-info *,
-  .shop-product-section *,
+  .shop-product-info *:not(.shop-product-title):not([class*="product-title"]),
+  .shop-product-section *:not(.shop-product-title):not([class*="product-title"]),
   .blocks-section:not(.shopify-app-block):not([data-shopify-app]):not([data-app-id]):not([class*="app-"]):not([class*="App"]),
   .limited-inventory-alert,
   .limited-inventory-alert *,
   .product-description-block,
   .product-description-block * {
     letter-spacing: var(--letter-spacing-body) !important;
+  }
+
+  /* Product title should use heading letter-spacing */
+  .shop-product-title,
+  .shop-product-section .shop-product-title,
+  [class*="product-title-title"] {
+    letter-spacing: var(--letter-spacing-heading) !important;
   }
 </style>

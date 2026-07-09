@@ -47,15 +47,8 @@
   padding: 10px 0px;
   gap: 15px !important;
 }
-h2.drawer__heading {
-  font-family: "Inter" !important;
-  font-size: 22px !important;
-}
 .header-bar {
   background: #000;
-}
-.cart-drawer .cart__checkout-button {
-  padding: 20px 0 !important;
 }
 .gbfrequently-bought-with-main-whole product-form {
   position: absolute;
@@ -63,7 +56,7 @@ h2.drawer__heading {
   right: 0;
 }
 .gbfrequently-bought-with-main-whole product-form.product-form button {
-  font-family: Inter;
+  font-family: var(--font-body-family);
   font-weight: 700;
   font-size: 11px;
   line-height: 100%;
@@ -79,7 +72,7 @@ h2.drawer__heading {
   max-height: 100% !important;
 }
 .header-bar p {
-  font-family: Inter !important;
+  font-family: var(--font-body-family) !important;
   font-weight: 700 !important;
   font-size: 15px;
   line-height: 100%;
@@ -90,7 +83,7 @@ h2.drawer__heading {
   color: #fff;
 }
 .totals li.discounts__discount {
-  font-family: Inter;
+  font-family: var(--font-body-family);
   font-weight: 600;
   font-size: 9px;
   line-height: 100%;
@@ -110,7 +103,7 @@ h2.drawer__heading {
 .drawer_total h2,
 .drawer_total p {
   margin: 0;
-  font-family: Inter !important;
+  font-family: var(--font-body-family) !important;
   font-weight: 600 !important;
   font-size: 16px !important;
   line-height: 100%;
@@ -290,7 +283,7 @@ span.gb-cart-total-item {
   font-weight: 700;
   font-size: 20px;
 } */ /* Removed - not used in current implementation */
-.drawer__inner .quantity {
+.drawer__inner .quantity, .quantity.cart-quantity {
   width: calc(9rem / var(--font-body-scale) + var(--inputs-border-width) * 2) !important;
 }
 .drawer__inner {
@@ -303,12 +296,17 @@ span.gb-cart-total-item {
 .drawer__inner.gradient .quantity__button {
   width: calc(2.5rem / var(--font-body-scale)) !important;
 }
-.drawer__inner .quantity {
+.drawer__inner .quantity, .quantity.cart-quantity {
   min-height: calc((var(--inputs-border-width) * 2) + 3rem);
 }
-.drawer__inner quantity-input.quantity.cart-quantity {
+.drawer__inner quantity-input.quantity.cart-quantity, .quantity.cart-quantity  {
   border: 1px solid #e2e2e2;
   border-radius: 4px;
+}
+@media only screen and (max-width: 749px) {
+    quantity-input.quantity.cart-quantity {
+        min-height: 2.4rem;
+    }
 }
 .drawer__inner .quantity:after {
   box-shadow: unset !important;
@@ -316,6 +314,22 @@ span.gb-cart-total-item {
 .cart-item__quantity-wrapper {
   place-content: space-between;
   margin-top: -10px;
+}
+.cart-drawer .quantity-popover-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cart-drawer .cart-details-wrapper {
+  align-items: flex-start;
+}
+.cart-drawer .cart-item__pricing-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 4px;
+  min-width: max-content;
 }
 .gb-price-drawer-saving {
   display: block;
@@ -527,11 +541,16 @@ h2.gb-30day-back svg {
 td.cart-item__details a.cart-item__name {
   font-size: 19px;
 }
+@media screen and (max-width: 768px) {
+  td.cart-item__details a.cart-item__name {
+    font-size: 12px;
+  }
+}
 section.gb-get-main-freq-pro .page-width {
   padding: 0 !important;
 }
 .free-product-progress-bar-successfull {
-  font-family: "Inter";
+  font-family: var(--font-body-family);
   font-size: 16px;
   font-weight: 100;
 }
@@ -686,6 +705,15 @@ cart-drawer-items {
   font-weight: 600;
   align-items: center;
 }
+
+.gb-cart-drawer-lb .drawer__cart-items-wrapper .product-option.cart-item__subscription-name {
+  margin-bottom: 0;
+  font-weight: 600;
+  align-items: center;
+  margin-top: -0.75rem;
+  margin-bottom: 1.5rem;
+}
+
 .gb-cart-drawer-lb .drawer__cart-items-wrapper .cart-details-wrapper > .product-option {
   direction: rtl;
 }
@@ -776,6 +804,14 @@ cart-drawer-items {
   .gb-cart-drawer-lb .drawer__cart-items-wrapper .product-option {
     font-weight: 600;
     align-items: center;
+  }
+
+  .gb-cart-drawer-lb .drawer__cart-items-wrapper .product-option.cart-item__subscription-name {
+    margin-bottom: 0;
+    font-weight: 600;
+    align-items: center;
+    margin-top: -0.75rem;
+    margin-bottom: 1.5rem;
   }
   .gb-cart-drawer-lb .gb-price-drawer-saving {
     font-size: 9px;

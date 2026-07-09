@@ -29,7 +29,7 @@
   assign show_divider = show_divider | default: false
 -%}
 
-<section class="media-grid" 
+<section class="media-grid {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" 
          data-component="media-grid" 
          data-columns="{{ columns }}"
          id="media-{{ section_id }}">

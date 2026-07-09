@@ -8,15 +8,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const prevButton = section.querySelector(".reviews-navigation-container .nav-button.prev");
     const nextButton = section.querySelector(".reviews-navigation-container .nav-button.next");
 
-    console.log("Navigation setup:", {
-      sectionId: section.getAttribute("data-section-id"),
-      container: container,
-      prevButton: prevButton,
-      nextButton: nextButton,
-      sectionClasses: section.className,
-      containerClasses: container ? container.className : "no container",
-    });
-
     function updateProductAlignment() {
       if (!container) return;
 
@@ -120,23 +111,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function scrollByVisibleCards(direction) {
       if (!container) {
-        console.log("No container found for scrollByVisibleCards");
         return;
       }
 
       // Check if pagination is enabled
       const carouselPages = container.querySelectorAll(".carousel-page");
-      console.log("Found carousel pages:", carouselPages.length);
       if (carouselPages.length > 0) {
         // Handle page-based navigation
         const currentPage =
           container.querySelector(".carousel-page.active") || container.querySelector('.carousel-page[style*="flex"]');
-        console.log("Current page found:", !!currentPage);
         if (!currentPage) {
-          console.log("No current page found - checking all pages:");
-          carouselPages.forEach((page, index) => {
-            console.log(`Page ${index + 1}:`, page.style.display, page.getAttribute("data-page"));
-          });
           return;
         }
 
@@ -163,7 +147,6 @@ document.addEventListener("DOMContentLoaded", function () {
           targetPage.style.display = "flex";
         }
 
-        console.log(`Switched from page ${currentPageNum} to page ${targetPageNum}`);
         return;
       }
 
@@ -186,25 +169,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function setupNavigation() {
       if (!container || !prevButton || !nextButton) {
-        console.warn("Navigation setup failed - missing elements:", {
-          container: !!container,
-          prevButton: !!prevButton,
-          nextButton: !!nextButton,
-        });
         return;
       }
 
-      console.log("Setting up navigation event listeners");
-
       prevButton.addEventListener("click", function (e) {
         e.preventDefault();
-        console.log("Previous button clicked");
         scrollByVisibleCards("prev");
       });
 
       nextButton.addEventListener("click", function (e) {
         e.preventDefault();
-        console.log("Next button clicked");
         scrollByVisibleCards("next");
       });
     }

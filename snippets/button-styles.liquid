@@ -8,7 +8,7 @@
   Usage: {% render 'button-styles' %}
 {% endcomment %}
 
-{% if settings.enable_global_button_styling and (section == blank or section.settings.use_global_button_styling == true) %}
+{% if settings.enable_global_button_styling and section == blank or section.settings.use_global_button_styling == true %}
   {% comment %} Global styling is enabled - use global settings {% endcomment %}
   {% assign button_bg_color = settings.global_button_background_color | default: '#EF4A65' %}
   {% assign button_text_color = settings.global_button_text_color_primary | default: '#FFFFFF' %}
@@ -53,7 +53,7 @@
     /* Exclude third-party apps (Klaviyo, Privy, JustUno, OptiMonk, Omnisend, etc.) */
     .btn:not(.disable-global-button-styling):not([class*="klaviyo"]):not([class*="privy"]):not([class*="justuno"]):not([class*="optimonk"]):not([class*="omnisend"]),
     button[type="submit"]:not(.disable-global-button-styling):not(.button):not([class*="klaviyo"]):not([class*="privy"]):not([class*="justuno"]):not([class*="optimonk"]):not([class*="omnisend"]),
-    input[type="submit"]:not(.disable-global-button-styling):not([class*="klaviyo"]):not([class*="privy"]):not([class*="justuno"]):not([class*="optimonk"]):not([class*="omnisend"]),
+    input[type="submit"]:not(.disable-global-button-styling):not([class*="klaviyo"]):not([class*="privy"]):not([class*="justuno"]):not([class*="optimonk"]):not([class*="omnisend"]):not([style="display: none;"]),
     .product-form__submit:not(.disable-global-button-styling),
     .cart__checkout-button:not(.disable-global-button-styling),
     .button--primary:not(.disable-global-button-styling),
@@ -117,7 +117,7 @@
     /* === THIRD-PARTY APP EXCLUSIONS === */
     /* Reset ALL styling for buttons inside third-party app containers */
     /* This ensures apps like Klaviyo, Privy, JustUno, OptiMonk, Omnisend, etc. retain their own styling */
-    [class*="klaviyo"] button,
+    {% comment %} [class*="klaviyo"] button,
     [class*="klaviyo"] .btn,
     [class*="klaviyo"] input[type="submit"],
     [id*="klaviyo"] button,
@@ -155,7 +155,7 @@
       border: revert !important;
       border-radius: revert !important;
       display: revert !important;
-    }
+    } {% endcomment %}
   </style>
 
 {% else %}

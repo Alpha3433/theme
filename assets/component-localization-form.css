@@ -69,6 +69,8 @@
   height: 0.6rem;
   right: calc(var(--inputs-border-width) + 1.5rem);
   top: calc(50% - 0.2rem);
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
 }
 .localization-selector.link {
   text-decoration: none;
@@ -125,16 +127,34 @@
   padding-top: 0.5rem;
   scroll-padding: 0.5rem 0;
   max-height: 20.5rem;
-  max-width: 25.5rem;
-  min-width: 12rem;
+  max-width: 35rem;
+  min-width: 20rem;
   width: max-content;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--color-drawer-text), 0.3) transparent;
 }
+
+/* For Webkit browsers */
+.disclosure__list::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+
+.disclosure__list::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-drawer-text), 0.3);
+  border-radius: 6px;
+}
+
+.disclosure__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .country-selector__list {
   padding-bottom: 0.95rem;
   padding-top: 0;
 }
 .country-selector__list--with-multiple-currencies {
-  width: 25.5rem;
+  width: 30rem;
 }
 .country-selector__close-button {
   display: none;
@@ -144,13 +164,12 @@
   justify-content: end;
   align-items: center;
   gap: 0.5rem;
-  padding: 1.5rem 1.5rem 0.6rem;
+  padding: 1rem;
   position: sticky;
   top: -0.02rem;
-  background-color: rgb(var(--color-drawer-text));
   z-index: 6;
 }
-.country-filter__input {
+.country-filter__input.field__input {
   min-width: 200px;
 }
 .country-filter__reset-button,
@@ -255,12 +274,12 @@
   }
 }
 .countries {
-  padding-top: 0.6rem;
+  padding-top: 0.3rem;
 }
 .popular-countries {
   border-bottom: 1px solid rgba(var(--color-drawer-text), 0.2);
-  padding-bottom: 0.6rem;
-  padding-top: 0.6rem;
+  padding-bottom: 0.4rem;
+  padding-top: 0.4rem;
 }
 .disclosure__item {
   position: relative;
@@ -268,24 +287,29 @@
 .disclosure__link {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 0.5rem;
-  padding: 0.9rem 1.5rem;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  align-items: center;
   text-decoration: none;
   line-height: calc(1 + 0.8 / var(--font-body-scale));
   color: rgba(var(--color-drawer-text), 1);
   word-break: break-word;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 .disclosure__link:hover {
   color: rgb(var(--color-drawer-text));
 }
 .disclosure__link .icon-checkmark {
   width: 1rem;
-  margin-right: 0.2rem;
+  margin-right: 0;
+  display: block;
 }
 .disclosure__link:hover .localization-form__currency,
 .disclosure__link:focus-visible .localization-form__currency,
 .disclosure__link:focus .localization-form__currency {
-  display: inline-block;
+  display: inline-flex;
   opacity: 1;
 }
 .disclosure__button[aria-expanded="true"] .icon-caret {
@@ -302,8 +326,16 @@
   min-height: initial;
   background: #fff0;
 }
+.header-localization .disclosure__link {
+  background-color: var(--color-background);
+}
 .header-localization .disclosure .localization-form__select:hover {
   text-decoration: underline;
+}
+.header-localization .disclosure__link:hover,
+.header-localization .disclosure__link:focus-visible {
+  background-color: rgba(var(--color-foreground), 0.5);
+  color: rgba(var(--color-drawer-text), 0.7);
 }
 .header-localization .localization-form__select.link:after,
 .header-localization .localization-form__select.link:before {
@@ -329,7 +361,7 @@
   align-items: center;
 }
 .js .header-localization:not(.menu-drawer__localization) .localization-form__select {
-  padding: 0 3.7rem 0 1.2rem;
+  padding: 0 2.5rem 0 1.2rem;
   width: max-content;
   height: 3.8rem;
 }
@@ -379,4 +411,44 @@
 }
 .language-selector .disclosure__list {
   min-width: 200px;
+}
+
+.localization-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.2rem;
+}
+
+.localization-current,
+.disclosure__link .country {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.localization-flag {
+  width: 20px;
+  height: 14px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.localization-iso,
+.country-iso {
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+.localization-form__currency {
+  opacity: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding-right: 0;
+}
+
+span.localization-current img,
+span.country img {
+  border-radius: 2.4px;
 }

@@ -69,6 +69,8 @@
 
     --title-size: {{ section.settings.title_size_desktop }}px;
     --title-size-mobile: {{ section.settings.title_size_mobile }}px;
+    --title-line-height: {{ section.settings.title_line_height_desktop }};
+    --title-line-height-mobile: {{ section.settings.title_line_height_mobile }};
     --subtitle-size: {{ section.settings.subtitle_size_desktop }}px;
     --subtitle-size-mobile: {{ section.settings.subtitle_size_mobile }}px;
 
@@ -97,6 +99,7 @@
 
     --step-item-max-width-750px: {{ section.settings.step_item_max_width_750px }}px;
     --content-max-width: {{ section.settings.content_max_width }}px;
+    --mobile-carousel-padding: {{ section.settings.mobile_carousel_padding | default: 8 }}px;
 
     /* Defaults used by per-step overrides */
     --default-card-bg: {% if section.settings.use_theme_colors %}{{ settings.global_section_background_color }}{% else %}{{ section.settings.default_card_background }}{% endif %};
@@ -136,7 +139,7 @@
 
   /* Image/card structure */
   .section-{{ section.id }} .step-image-container{
-    position:relative; width:100%; aspect-ratio:1/1 !important;
+    position:relative; width:100%; aspect-ratio:1/1;
     background-color: var(--image-bg-color, var(--default-image-bg));
     {% if section.settings.disable_image_border_radius %}border-radius:0!important;{% else %}border-radius:var(--card-border-radius)!important;{% endif %}
     overflow:hidden !important; display:flex; align-items:center; justify-content:center;
@@ -169,30 +172,32 @@
   .section-{{ section.id }} .step-title{ margin:0!important; overflow-wrap:break-word!important; hyphens:auto!important; flex:1!important; }
   .section-{{ section.id }} .step-description{ margin:0!important; overflow-wrap:break-word!important; hyphens:auto!important; line-height:1.4!important; }
 
-  /* Mobile image sizing options */
-  {% if section.settings.mobile_image_layout == 'compact' and section.settings.mobile_card_layout == 'horizontal' %}
+  /* Mobile image sizing options - only apply when full height is enabled */
+  {% if section.settings.full_height_image_mobile %}
+    {% if section.settings.mobile_image_layout == 'compact' and section.settings.mobile_card_layout == 'horizontal' %}
+      @media (max-width:768px){
+        .section-{{ section.id }} .steps-container.has-carousel-mobile[data-mobile-layout="horizontal"] .step-image-container{ width:33%!important; min-width:30%!important; }
+      }
+      @media (max-width:410px){
+        .section-{{ section.id }} .steps-container.has-carousel-mobile[data-mobile-layout="horizontal"] .step-image-container{ width:37%!important; }
+      }
+    {% endif %}
+    {% if section.settings.mobile_image_layout == 'wide' and section.settings.mobile_card_layout == 'horizontal' %}
+      @media (max-width:768px){
+        .section-{{ section.id }} .steps-container.has-carousel-mobile[data-mobile-layout="horizontal"] .step-image-container{ width:50%!important; min-width:50%!important; flex:0 0 50%!important; }
+      }
+    {% endif %}
+    {% if section.settings.mobile_image_layout == 'compact' %}
+      @media (max-width:768px){ .section-{{ section.id }} .steps-regular-layout .step-image-container{ width:33%!important; min-width:30%!important; } }
+      @media (max-width:410px){ .section-{{ section.id }} .steps-regular-layout .step-image-container{ width:37%!important; } }
+    {% endif %}
+    {% if section.settings.mobile_image_layout == 'wide' %}
+      @media (max-width:768px){ .section-{{ section.id }} .steps-regular-layout .step-image-container{ width:50%!important; min-width:50%!important; flex:0 0 50%!important; } }
+    {% endif %}
     @media (max-width:768px){
-      .section-{{ section.id }} .steps-container.has-carousel-mobile[data-mobile-layout="horizontal"] .step-image-container{ width:33%!important; min-width:30%!important; }
-    }
-    @media (max-width:410px){
-      .section-{{ section.id }} .steps-container.has-carousel-mobile[data-mobile-layout="horizontal"] .step-image-container{ width:37%!important; }
+      .section-{{ section.id }} .step-image-container{ width:100%!important; min-width:100%!important; max-width:100%!important; }
     }
   {% endif %}
-  {% if section.settings.mobile_image_layout == 'wide' and section.settings.mobile_card_layout == 'horizontal' %}
-    @media (max-width:768px){
-      .section-{{ section.id }} .steps-container.has-carousel-mobile[data-mobile-layout="horizontal"] .step-image-container{ width:50%!important; min-width:50%!important; flex:0 0 50%!important; }
-    }
-  {% endif %}
-  {% if section.settings.mobile_image_layout == 'compact' %}
-    @media (max-width:768px){ .section-{{ section.id }} .steps-regular-layout .step-image-container{ width:33%!important; min-width:30%!important; } }
-    @media (max-width:410px){ .section-{{ section.id }} .steps-regular-layout .step-image-container{ width:37%!important; } }
-  {% endif %}
-  {% if section.settings.mobile_image_layout == 'wide' %}
-    @media (max-width:768px){ .section-{{ section.id }} .steps-regular-layout .step-image-container{ width:50%!important; min-width:50%!important; flex:0 0 50%!important; } }
-  {% endif %}
-  @media (max-width:768px){
-    .section-{{ section.id }} .step-image-container{ width:100%!important; min-width:100%!important; max-width:100%!important; }
-  }
 
   /* Carousel presence toggles */
   @media (min-width:769px){
@@ -280,12 +285,30 @@
 
   /* Typography colors/sizes */
   .section-{{ section.id }} .section-title.global-heading,
-  .section-{{ section.id }} .section-title{ color:var(--title-color)!important; font-size:var(--title-size)!important; margin-bottom:var(--title-margin-bottom)!important; }
+  .section-{{ section.id }} .section-title{ 
+    color:var(--title-color)!important; 
+    font-size:var(--title-size)!important; 
+    line-height:var(--title-line-height)!important;
+    margin-bottom:var(--title-margin-bottom)!important;
+    text-align: {{ section.settings.header_alignment | default: 'center' }} !important;
+  }
   .section-{{ section.id }} .section-title .global-accent-text,
   .section-{{ section.id }} .section-title span{ color:var(--highlight-color)!important; }
   .section-{{ section.id }} .section-subtitle{
-    color:var(--subtitle-color)!important; font-size:var(--subtitle-size)!important; text-align:center!important;
-    margin-bottom:var(--subtitle-margin-bottom)!important; margin-top:var(--subtitle-margin-top)!important; margin-left:auto!important; margin-right:auto!important; max-width:800px!important; display:block!important;
+    color:var(--subtitle-color)!important; 
+    font-size:var(--subtitle-size)!important; 
+    text-align: {{ section.settings.header_alignment | default: 'center' }} !important;
+    margin-bottom:var(--subtitle-margin-bottom)!important; 
+    margin-top:var(--subtitle-margin-top)!important; 
+    {% if section.settings.header_alignment == 'left' %}
+      margin-left: 0 !important; 
+      margin-right: auto !important;
+    {% else %}
+      margin-left: auto !important; 
+      margin-right: auto !important;
+    {% endif %}
+    max-width:800px!important; 
+    display:block!important;
   }
   .section-{{ section.id }} .step-title{ color:var(--step-title-color)!important; font-size:var(--step-title-size)!important; }
   .section-{{ section.id }} .step-description,
@@ -297,11 +320,17 @@
     font-weight:var(--number-font-weight)!important; font-size:var(--number-size)!important; width:var(--number-circle-size)!important; height:var(--number-circle-size)!important;
     display:flex!important; align-items:center!important; justify-content:center!important; flex-shrink:0!important;
   }
+  .section-{{ section.id }} .number-icon.has-custom-icon{
+    border:none!important; background-color:transparent!important; width:auto!important; height:auto!important;
+  }
+  .section-{{ section.id }} .number-icon .custom-step-icon{
+    width:{{ section.settings.custom_icon_size }}px!important; height:{{ section.settings.custom_icon_size }}px!important; object-fit:contain!important;
+  }
 
   /* Responsive text sizes */
   @media (max-width:768px){
     .section-{{ section.id }} .section-title.global-heading,
-    .section-{{ section.id }} .section-title{ font-size:var(--title-size-mobile)!important; margin-bottom:var(--title-margin-bottom-mobile)!important; }
+    .section-{{ section.id }} .section-title{ font-size:var(--title-size-mobile)!important; line-height:var(--title-line-height-mobile)!important; margin-bottom:var(--title-margin-bottom-mobile)!important; }
     .section-{{ section.id }} .section-subtitle{ font-size:var(--subtitle-size-mobile)!important; }
     .section-{{ section.id }} .step-title{ font-size:var(--step-title-size-mobile)!important; }
     .section-{{ section.id }} .step-description,
@@ -352,6 +381,11 @@
 
   /* Carousel structure */
   .section-{{ section.id }} .carousel-slide{ overflow:hidden!important; }
+  @media (max-width: 768px) {
+    .section-{{ section.id }} .carousel-slide {
+      padding: var(--mobile-carousel-padding) !important;
+    }
+  }
   .section-{{ section.id }} .carousel-track{ display:flex!important; transition:transform .3s ease!important; overflow:visible!important; }
   .section-{{ section.id }} .carousel-track-container{ overflow:hidden!important; width:100%!important; }
   .section-{{ section.id }} .carousel-slide .step-card{ height:auto!important; min-height:300px!important; }
@@ -424,22 +458,71 @@
     {% endif %}
   }
 
-  /* Load-in animation with reduced-motion support */
-  .page-fade-in{ opacity:0; transform:translateY(20px); animation:fadeInUp .8s ease-out forwards; }
-  @keyframes fadeInUp{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:translateY(0);} }
-  .page-fade-in:nth-child(2){ animation-delay:.1s; }
-  .page-fade-in:nth-child(3){ animation-delay:.2s; }
-  .page-fade-in:nth-child(4){ animation-delay:.3s; }
   @media (prefers-reduced-motion: reduce){
-    .page-fade-in{ animation:none!important; opacity:1!important; transform:none!important; }
     .section-{{ section.id }} .carousel-track{ transition:none!important; }
   }
+
+  {% unless section.settings.full_height_image_mobile %}
+    @media (max-width: 768px) {
+      .section-{{ section.id }} .step-card {
+        padding: 16px !important;
+        gap: 16px !important;
+        background-color: var(--content-bg-color, var(--default-card-bg)) !important;
+        overflow: visible !important;
+        min-height: auto !important;
+        {% if section.settings.mobile_card_layout == 'horizontal' %}
+          flex-direction: row !important;
+          align-items: center !important;
+        {% else %}
+          flex-direction: column !important;
+          align-items: flex-start !important;
+        {% endif %}
+      }
+      .section-{{ section.id }} .steps-container .step-image-container,
+      .section-{{ section.id }} .steps-container[data-mobile-layout="horizontal"] .step-image-container,
+      .section-{{ section.id }} .step-image-container {
+        width: {{ section.settings.mobile_image_width }}% !important;
+        min-width: {{ section.settings.mobile_image_width }}% !important;
+        max-width: {{ section.settings.mobile_image_width }}% !important;
+        flex: 0 0 {{ section.settings.mobile_image_width }}% !important;
+        height: auto !important;
+        aspect-ratio: 1/1 !important;
+        border-radius: 8px !important;
+        flex-shrink: 0 !important;
+        position: relative !important;
+        background-color: transparent !important;
+        margin: 0 !important;
+      }
+      .section-{{ section.id }} .step-image {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        border-radius: 8px !important;
+        object-fit: cover !important;
+        display: block !important;
+        inset: auto !important;
+      }
+      .section-{{ section.id }} .step-content {
+        background: transparent !important;
+        padding: 0 !important;
+        flex: 1 !important;
+        border-radius: 0 !important;
+        min-height: auto !important;
+      }
+      .section-{{ section.id }} .step-title-container {
+        margin-bottom: 4px !important;
+      }
+      .section-{{ section.id }} .steps-container[data-mobile-layout="horizontal"] .step-content {
+        padding-left: 0 !important;
+      }
+    }
+  {% endunless %}
 
   /* Navigation buttons now use global-nav-button snippet */
 </style>
 
 <section
-  class="results-steps-section section-{{ section.id }} page-fade-in"
+  class="results-steps-section section-{{ section.id }} {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}"
   role="region"
   aria-label="{{ section.settings.title | escape }} {{ section.settings.title_highlight | escape }}"
   data-show-images="{{ section.settings.show_step_images }}"
@@ -501,7 +584,13 @@
                         <div class="step-content">
                           <div class="step-title-container">
                             {% if section.settings.show_step_numbers %}
-                              <div class="number-icon" aria-hidden="true">{{ forloop.index }}</div>
+                              <div class="number-icon{% if block.settings.custom_step_icon != blank %} has-custom-icon{% endif %}" aria-hidden="true">
+                                {% if block.settings.custom_step_icon != blank %}
+                                  <img src="{{ block.settings.custom_step_icon | image_url: width: 120 }}" alt="{{ block.settings.custom_step_icon.alt | escape }}" width="{{ section.settings.custom_icon_size }}" height="{{ section.settings.custom_icon_size }}" loading="lazy" class="custom-step-icon">
+                                {% else %}
+                                  {{ forloop.index }}
+                                {% endif %}
+                              </div>
                             {% endif %}
                             <h3 class="step-title">{{ block.settings.step_title }}</h3>
                           </div>
@@ -568,7 +657,13 @@
                     <div class="step-content">
                       <div class="step-title-container">
                         {% if section.settings.show_step_numbers %}
-                          <div class="number-icon" aria-hidden="true">{{ forloop.index }}</div>
+                          <div class="number-icon{% if block.settings.custom_step_icon != blank %} has-custom-icon{% endif %}" aria-hidden="true">
+                                {% if block.settings.custom_step_icon != blank %}
+                                  <img src="{{ block.settings.custom_step_icon | image_url: width: 120 }}" alt="{{ block.settings.custom_step_icon.alt | escape }}" width="{{ section.settings.custom_icon_size }}" height="{{ section.settings.custom_icon_size }}" loading="lazy" class="custom-step-icon">
+                                {% else %}
+                                  {{ forloop.index }}
+                                {% endif %}
+                              </div>
                         {% endif %}
                         <h3 class="step-title">{{ block.settings.step_title }}</h3>
                       </div>
@@ -628,7 +723,13 @@
                         <div class="step-content">
                           <div class="step-title-container">
                             {% if section.settings.show_step_numbers %}
-                              <div class="number-icon" aria-hidden="true">{{ forloop.index }}</div>
+                              <div class="number-icon{% if block.settings.custom_step_icon != blank %} has-custom-icon{% endif %}" aria-hidden="true">
+                                {% if block.settings.custom_step_icon != blank %}
+                                  <img src="{{ block.settings.custom_step_icon | image_url: width: 120 }}" alt="{{ block.settings.custom_step_icon.alt | escape }}" width="{{ section.settings.custom_icon_size }}" height="{{ section.settings.custom_icon_size }}" loading="lazy" class="custom-step-icon">
+                                {% else %}
+                                  {{ forloop.index }}
+                                {% endif %}
+                              </div>
                             {% endif %}
                             <h3 class="step-title">{{ block.settings.step_title }}</h3>
                           </div>
@@ -699,7 +800,13 @@
                     <div class="step-content">
                       <div class="step-title-container">
                         {% if section.settings.show_step_numbers %}
-                          <div class="number-icon" aria-hidden="true">{{ forloop.index }}</div>
+                          <div class="number-icon{% if block.settings.custom_step_icon != blank %} has-custom-icon{% endif %}" aria-hidden="true">
+                                {% if block.settings.custom_step_icon != blank %}
+                                  <img src="{{ block.settings.custom_step_icon | image_url: width: 120 }}" alt="{{ block.settings.custom_step_icon.alt | escape }}" width="{{ section.settings.custom_icon_size }}" height="{{ section.settings.custom_icon_size }}" loading="lazy" class="custom-step-icon">
+                                {% else %}
+                                  {{ forloop.index }}
+                                {% endif %}
+                              </div>
                         {% endif %}
                         <h3 class="step-title">{{ block.settings.step_title }}</h3>
                       </div>
@@ -885,6 +992,7 @@
 {% schema %}
 {
   "name": "Steps Results Section",
+  "tag": "section",
   "enabled_on": {
     "templates": ["index", "page", "product", "collection", "cart"]
   },
@@ -911,8 +1019,8 @@
     { "type": "range", "id": "background_overlay_opacity", "min": 0.0, "max": 1.0, "step": 0.1, "label": "Background Overlay Opacity", "default": 0.5, "info": "Opacity of the overlay (only used when overlay is enabled)" },
 
     { "type": "header", "content": "Section Padding" },
-    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 5, "unit": "px", "label": "Top Padding", "default": 60 },
-    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 5, "unit": "px", "label": "Bottom Padding", "default": 60 },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 1, "unit": "px", "label": "Top Padding", "default": 60 },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 1, "unit": "px", "label": "Bottom Padding", "default": 60 },
     { "type": "range", "id": "padding_horizontal", "min": 0, "max": 80, "step": 5, "unit": "px", "label": "Horizontal Padding", "default": 20 },
 
     { "type": "header", "content": "Section Borders" },
@@ -935,6 +1043,17 @@
       "default": "Whiten hands-free while you get ready.",
       "info": "Optional subtitle to display below the main title"
     },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Header Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center",
+      "info": "Alignment for the section title and subtitle"
+    },
 
     { "type": "header", "content": "Content Width" },
     {
@@ -955,7 +1074,9 @@
 
     { "type": "header", "content": "Text Sizing" },
     { "type": "range", "id": "title_size_desktop", "min": 24, "max": 60, "step": 2, "unit": "px", "label": "Title Size (Desktop)", "default": 34 },
+    { "type": "range", "id": "title_line_height_desktop", "min": 0.8, "max": 2, "step": 0.1, "label": "Title Line Height (Desktop)", "default": 1.2 },
     { "type": "range", "id": "title_size_mobile", "min": 20, "max": 60, "step": 2, "unit": "px", "label": "Title Size (Mobile)", "default": 34 },
+    { "type": "range", "id": "title_line_height_mobile", "min": 0.8, "max": 2, "step": 0.1, "label": "Title Line Height (Mobile)", "default": 1.2 },
     { "type": "range", "id": "subtitle_size_desktop", "min": 14, "max": 30, "step": 1, "unit": "px", "label": "Subtitle Size (Desktop)", "default": 18 },
     { "type": "range", "id": "subtitle_size_mobile", "min": 12, "max": 24, "step": 1, "unit": "px", "label": "Subtitle Size (Mobile)", "default": 14 },
     { "type": "range", "id": "step_title_size_desktop", "min": 14, "max": 32, "step": 1, "unit": "px", "label": "Step Title Size (Desktop)", "default": 18 },
@@ -1133,7 +1254,18 @@
       "info": "Maximum width of each step item on screens 750px and wider (layout dependent)"
     },
 
-    { "type": "checkbox", "id": "show_step_numbers", "label": "Show Step Numbers", "default": true },
+    { "type": "checkbox", "id": "show_step_numbers", "label": "Show Step Numbers/Icons", "default": true },
+    {
+      "type": "range",
+      "id": "custom_icon_size",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Custom Icon Size",
+      "default": 32,
+      "info": "Size of custom step icons (when uploaded per step)"
+    },
     { "type": "checkbox", "id": "show_step_images", "label": "Show Step Images", "default": true },
 
     { "type": "header", "content": "Carousel Settings" },
@@ -1164,7 +1296,36 @@
       ],
       "default": "horizontal"
     },
+    {
+      "type": "checkbox",
+      "id": "full_height_image_mobile",
+      "label": "Full Height image",
+      "default": true,
+      "info": "On mobile, if unchecked, the image will be contained within the card padding."
+    },
+    {
+      "type": "range",
+      "id": "mobile_image_width",
+      "min": 35,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "label": "Mobile Image Width (%)",
+      "default": 35,
+      "info": "Only applies when 'Full Height image' is OFF and 'Mobile Card Layout' is Horizontal."
+    },
 
+    {
+      "type": "range",
+      "id": "mobile_carousel_padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Mobile Carousel Slide Padding",
+      "default": 8,
+      "info": "Padding around each slide in the mobile carousel."
+    },
     { "type": "header", "content": "Navigation Buttons" },
     { 
       "type": "checkbox", 
@@ -1348,6 +1509,12 @@
       "type": "step",
       "name": "Step",
       "settings": [
+        {
+          "type": "image_picker",
+          "id": "custom_step_icon",
+          "label": "Custom Step Icon",
+          "info": "Upload an icon to replace the step number. Leave empty to show the number."
+        },
         { "type": "image_picker", "id": "step_image", "label": "Step Image" },
         {
           "type": "color",
@@ -1396,6 +1563,8 @@
         "number_border_width": 2,
         "number_border_style": "solid",
         "number_background_color": "#FFFFFF",
+        "title_line_height_desktop": 1.2,
+        "title_line_height_mobile": 1.2,
         "title_margin_bottom": 16,
         "title_margin_bottom_tablet": 12,
         "title_margin_bottom_mobile": 10,
@@ -1406,7 +1575,8 @@
         "show_step_numbers": true,
         "enable_mobile_carousel": false,
         "mobile_image_layout": "compact",
-        "mobile_card_layout": "horizontal"
+        "mobile_card_layout": "horizontal",
+        "mobile_carousel_padding": 8
       },
       "blocks": [
         {

@@ -62,10 +62,6 @@
   <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
 
-{%- if settings.cart_type == 'drawer' -%}
-  <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
-{%- endif -%}
-
 {% if template contains 'collection' or template contains 'product' %}
   <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'swatch.js' | asset_url }}" defer="defer"></script>

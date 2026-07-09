@@ -27,7 +27,7 @@
   {% endif %}
 {% endif %}
 
-<div class="custom-benefits-section-wrapper">
+<div class="custom-benefits-section-wrapper {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
   <div class="custom-benefits-section">
     <div class="custom-benefits-container">
       <div class="custom-header-section">
@@ -461,7 +461,7 @@
     font-size: {{ section.settings.heading_size_mobile }}px !important;
     color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% else %}{{ section.settings.heading_color }}{% endif %} !important;
     letter-spacing: var(--letter-spacing-heading) !important;
-    line-height: 1.1 !important;
+    line-height: {{ section.settings.heading_line_height_mobile }} !important;
     font-weight: var(--font-weight-bold) !important;
     margin-top: 0px !important;
     margin-bottom: 12px !important;
@@ -588,6 +588,7 @@
     .custom-benefits-section-wrapper h2.product-benefits-heading {
       font-size: {{ section.settings.heading_size_desktop }}px !important;
       letter-spacing: var(--letter-spacing-heading) !important;
+      line-height: {{ section.settings.heading_line_height_desktop }} !important;
     }
 
     .custom-benefits-section .custom-subtitle,
@@ -635,6 +636,22 @@
     z-index: 1;
   }
 
+  /* Image border */
+  {% if section.settings.enable_image_border %}
+    .custom-feature-image img,
+    .custom-feature-video,
+    .custom-video-element,
+    .custom-placeholder-image svg {
+      border: {{ section.settings.image_border_width | default: 1 }}px {{ section.settings.image_border_style | default: 'solid' }} {{ section.settings.image_border_color | default: '#000000' }} !important;
+    }
+  {% endif %}
+  .custom-feature-image img,
+  .custom-feature-video,
+  .custom-video-element,
+  .custom-placeholder-image svg {
+    border-radius: {{ section.settings.image_border_radius | default: 8 }}px !important;
+  }
+
   /* Mobile full-width image styling */
   @media screen and (max-width: 767px) {
     {% if section.settings.mobile_image_full_width %}
@@ -675,6 +692,7 @@
 {% schema %}
 {
   "name": "Product Benefits",
+  "tag": "section",
   "settings": [
     {
       "type": "header",
@@ -766,6 +784,24 @@
       "unit": "px",
       "label": "Heading Size (Desktop)",
       "default": 35
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height_mobile",
+      "min": 0.4,
+      "max": 2,
+      "step": 0.1,
+      "label": "Heading Line Height (Mobile)",
+      "default": 1.1
+    },
+    {
+      "type": "range",
+      "id": "heading_line_height_desktop",
+      "min": 0.4,
+      "max": 2,
+      "step": 0.1,
+      "label": "Heading Line Height (Desktop)",
+      "default": 1.1
     },
     {
       "type": "range",
@@ -1170,6 +1206,53 @@
             "label": "Image Bottom Margin",
             "default": 20,
             "info": "Space below the image"
+          },
+          {
+            "type": "header",
+            "content": "Image Border"
+          },
+          {
+            "type": "checkbox",
+            "id": "enable_image_border",
+            "label": "Enable Image Border",
+            "default": false
+          },
+          {
+            "type": "range",
+            "id": "image_border_width",
+            "min": 1,
+            "max": 10,
+            "step": 1,
+            "unit": "px",
+            "label": "Border Width",
+            "default": 1
+          },
+          {
+            "type": "select",
+            "id": "image_border_style",
+            "label": "Border Style",
+            "options": [
+              { "value": "solid", "label": "Solid" },
+              { "value": "dashed", "label": "Dashed" },
+              { "value": "dotted", "label": "Dotted" }
+            ],
+            "default": "solid"
+          },
+          {
+            "type": "color",
+            "id": "image_border_color",
+            "label": "Border Color",
+            "default": "#000000"
+          },
+          {
+            "type": "range",
+            "id": "image_border_radius",
+            "min": 0,
+            "max": 50,
+            "step": 1,
+            "unit": "px",
+            "label": "Image Border Radius",
+            "default": 8
           },
     {
       "type": "color",

@@ -41,7 +41,9 @@
 }
 .global-accent-text {
   margin-left: 2px;
-  font-family: var(--accent-text-font-family), var(--font-body-family);
+  font-family: var(--font-accent-family, var(--accent-text-font-family, var(--font-body-family))) !important;
+  font-style: var(--font-accent-style, normal) !important;
+  font-weight: var(--font-accent-weight, 400) !important;
   letter-spacing: var(--letter-spacing-heading) !important;
 }
 .comparison-subheading {
@@ -128,6 +130,7 @@
   width: 13px;
   height: 13px;
   display: block;
+  overflow: visible;
 }
 .feature-icon {
   margin-right: 14px;

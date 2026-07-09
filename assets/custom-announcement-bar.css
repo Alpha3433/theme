@@ -1,7 +1,7 @@
 .announcement-bar-section {
   position: relative;
   z-index: 2;
-  padding: 5px 20px;
+  padding: 0px 0px;
   text-align: center;
 }
 .announcement-bar-section p {

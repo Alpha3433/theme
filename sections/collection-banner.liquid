@@ -229,7 +229,7 @@
   {% endif %}
 </style>
 
-<section class="collection-banner section-{{ section.id }} {% if section.settings.full_width_layout %}collection-banner--full{% endif %}" data-component="collection-banner">
+<section class="collection-banner section-{{ section.id }} {% if section.settings.full_width_layout %}collection-banner--full{% endif %} {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}" data-component="collection-banner">
   <div class="collection-banner__container">
     <div class="collection-banner__flex collection-banner__flex--image-{{ section.settings.image_position }}">
       <!-- Content -->

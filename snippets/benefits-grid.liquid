@@ -30,11 +30,12 @@
     >
       {% if benefit_1_use_image and benefit_1_image != blank %}
         <img
-          src="{{ benefit_1_image | img_url: '50x' }}"
+          src="{{ benefit_1_image | image_url: width: 100 }}"
           alt="{{ benefit_1_text | escape }}"
           style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
-          width=""
-          height=""
+          width="{{ icon_size }}"
+          height="{{ icon_size }}"
+          loading="lazy"
         >
       {% elsif benefit_1_use_custom_icon and benefit_1_custom_icon != blank %}
         {{ benefit_1_custom_icon }}
@@ -69,11 +70,12 @@
     >
       {% if benefit_2_use_image and benefit_2_image != blank %}
         <img
-          src="{{ benefit_2_image | img_url: '50x' }}"
+          src="{{ benefit_2_image | image_url: width: 100 }}"
           alt="{{ benefit_2_text | escape }}"
           style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
-          width=""
-          height=""
+          width="{{ icon_size }}"
+          height="{{ icon_size }}"
+          loading="lazy"
         >
       {% elsif benefit_2_use_custom_icon and benefit_2_custom_icon != blank %}
         {{ benefit_2_custom_icon }}
@@ -105,11 +107,12 @@
     >
       {% if benefit_3_use_image and benefit_3_image != blank %}
         <img
-          src="{{ benefit_3_image | img_url: '50x' }}"
+          src="{{ benefit_3_image | image_url: width: 100 }}"
           alt="{{ benefit_3_text | escape }}"
           style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
-          width=""
-          height=""
+          width="{{ icon_size }}"
+          height="{{ icon_size }}"
+          loading="lazy"
         >
       {% elsif benefit_3_use_custom_icon and benefit_3_custom_icon != blank %}
         {{ benefit_3_custom_icon }}
@@ -147,11 +150,12 @@
     >
       {% if benefit_4_use_image and benefit_4_image != blank %}
         <img
-          src="{{ benefit_4_image | img_url: '50x' }}"
+          src="{{ benefit_4_image | image_url: width: 100 }}"
           alt="{{ benefit_4_text | escape }}"
           style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
-          width=""
-          height=""
+          width="{{ icon_size }}"
+          height="{{ icon_size }}"
+          loading="lazy"
         >
       {% elsif benefit_4_use_custom_icon and benefit_4_custom_icon != blank %}
         {{ benefit_4_custom_icon }}

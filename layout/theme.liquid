@@ -26,7 +26,12 @@
     <meta name="theme-color" content="">
     <link rel="canonical" href="{{ canonical_url }}">
 
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif -%}
+
     {% comment %} Core Scripts {% endcomment %}
+    <script src="{{ 'product-form-controller.js' | asset_url }}"></script>  <!-- Not deferred because it's used immediately -->
     <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
@@ -39,6 +44,14 @@
     {%- if settings.animations_reveal_on_scroll -%}
       <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
+
+    {% comment %} Subscription plans JSON (PDP only): window.__subscriptionPlansData from product object. {% endcomment %}
+    {% if template.name == 'product' %}
+      {% render 'subscription-plans-data', product: product %}
+    {% endif %}
+
+    {% comment %} Loaders: jQuery/Swiper on demand – no defer so sections can call before body parses {% endcomment %}
+    <script src="{{ 'theme-loaders.js' | asset_url }}"></script>
 
     {% comment %} Font Loading {% endcomment %}
     {%- unless settings.type_header_font.system? and settings.type_body_font.system? -%}
@@ -130,64 +143,8 @@
       }
 
       document.addEventListener('alpine:init', function() {
-        // Check if there's a premium-attachment-kit block with product-specific free gifts
-        const premiumKit = document.querySelector('.premium-attachment-kit');
-        let relyOnProductId = "{{ settings.rely_on_product.id }}";
-        let freeGiftProductIds = [];
-        let firstFreeGiftId = null;
-        
-        if (premiumKit) {
-          const blockFreeGiftIds = premiumKit.getAttribute('data-free-gift-product-ids');
-          const blockRelyOnProductId = premiumKit.getAttribute('data-rely-on-product-id');
-          
-          if (blockFreeGiftIds && blockFreeGiftIds.trim() !== '') {
-            freeGiftProductIds = blockFreeGiftIds.split(',').filter(id => id.trim() !== '');
-            firstFreeGiftId = freeGiftProductIds.length > 0 ? freeGiftProductIds[0] : null;
-          }
-          
-          if (blockRelyOnProductId && blockRelyOnProductId.trim() !== '') {
-            relyOnProductId = blockRelyOnProductId;
-          }
-        }
-        
-        // Fallback to global settings if no block-specific gifts found
-        if (freeGiftProductIds.length === 0) {
-          freeGiftProductIds = [
-            "{{ settings['item_1_product'].id | default: '0' }}",
-            "{{ settings['item_2_product'].id | default: '0' }}",
-            "{{ settings['item_3_product'].id | default: '0' }}",
-            "{{ settings['item_4_product'].id | default: '0' }}",
-            "{{ settings['item_5_product'].id | default: '0' }}",
-            "{{ settings['item_6_product'].id | default: '0' }}",
-            "{{ settings['item_7_product'].id | default: '0' }}",
-            "{{ settings['item_8_product'].id | default: '0' }}",
-            "{{ settings['item_9_product'].id | default: '0' }}",
-            "{{ settings['item_10_product'].id | default: '0' }}"
-          ].filter(gift => gift !== "0");
-          firstFreeGiftId = freeGiftProductIds.length > 0 ? freeGiftProductIds[0] : null;
-        }
-        
-        if (!relyOnProductId || relyOnProductId === '') {
-          relyOnProductId = "{{ settings.rely_on_product.id }}";
-        }
-        
-        Alpine.store(AlpineStoreKeys.FREE_GIFT_STORE, { relyOnProductId, freeGiftProductIds });
-
         let freeShippingThreshhold = {{ settings.product_free_shipping | default: 0 | times: 100 }};
         Alpine.store(AlpineStoreKeys.FREE_SHIPPING_THRESHHOLD_STORE, { freeShippingThreshhold });
-
-        // Update free-product-form ONLY if no premium-attachment-kit block is present
-        // If premium-attachment-kit is present, free gifts are handled directly in the product form
-        if (firstFreeGiftId && !premiumKit) {
-          document.addEventListener('DOMContentLoaded', function() {
-            const freeProductInput = document.querySelector('.free-product-form .product-variant-id');
-            if (freeProductInput) {
-              freeProductInput.value = firstFreeGiftId;
-            }
-          });
-        }
-
-        elxr.log('FreeGiftSetup', { relyOnProductId, freeGiftProductIds, firstFreeGiftId, source: premiumKit ? 'block' : 'global' }, 'debug');
         elxr.log('FreeShippingThreshholdSetup', { freeShippingThreshhold }, 'debug');
       });
     </script>
@@ -278,14 +235,9 @@
 
     {% comment %} Base Stylesheets {% endcomment %}
     {{ 'base.css' | asset_url | stylesheet_tag }}
-    {{ 'custom-product-grid.css' | asset_url | stylesheet_tag }}
-    {{ 'card-media-fix.css' | asset_url | stylesheet_tag }}
-    {{ 'universal-font-fix.css' | asset_url | stylesheet_tag }}
-    {{ 'app-typography-fix.css' | asset_url | stylesheet_tag }}
     {{ 'global-headings.css' | asset_url | stylesheet_tag }}
     {{ 'accent-typography.css' | asset_url | stylesheet_tag }}
     {{ 'selective-heading-fonts.css' | asset_url | stylesheet_tag }}
-    {{ 'size-chart.css' | asset_url | stylesheet_tag }}
     {{ 'custom.css' | asset_url | stylesheet_tag }}
     <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
 
@@ -356,7 +308,7 @@
   <body
     class="
       color-1
-      {% if settings.animations_hover_elements != 'none' %}animate--hover-{{ settings.animations_hover_elements }}{% endif %}
+      {% if settings.animations_hover_elements %}animate--hover-vertical-lift{% endif %}
       {% if settings.enable_global_border_styling %} global-border-styling{% endif %}
       {% if settings.h1_use_heading_font %} h1-heading-font{% endif %}
       {% if settings.h2_use_heading_font %} h2-heading-font{% endif %}
@@ -372,6 +324,7 @@
       data-global-border-width="{{ settings.global_border_width }}"
     {% endif %}
     data-enable-global-borders="{{ settings.enable_global_border_styling }}"
+    data-animations-reveal-on-scroll="{{ settings.animations_reveal_on_scroll }}"
   >
     {% if settings.type_accent_font != 'inherit' and settings.type_accent_font != 'serif' %}
       <span class="accent-font-loader" aria-hidden="true"></span>
@@ -453,6 +406,11 @@
         document.documentElement.classList.add('shopify-design-mode');
       }
     </script>
+
+    {% if request.design_mode %}
+      {{ 'toast.css' | asset_url | stylesheet_tag }}
+      <script src="{{ 'theme-editor-toast.js' | asset_url }}" defer></script>
+    {% endif %}
 
     {% comment %} Content Protection JavaScript {% endcomment %}
     {% if settings.enable_content_protection %}

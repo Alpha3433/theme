@@ -17,13 +17,39 @@
 
 {%- liquid
   assign layout_type = block.settings.layout_type | default: 'horizontal'
+
+  # Determine which bundle should be preselected (setting depends on layout)
+  if layout_type == 'grid_2x2'
+    assign preselected_bundle = block.settings.preselected_bundle_4 | default: 'first_visible'
+  else
+    assign preselected_bundle = block.settings.preselected_bundle_3 | default: 'first_visible'
+  endif
+  assign first_visible_bundle = 0
+
+  if preselected_bundle and preselected_bundle != 'first_visible'
+    case preselected_bundle
+      when 'bundle_1'
+        assign first_visible_bundle = 1
+      when 'bundle_2'
+        assign first_visible_bundle = 2
+      when 'bundle_3'
+        assign first_visible_bundle = 3
+      when 'bundle_4'
+        assign first_visible_bundle = 4
+    endcase
+  endif
+
+  # Fallback: if nothing resolved, default to first bundle
+  if first_visible_bundle == 0
+    assign first_visible_bundle = 1
+  endif
 -%}
 
 <div
   x-data="quantityBundleComponent()"
   x-init="init()"
   class="quantity-bundle-selector{% if layout_type == 'grid_2x2' %} layout-grid-2x2{% endif %}{% if layout_type == 'grid_2x2' and block.settings.grid_show_images == false %} no-grid-images{% endif %}"
-  data-custom-price="true"
+  data-custom-price="{{ enable_custom_pricing }}"
   data-hide-compare="{{ block.settings.hide_compare_price }}"
   data-layout-type="{{ layout_type }}"
   style="
@@ -65,12 +91,16 @@
       assign quantity_3 = block.settings.quantity_3 | default: 3
       assign quantity_4 = block.settings.quantity_4 | default: 4
 
-      assign price_1_setting = block.settings.price_1
-      assign price_2_setting = block.settings.price_2
-      assign price_3_setting = block.settings.price_3
-      assign price_4_setting = block.settings.price_4
+      # Custom Pricing Settings
+      if block.settings.enable_custom_pricing == false or block.settings.enable_custom_pricing == 'false'
+        assign enable_custom_pricing = false
+      else
+        assign enable_custom_pricing = block.settings.enable_custom_pricing | default: false
+      endif
+      assign selected_custom_price_format = block.settings.selected_custom_price_format | default: 'amount'
 
-      assign price_1 = base_price
+      # Initialize prices with base calculations
+      assign price_1 = base_price | times: quantity_1
       assign price_2 = base_price | times: quantity_2
       assign price_3 = base_price | times: quantity_3
       assign price_4 = base_price | times: quantity_4
@@ -80,28 +110,7 @@
       assign uses_variant_price_3 = true
       assign uses_variant_price_4 = true
 
-      if price_1_setting != blank and price_1_setting != 0
-        assign price_1 = price_1_setting | times: 100
-        assign uses_variant_price_1 = false
-      endif
-      if price_2_setting != blank and price_2_setting != 0
-        assign price_2 = price_2_setting | times: 100
-        assign uses_variant_price_2 = false
-      endif
-      if price_3_setting != blank and price_3_setting != 0
-        assign price_3 = price_3_setting | times: 100
-        assign uses_variant_price_3 = false
-      endif
-      if price_4_setting != blank and price_4_setting != 0
-        assign price_4 = price_4_setting | times: 100
-        assign uses_variant_price_4 = false
-      endif
-
-      assign compare_price_1_raw = block.settings.compare_price_1
-      assign compare_price_2_raw = block.settings.compare_price_2
-      assign compare_price_3_raw = block.settings.compare_price_3
-      assign compare_price_4_raw = block.settings.compare_price_4
-
+      # Initialize compare prices with base compare price
       assign compare_price_1 = 0
       assign compare_price_2 = 0
       assign compare_price_3 = 0
@@ -112,32 +121,176 @@
       assign uses_variant_compare_3 = false
       assign uses_variant_compare_4 = false
 
-      if compare_price_1_raw and compare_price_1_raw != blank and compare_price_1_raw > 0
-        assign compare_price_1 = compare_price_1_raw | times: 100
-      elsif base_compare_price and base_compare_price > 0
-        assign compare_price_1 = base_compare_price
+      if base_compare_price and base_compare_price > 0
+        assign compare_price_1 = base_compare_price | times: quantity_1
+        assign compare_price_2 = base_compare_price | times: quantity_2
+        assign compare_price_3 = base_compare_price | times: quantity_3
+        assign compare_price_4 = base_compare_price | times: quantity_4
         assign uses_variant_compare_1 = true
-      endif
-
-      if compare_price_2_raw and compare_price_2_raw != blank and compare_price_2_raw > 0
-        assign compare_price_2 = compare_price_2_raw | times: 100
-      elsif base_compare_price and base_compare_price > 0
-        assign compare_price_2 = base_compare_price
         assign uses_variant_compare_2 = true
-      endif
-
-      if compare_price_3_raw and compare_price_3_raw != blank and compare_price_3_raw > 0
-        assign compare_price_3 = compare_price_3_raw | times: 100
-      elsif base_compare_price and base_compare_price > 0
-        assign compare_price_3 = base_compare_price
         assign uses_variant_compare_3 = true
+        assign uses_variant_compare_4 = true
       endif
 
-      if compare_price_4_raw and compare_price_4_raw != blank and compare_price_4_raw > 0
-        assign compare_price_4 = compare_price_4_raw | times: 100
-      elsif base_compare_price and base_compare_price > 0
-        assign compare_price_4 = base_compare_price
-        assign uses_variant_compare_4 = true
+      # Custom Pricing Logic for Bundle Options
+      # Bundle Option 1
+      if enable_custom_pricing and block.settings.enable_bundle_1_custom_price
+        assign bundle_1_custom_price_percentage = block.settings.bundle_1_custom_price_percentage
+        assign bundle_1_custom_price_amount = block.settings.bundle_1_custom_price_amount
+        assign bundle_1_bogo_multiplier = block.settings.bundle_1_bogo_multiplier
+        assign bundle_1_compare_at_price = block.settings.bundle_1_compare_at_price
+
+        case selected_custom_price_format
+          when 'percentage'
+            if bundle_1_custom_price_percentage != blank and bundle_1_custom_price_percentage != ''
+              assign discount_percent = bundle_1_custom_price_percentage | plus: 0
+              if discount_percent > 0 and discount_percent <= 100
+                assign discount_amount = base_price | times: discount_percent | divided_by: 100
+                assign discounted_price = base_price | minus: discount_amount
+                assign price_1 = discounted_price | times: quantity_1
+                assign uses_variant_price_1 = false
+              endif
+            endif
+          when 'amount'
+            if bundle_1_custom_price_amount != blank and bundle_1_custom_price_amount != ''
+              assign price_amount_num = bundle_1_custom_price_amount | plus: 0
+              assign price_1 = price_amount_num | times: 100 | times: quantity_1 | round
+              assign uses_variant_price_1 = false
+            endif
+          when 'bogo'
+            if bundle_1_bogo_multiplier != blank and bundle_1_bogo_multiplier != '' and bundle_1_bogo_multiplier > 0
+              assign multiplier_num = bundle_1_bogo_multiplier | plus: 0
+              assign variant_price = current_product.price
+              assign price_1 = variant_price | times: multiplier_num
+              assign uses_variant_price_1 = false
+            endif
+        endcase
+
+        if bundle_1_compare_at_price != blank and bundle_1_compare_at_price != ''
+          assign compare_amount_num = bundle_1_compare_at_price | plus: 0
+          assign compare_price_1 = compare_amount_num | times: 100 | times: quantity_1 | round
+          assign uses_variant_compare_1 = false
+        endif
+      endif
+
+      # Bundle Option 2
+      if enable_custom_pricing and block.settings.enable_bundle_2_custom_price
+        assign bundle_2_custom_price_percentage = block.settings.bundle_2_custom_price_percentage
+        assign bundle_2_custom_price_amount = block.settings.bundle_2_custom_price_amount
+        assign bundle_2_bogo_multiplier = block.settings.bundle_2_bogo_multiplier
+        assign bundle_2_compare_at_price = block.settings.bundle_2_compare_at_price
+
+        case selected_custom_price_format
+          when 'percentage'
+            if bundle_2_custom_price_percentage != blank and bundle_2_custom_price_percentage != ''
+              assign discount_percent = bundle_2_custom_price_percentage | plus: 0
+              if discount_percent > 0 and discount_percent <= 100
+                assign discount_amount = base_price | times: discount_percent | divided_by: 100
+                assign discounted_price = base_price | minus: discount_amount
+                assign price_2 = discounted_price | times: quantity_2
+                assign uses_variant_price_2 = false
+              endif
+            endif
+          when 'amount'
+            if bundle_2_custom_price_amount != blank and bundle_2_custom_price_amount != ''
+              assign price_amount_num = bundle_2_custom_price_amount | plus: 0
+              assign price_2 = price_amount_num | times: 100 | times: quantity_2 | round
+              assign uses_variant_price_2 = false
+            endif
+          when 'bogo'
+            if bundle_2_bogo_multiplier != blank and bundle_2_bogo_multiplier != '' and bundle_2_bogo_multiplier > 0
+              assign multiplier_num = bundle_2_bogo_multiplier | plus: 0
+              assign variant_price = current_product.price
+              assign price_2 = variant_price | times: multiplier_num
+              assign uses_variant_price_2 = false
+            endif
+        endcase
+
+        if bundle_2_compare_at_price != blank and bundle_2_compare_at_price != ''
+          assign compare_amount_num = bundle_2_compare_at_price | plus: 0
+          assign compare_price_2 = compare_amount_num | times: 100 | times: quantity_2 | round
+          assign uses_variant_compare_2 = false
+        endif
+      endif
+
+      # Bundle Option 3
+      if enable_custom_pricing and block.settings.enable_bundle_3_custom_price
+        assign bundle_3_custom_price_percentage = block.settings.bundle_3_custom_price_percentage
+        assign bundle_3_custom_price_amount = block.settings.bundle_3_custom_price_amount
+        assign bundle_3_bogo_multiplier = block.settings.bundle_3_bogo_multiplier
+        assign bundle_3_compare_at_price = block.settings.bundle_3_compare_at_price
+
+        case selected_custom_price_format
+          when 'percentage'
+            if bundle_3_custom_price_percentage != blank and bundle_3_custom_price_percentage != ''
+              assign discount_percent = bundle_3_custom_price_percentage | plus: 0
+              if discount_percent > 0 and discount_percent <= 100
+                assign discount_amount = base_price | times: discount_percent | divided_by: 100
+                assign discounted_price = base_price | minus: discount_amount
+                assign price_3 = discounted_price | times: quantity_3
+                assign uses_variant_price_3 = false
+              endif
+            endif
+          when 'amount'
+            if bundle_3_custom_price_amount != blank and bundle_3_custom_price_amount != ''
+              assign price_amount_num = bundle_3_custom_price_amount | plus: 0
+              assign price_3 = price_amount_num | times: 100 | times: quantity_3 | round
+              assign uses_variant_price_3 = false
+            endif
+          when 'bogo'
+            if bundle_3_bogo_multiplier != blank and bundle_3_bogo_multiplier != '' and bundle_3_bogo_multiplier > 0
+              assign multiplier_num = bundle_3_bogo_multiplier | plus: 0
+              assign variant_price = current_product.price
+              assign price_3 = variant_price | times: multiplier_num
+              assign uses_variant_price_3 = false
+            endif
+        endcase
+
+        if bundle_3_compare_at_price != blank and bundle_3_compare_at_price != ''
+          assign compare_amount_num = bundle_3_compare_at_price | plus: 0
+          assign compare_price_3 = compare_amount_num | times: 100 | times: quantity_3 | round
+          assign uses_variant_compare_3 = false
+        endif
+      endif
+
+      # Bundle Option 4
+      if enable_custom_pricing and block.settings.enable_bundle_4_custom_price
+        assign bundle_4_custom_price_percentage = block.settings.bundle_4_custom_price_percentage
+        assign bundle_4_custom_price_amount = block.settings.bundle_4_custom_price_amount
+        assign bundle_4_bogo_multiplier = block.settings.bundle_4_bogo_multiplier
+        assign bundle_4_compare_at_price = block.settings.bundle_4_compare_at_price
+
+        case selected_custom_price_format
+          when 'percentage'
+            if bundle_4_custom_price_percentage != blank and bundle_4_custom_price_percentage != ''
+              assign discount_percent = bundle_4_custom_price_percentage | plus: 0
+              if discount_percent > 0 and discount_percent <= 100
+                assign discount_amount = base_price | times: discount_percent | divided_by: 100
+                assign discounted_price = base_price | minus: discount_amount
+                assign price_4 = discounted_price | times: quantity_4
+                assign uses_variant_price_4 = false
+              endif
+            endif
+          when 'amount'
+            if bundle_4_custom_price_amount != blank and bundle_4_custom_price_amount != ''
+              assign price_amount_num = bundle_4_custom_price_amount | plus: 0
+              assign price_4 = price_amount_num | times: 100 | times: quantity_4 | round
+              assign uses_variant_price_4 = false
+            endif
+          when 'bogo'
+            if bundle_4_bogo_multiplier != blank and bundle_4_bogo_multiplier != '' and bundle_4_bogo_multiplier > 0
+              assign multiplier_num = bundle_4_bogo_multiplier | plus: 0
+              assign variant_price = current_product.price
+              assign price_4 = variant_price | times: multiplier_num
+              assign uses_variant_price_4 = false
+            endif
+        endcase
+
+        if bundle_4_compare_at_price != blank and bundle_4_compare_at_price != ''
+          assign compare_amount_num = bundle_4_compare_at_price | plus: 0
+          assign compare_price_4 = compare_amount_num | times: 100 | times: quantity_4 | round
+          assign uses_variant_compare_4 = false
+        endif
       endif
 
       assign title_1 = block.settings.title_1 | default: 'Single'
@@ -339,21 +492,45 @@
         data-price="{{ current_price }}"
         data-compare-price="{{ current_compare_price }}"
         data-title="{{ current_title | escape }}"
-        {% if forloop.index == 1 %}
+        {% if forloop.index == first_visible_bundle %}
           data-selected="true"
         {% endif %}
         {% if forloop.index == 1 %}
           data-uses-variant-price="{{ uses_variant_price_1 | json }}"
           data-uses-variant-compare="{{ uses_variant_compare_1 | json }}"
+          data-enable-custom-pricing="{% if enable_custom_pricing and block.settings.enable_bundle_1_custom_price %}true{% else %}false{% endif %}"
+          data-custom-price-format="{{ selected_custom_price_format }}"
+          data-custom-price-percentage="{{ block.settings.bundle_1_custom_price_percentage }}"
+          data-custom-price-amount="{{ block.settings.bundle_1_custom_price_amount }}"
+          data-bogo-multiplier="{{ block.settings.bundle_1_bogo_multiplier }}"
+          data-custom-compare-at-price="{{ block.settings.bundle_1_compare_at_price }}"
         {% elsif forloop.index == 2 %}
           data-uses-variant-price="{{ uses_variant_price_2 | json }}"
           data-uses-variant-compare="{{ uses_variant_compare_2 | json }}"
+          data-enable-custom-pricing="{% if enable_custom_pricing and block.settings.enable_bundle_2_custom_price %}true{% else %}false{% endif %}"
+          data-custom-price-format="{{ selected_custom_price_format }}"
+          data-custom-price-percentage="{{ block.settings.bundle_2_custom_price_percentage }}"
+          data-custom-price-amount="{{ block.settings.bundle_2_custom_price_amount }}"
+          data-bogo-multiplier="{{ block.settings.bundle_2_bogo_multiplier }}"
+          data-custom-compare-at-price="{{ block.settings.bundle_2_compare_at_price }}"
         {% elsif forloop.index == 3 %}
           data-uses-variant-price="{{ uses_variant_price_3 | json }}"
           data-uses-variant-compare="{{ uses_variant_compare_3 | json }}"
+          data-enable-custom-pricing="{% if enable_custom_pricing and block.settings.enable_bundle_3_custom_price %}true{% else %}false{% endif %}"
+          data-custom-price-format="{{ selected_custom_price_format }}"
+          data-custom-price-percentage="{{ block.settings.bundle_3_custom_price_percentage }}"
+          data-custom-price-amount="{{ block.settings.bundle_3_custom_price_amount }}"
+          data-bogo-multiplier="{{ block.settings.bundle_3_bogo_multiplier }}"
+          data-custom-compare-at-price="{{ block.settings.bundle_3_compare_at_price }}"
         {% elsif forloop.index == 4 %}
           data-uses-variant-price="{{ uses_variant_price_4 | json }}"
           data-uses-variant-compare="{{ uses_variant_compare_4 | json }}"
+          data-enable-custom-pricing="{% if enable_custom_pricing and block.settings.enable_bundle_4_custom_price %}true{% else %}false{% endif %}"
+          data-custom-price-format="{{ selected_custom_price_format }}"
+          data-custom-price-percentage="{{ block.settings.bundle_4_custom_price_percentage }}"
+          data-custom-price-amount="{{ block.settings.bundle_4_custom_price_amount }}"
+          data-bogo-multiplier="{{ block.settings.bundle_4_bogo_multiplier }}"
+          data-custom-compare-at-price="{{ block.settings.bundle_4_compare_at_price }}"
         {% endif %}
       >
         {% if current_show_badge == 'true' and current_badge != blank %}
@@ -1548,23 +1725,36 @@
       cards: [],
       quantityInput: null,
       productForm: null,
+      enableCustomPricing: false,
+      originalPrices: {}, // Store original prices for subscription discount calculation
       init() {
-        this.cards = [...this.$root.querySelectorAll('.quantity-bundle-card')].map(card => ({
-          el: card,
-          quantity: Number(card.dataset.quantity) || 1,
-          price: Number(card.dataset.price) || 0,
-          compare: Number(card.dataset.comparePrice) || 0,
-          usesVariantPrice: card.dataset.usesVariantPrice === 'true',
-          usesVariantCompare: card.dataset.usesVariantCompare === 'true'
-        }));
-
-        this.quantityInput = document.querySelector('input[name="quantity"]');
-        this.productForm = document.querySelector('.shop-add-to-cart-wrapper form[action="/cart/add"]');
-
-        this.updateSelectedVariantFromInput();
-        this.updateCardPricing();
+        if (typeof Elixir_ProductFormExists !== 'function' || !Elixir_ProductFormExists()) return;
+        this.enableCustomPricing = this.$root.dataset.customPrice === 'true';
         
-        // Initialize quantity input with the initially selected card's quantity
+        this.cards = [...this.$root.querySelectorAll('.quantity-bundle-card')].map(card => {
+          const price = Number(card.dataset.price) || 0;
+          return {
+            el: card,
+            quantity: Number(card.dataset.quantity) || 1,
+            price: price,
+            compare: Number(card.dataset.comparePrice) || 0,
+            usesVariantPrice: card.dataset.usesVariantPrice === 'true',
+            usesVariantCompare: card.dataset.usesVariantCompare === 'true',
+            originalPrice: price // Store original price for subscription calculations
+          };
+        });
+
+        // Store original prices
+        this.cards.forEach(card => {
+          this.originalPrices[card.quantity] = card.originalPrice;
+        });
+
+        this.productForm = (typeof Elixir_GetProductForm === 'function' && Elixir_GetProductForm()) || document.querySelector('.shop-add-to-cart-wrapper form[action="/cart/add"]');
+        this.quantityInput = this.productForm ? this.productForm.querySelector('input[name="quantity"]') : null;
+        if (!this.quantityInput) this.quantityInput = document.querySelector('input[name="quantity"]');
+
+        this.refreshQuantityBundleDisplay();
+
         const initiallySelectedCard = this.cards.find(card => {
           const isSelected = card.el.getAttribute('data-selected') === 'true';
           const radio = card.el.querySelector('.quantity-bundle-radio');
@@ -1573,37 +1763,28 @@
         });
         if (initiallySelectedCard) {
           this.updateQuantityInput(initiallySelectedCard.quantity);
-          this.updateCheckoutPricing(initiallySelectedCard);
         }
         
         this.bindCardClicks();
         this.bindSellingPlanListeners();
         this.watchVariantChanges();
         this.bindExternalVariantEvents();
+        this.bindSubscriptionContextListener();
       },
       getVariantInput() {
         return document.querySelector('.shop-add-to-cart-wrapper input[name="id"], .shop-add-to-cart-wrapper input[name="product-id"]');
       },
       updateSelectedVariantFromInput() {
-        const variantInput = this.getVariantInput();
-        if (variantInput?.value) {
-          this.selectedVariantId = variantInput.value;
+        if (typeof Elixir_GetProductFormVariantId === 'function') {
+          const id = Elixir_GetProductFormVariantId();
+          if (id != null) this.selectedVariantId = String(id);
+          return;
         }
+        const variantInput = this.getVariantInput();
+        if (variantInput?.value) this.selectedVariantId = variantInput.value;
       },
       getCurrentVariant() {
         return this.variants.find(v => v.id.toString() === this.selectedVariantId?.toString()) || null;
-      },
-      formatMoney(value) {
-        const cents = Math.round(Number(value) || 0);
-        try {
-          if (typeof Shopify !== 'undefined' && Shopify.formatMoney) {
-            return Shopify.formatMoney(cents, Shopify.money_format || this.moneyFormat || '{{amount}}');
-          }
-        } catch (err) {}
-
-        const normalized = (cents / 100).toFixed(2);
-        const format = this.moneyFormat || '${{amount}}';
-        return format.replace('{{amount}}', normalized);
       },
       getSubscriptionPrice(basePrice) {
         const sealElement = document.querySelector('.sealsubs-target-element');
@@ -1639,56 +1820,71 @@
           return basePrice;
         }
       },
-      updateCardPricing() {
+      /**
+       * Single source for bundle card prices: uses Elixir_GetDisplayPrice so prices
+       * respect subscription and stay in sync with variant/quantity. Always multiplies by quantity.
+       */
+      refreshQuantityBundleDisplay() {
+        if (typeof Elixir_GetDisplayPrice !== 'function' || typeof Elixir_FormatMoney !== 'function') return;
+        this.updateSelectedVariantFromInput();
         const variant = this.getCurrentVariant();
-        const basePrice = variant?.price;
-        const baseCompare = variant?.compare_at_price;
+        const basePrice = variant && (typeof variant.price === 'number' || typeof variant.price === 'string') ? Number(variant.price) : null;
+        const baseCompare = variant && (variant.compare_at_price != null) ? Number(variant.compare_at_price) || 0 : 0;
 
         this.cards.forEach(card => {
-          if (card.usesVariantPrice && typeof basePrice === 'number') {
-            card.price = basePrice * card.quantity;
-            card.el.dataset.price = card.price;
+          let priceCents = Number(card.el.dataset.price) || 0;
+          let compareCents = Number(card.el.dataset.comparePrice) || 0;
+          if (card.usesVariantPrice && basePrice != null) {
+            priceCents = basePrice * card.quantity;
+            compareCents = baseCompare * card.quantity;
           }
-          if (card.usesVariantCompare && typeof baseCompare === 'number' && baseCompare > 0) {
-            card.compare = baseCompare * card.quantity;
-            card.el.dataset.comparePrice = card.compare;
-          }
-
+          const perUnitPrice = card.quantity > 0 ? Math.round(priceCents / card.quantity) : priceCents;
+          const perUnitCompare = card.quantity > 0 ? Math.round(compareCents / card.quantity) : compareCents;
+          const result = Elixir_GetDisplayPrice({
+            price: perUnitPrice,
+            compareAtPrice: perUnitCompare,
+            quantity: card.quantity,
+            multiplyByQuantity: true,
+            applySubscriptionDiscount: true
+          });
+          card.price = result.price;
+          card.compare = result.compareAtPrice;
+          card.el.dataset.price = result.price;
           const radio = card.el.querySelector('.quantity-bundle-radio');
-          if (radio) {
-            radio.dataset.price = card.price;
-          }
-
+          if (radio) radio.dataset.price = result.price;
           this.updateCardDisplay(card);
         });
 
         this.updateCheckoutPricingForSelected();
       },
       updateCardDisplay(card) {
-        const currentPriceEl = card.el.querySelector('.quantity-current-price');
-        if (currentPriceEl) {
-          currentPriceEl.textContent = this.formatMoney(card.price);
-        }
+        const formattedPrice = typeof Elixir_FormatMoney === 'function' ? Elixir_FormatMoney(card.price, this.moneyFormat) : String(card.price / 100);
+        const currentPriceEls = card.el.querySelectorAll('.quantity-current-price');
+        currentPriceEls.forEach(el => {
+          el.textContent = formattedPrice;
+        });
 
-        const comparePriceEl = card.el.querySelector('.quantity-original-price');
-        if (comparePriceEl) {
+        const comparePriceEls = card.el.querySelectorAll('.quantity-original-price');
+        comparePriceEls.forEach(comparePriceEl => {
           if (card.compare > 0 && this.$root.dataset.hideCompare !== 'true') {
-            comparePriceEl.textContent = this.formatMoney(card.compare);
+            comparePriceEl.textContent = Elixir_FormatMoney(card.compare, this.moneyFormat);
             comparePriceEl.style.display = '';
           } else {
             comparePriceEl.style.display = 'none';
           }
-        }
+        });
 
-        const perItemAmountEl = card.el.querySelector('.quantity-per-item-price .price-amount');
-        if (perItemAmountEl) {
-          const perItemPrice = card.quantity > 0 ? card.price / card.quantity : card.price;
-          perItemAmountEl.textContent = this.formatMoney(perItemPrice);
-        }
+        const perItemPrice = card.quantity > 0 ? card.price / card.quantity : card.price;
+        const perItemFormatted = Elixir_FormatMoney(perItemPrice, this.moneyFormat);
+        const perItemAmountEls = card.el.querySelectorAll('.quantity-per-item-price .price-amount, .quantity-bundle-per-item .price-amount, .quantity-bundle-grid-per-item .price-amount');
+        perItemAmountEls.forEach(el => {
+          el.textContent = perItemFormatted;
+        });
       },
       bindCardClicks() {
         this.cards.forEach(card => {
           card.el.addEventListener('click', () => {
+            console.log('[Quantity Bundle] Card clicked, quantity:', card.quantity);
             this.cards.forEach(c => {
               c.el.setAttribute('data-selected', 'false');
               c.el.querySelector('.quantity-bundle-radio')?.classList.remove('checked');
@@ -1711,59 +1907,32 @@
           this.quantityInput.type = 'hidden';
           this.quantityInput.name = 'quantity';
           this.productForm.appendChild(this.quantityInput);
+          console.log('[Quantity Bundle] Created quantity input in form');
         }
 
         if (this.quantityInput) {
           this.quantityInput.value = quantity;
           this.quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+          document.dispatchEvent(new CustomEvent('quantity:changed', { bubbles: true, detail: { quantity: quantity } }));
+          console.log('[Quantity Bundle] Set quantity to', quantity, ', dispatched quantity:changed. Input in form?', this.productForm && this.productForm.contains(this.quantityInput));
+        } else {
+          console.warn('[Quantity Bundle] No quantity input available, cannot set quantity', quantity);
         }
       },
       updateCheckoutPricing(card) {
-        const subscribePriceContainer = document.querySelector('.shop-add-to-cart-wrapper .sls-selling-plan-group-price');
-        const oneTimePurchasePriceContainer = document.querySelector('.shop-add-to-cart-wrapper .sls-one-time-price');
-        const formattedOneTime = this.formatMoney(card.price);
-        const formattedCompare = card.compare > card.price ? this.formatMoney(card.compare) : '';
-
-        if (subscribePriceContainer) {
-          const subscribePrice = this.formatMoney(this.getSubscriptionPrice(card.price));
-          let span = subscribePriceContainer.nextElementSibling;
-          if (!span || !span.classList.contains('custom-final-price')) {
-            const style = document.createElement('style');
-            style.innerHTML = `.sls-price { display: none !important; }`;
-            document.head.appendChild(style);
-            span = document.createElement('span');
-            span.className = 'custom-final-price';
-            subscribePriceContainer.insertAdjacentElement('afterend', span);
-          }
-          span.textContent = ` ${subscribePrice}`;
-        }
-
-        if (oneTimePurchasePriceContainer) {
-          let span = oneTimePurchasePriceContainer.nextElementSibling;
-          if (!span || !span.classList.contains('custom-final-price')) {
-            span = document.createElement('span');
-            span.className = 'custom-final-price';
-            oneTimePurchasePriceContainer.insertAdjacentElement('afterend', span);
-          }
-          span.textContent = ` ${formattedOneTime}`;
-        }
-
+        const formattedPrice = typeof Elixir_FormatMoney === 'function' ? Elixir_FormatMoney(card.price, this.moneyFormat) : (card.price / 100).toFixed(2);
+        const formattedCompare = card.compare > card.price && typeof Elixir_FormatMoney === 'function' ? Elixir_FormatMoney(card.compare, this.moneyFormat) : '';
         this.updateBuyNowButtonText(card.price, formattedCompare);
       },
-      updateBuyNowButtonText(price, formattedCompare = '') {
-        const isSubscribeOptionSelected = !!document.querySelector('.shop-add-to-cart-wrapper input[name="selling_plan"]')?.value.trim();
+      updateBuyNowButtonText(priceCents, formattedCompare = '') {
         const buyNowTextButton = document.querySelector('.shop-add-to-cart-wrapper .shop-add-to-cart-button .button-text');
         if (!buyNowTextButton) return;
-
-        if (isSubscribeOptionSelected) {
-          buyNowTextButton.textContent = `Buy Now - ${this.formatMoney(this.getSubscriptionPrice(price))}`;
+        const formatted = typeof Elixir_FormatMoney === 'function' ? Elixir_FormatMoney(priceCents, this.moneyFormat) : (priceCents / 100).toFixed(2);
+        const baseText = `Buy Now - ${formatted}`;
+        if (formattedCompare) {
+          buyNowTextButton.innerHTML = `${baseText} <span class="compare-price">(${formattedCompare})</span>`;
         } else {
-          const baseText = `Buy Now - ${this.formatMoney(price)}`;
-          if (formattedCompare) {
-            buyNowTextButton.innerHTML = `${baseText} <span class="compare-price">(${formattedCompare})</span>`;
-          } else {
-            buyNowTextButton.textContent = baseText;
-          }
+          buyNowTextButton.textContent = baseText;
         }
       },
       bindSellingPlanListeners() {
@@ -1796,34 +1965,37 @@
       watchVariantChanges() {
         const variantInput = this.getVariantInput();
         if (!variantInput) return;
-
         const handleVariantChange = () => {
-          this.selectedVariantId = variantInput.value;
-          this.updateCardPricing();
+          this.updateSelectedVariantFromInput();
+          this.refreshQuantityBundleDisplay();
         };
-
         variantInput.addEventListener('change', handleVariantChange);
         new MutationObserver(handleVariantChange).observe(variantInput, { attributes: true, attributeFilter: ['value'] });
       },
       bindExternalVariantEvents() {
         if (this.externalVariantHandler) {
           document.removeEventListener('simple-variant-picker:variantChange', this.externalVariantHandler);
+          document.removeEventListener('quantity:changed', this.externalVariantHandler);
+          document.removeEventListener('quantity_break:changed', this.externalVariantHandler);
         }
-        this.externalVariantHandler = (event) => {
-          const variant = event.detail?.variant;
-          if (!variant?.id) return;
-          const variantId = variant.id.toString();
-          this.selectedVariantId = variantId;
-          this.updateCardPricing();
-          this.updateCheckoutPricingForSelected();
+        this.externalVariantHandler = () => {
+          this.refreshQuantityBundleDisplay();
         };
         document.addEventListener('simple-variant-picker:variantChange', this.externalVariantHandler);
+        document.addEventListener('quantity:changed', this.externalVariantHandler);
+        document.addEventListener('quantity_break:changed', this.externalVariantHandler);
       },
       updateCheckoutPricingForSelected() {
         const selected = this.cards.find(card => card.el.getAttribute('data-selected') === 'true');
         if (selected) {
           this.updateCheckoutPricing(selected);
         }
+      },
+      bindSubscriptionContextListener() {
+        document.addEventListener('subscriptionContext:updated', () => {
+          this.refreshQuantityBundleDisplay();
+        });
+        setTimeout(() => this.refreshQuantityBundleDisplay(), 100);
       }
     }));
   });

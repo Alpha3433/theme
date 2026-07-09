@@ -132,7 +132,7 @@
     letter-spacing: var(--letter-spacing-body);
   }
 
-  .amazon-reviews-section-{{ section.id }} .review-content {
+  .amazon-reviews-section-{{ section.id }} .amazon-review-text {
     font-size: {{ section.settings.content_size }}px;
     color: {{ section.settings.content_color }};
     line-height: {{ section.settings.content_line_height }};
@@ -248,7 +248,7 @@
   }
 </style>
 
-<div class="amazon-reviews-section-{{ section.id }}">
+<div class="amazon-reviews-section-{{ section.id }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}">
   <div class="amazon-reviews-container">
     {% if section.settings.heading != blank or section.settings.subheading != blank %}
       <div class="amazon-reviews-header">
@@ -352,7 +352,7 @@
             {% endif %}
           </div>
           {% if block.settings.review_content != blank %}
-            <div class="review-content">
+            <div class="amazon-review-text">
               {{ block.settings.review_content }}
             </div>
           {% endif %}
@@ -471,6 +471,7 @@
 {% schema %}
 {
   "name": "Amazon Style Reviews",
+  "tag": "section",
   "settings": [
     {
       "type": "header",

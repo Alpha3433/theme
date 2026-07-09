@@ -7,30 +7,7 @@
 -%}
 
 {% comment %} Google Fonts for accent text customization {% endcomment %}
-{% if section.settings.override_global_accent %}
-  {% if section.settings.accent_font_family != 'inherit' and section.settings.accent_font_family != 'serif' %}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {% case section.settings.accent_font_family %}
-      {% when 'Georgia Pro' %}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Georgia+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
-          rel="stylesheet"
-        >
-      {% when 'Bodoni Moda' %}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;0,6..96,800;1,6..96,400;1,6..96,500;1,6..96,600;1,6..96,700;1,6..96,800&display=swap"
-          rel="stylesheet"
-        >
-      {% when 'Instrument Serif' %}
-        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-      {% when 'DM Serif Text' %}
-        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
-      {% when 'Nothing You Could Do' %}
-        <link href="https://fonts.googleapis.com/css2?family=Nothing+You+Could+Do&display=swap" rel="stylesheet">
-    {% endcase %}
-  {% endif %}
-{% endif %}
+{% render 'accent-font-loader' %}
 
 {{ 'video-testimonials.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'video-testimonials.js' | asset_url }}" defer></script>
@@ -220,6 +197,55 @@
     }
   }
 
+    /* Rating Summary Styles */
+    .video-testimonials-wrapper-{{ section_id }} .rating-summary-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: {{ section.settings.rating_summary_margin_bottom | default: 16 }}px;
+    }
+    
+    .video-testimonials-wrapper-{{ section_id }} .video-rating-summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      {% if section.settings.enable_rating_summary_gradient %}
+        background: linear-gradient({{ section.settings.rating_summary_gradient_direction }}, {{ section.settings.rating_summary_gradient_start }}, {{ section.settings.rating_summary_gradient_end }});
+      {% else %}
+        background-color: {{ section.settings.rating_summary_bg_color | default: '#FEF3C7' }};
+      {% endif %}
+      {% if section.settings.enable_rating_summary_border %}
+        border: {{ section.settings.rating_summary_border_width }}px {{ section.settings.rating_summary_border_style }} {{ section.settings.rating_summary_border_color }};
+      {% endif %}
+      border-radius: {{ section.settings.rating_summary_border_radius | default: 50 }}px;
+    }
+    
+    .video-testimonials-wrapper-{{ section_id }} .rating-summary-stars {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    
+    .video-testimonials-wrapper-{{ section_id }} .rating-summary-stars svg {
+      width: {{ section.settings.rating_summary_star_size | default: 16 }}px;
+      height: {{ section.settings.rating_summary_star_size | default: 16 }}px;
+      color: {{ section.settings.rating_summary_star_color | default: '#F59E0B' }};
+    }
+    
+    .video-testimonials-wrapper-{{ section_id }} .rating-summary-text {
+      font-size: {{ section.settings.rating_summary_font_size | default: 13 }}px;
+      color: {{ section.settings.rating_summary_text_color | default: '#92400E' }};
+      line-height: 1.4;
+    }
+    
+    .video-testimonials-wrapper-{{ section_id }} .rating-summary-text p {
+      margin: 0;
+    }
+    
+    .video-testimonials-wrapper-{{ section_id }} .rating-summary-text strong {
+      font-weight: 700;
+    }
+
     @media screen and (min-width: 768px) {
       .video-testimonials-wrapper-{{ section_id }} .section-heading {
         font-size: {{ section.settings.heading_size_desktop }}px !important;
@@ -248,8 +274,25 @@
   id="video-testimonials-{{ section_id }}"
 >
   <div class="video-testimonials-section">
-    {% if heading_accent != blank or heading_regular != blank or subtitle != blank %}
+    {% if section.settings.show_rating_summary or heading_accent != blank or heading_regular != blank or subtitle != blank %}
       <div class="section-header">
+        {% if section.settings.show_rating_summary %}
+          <div class="rating-summary-wrapper">
+            <div class="video-rating-summary">
+              <span class="rating-summary-stars">
+                {% for i in (1..5) %}
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                    <path d="M11.5245 3.46353C11.6741 3.00287 12.3259 3.00287 12.4755 3.46353L14.1329 8.56434C14.1998 8.77035 14.3918 8.90983 14.6084 8.90983H19.9717C20.4561 8.90983 20.6575 9.52964 20.2656 9.81434L15.9266 12.9668C15.7514 13.0941 15.678 13.3198 15.745 13.5258L17.4023 18.6266C17.552 19.0873 17.0248 19.4704 16.6329 19.1857L12.2939 16.0332C12.1186 15.9059 11.8814 15.9059 11.7061 16.0332L7.3671 19.1857C6.97524 19.4704 6.448 19.0873 6.59768 18.6266L8.25503 13.5258C8.32197 13.3198 8.24864 13.0941 8.07339 12.9668L3.73438 9.81434C3.34253 9.52964 3.54392 8.90983 4.02828 8.90983H9.39159C9.6082 8.90983 9.80018 8.77035 9.86712 8.56434L11.5245 3.46353Z"/>
+                  </svg>
+                {% endfor %}
+              </span>
+              <div class="rating-summary-text">
+                {{ section.settings.rating_summary_text }}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        
         {% if heading_accent != blank or heading_regular != blank %}
           <h2 class="section-heading">
             {% if heading_regular != blank %}
@@ -423,6 +466,7 @@
 {% schema %}
 {
   "name": "Video Testimonials",
+  "tag": "section",
   "settings": [
     {
       "type": "header",
@@ -621,6 +665,147 @@
       "unit": "px",
       "label": "Author Name Size (Desktop)",
       "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Rating Summary"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating_summary",
+      "label": "Show Rating Summary",
+      "default": true,
+      "info": "Display a rating summary with stars and text above the heading"
+    },
+    {
+      "type": "richtext",
+      "id": "rating_summary_text",
+      "label": "Rating Summary Text",
+      "default": "<p>Rated <strong>4.8/5</strong> based on +10,839 Total Ratings</p>",
+      "info": "Enter the complete rating summary text. You can use bold, italic, and other formatting."
+    },
+    {
+      "type": "range",
+      "id": "rating_summary_font_size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Rating Summary Font Size",
+      "default": 13
+    },
+    {
+      "type": "color",
+      "id": "rating_summary_bg_color",
+      "label": "Rating Summary Background",
+      "default": "#FEF3C7"
+    },
+    {
+      "type": "color",
+      "id": "rating_summary_text_color",
+      "label": "Rating Summary Text Color",
+      "default": "#92400E"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_rating_summary_gradient",
+      "label": "Use Gradient Background",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "rating_summary_gradient_direction",
+      "label": "Gradient Direction",
+      "options": [
+        { "value": "to right", "label": "Left to Right" },
+        { "value": "to left", "label": "Right to Left" },
+        { "value": "to bottom", "label": "Top to Bottom" },
+        { "value": "to top", "label": "Bottom to Top" },
+        { "value": "to bottom right", "label": "Diagonal (Top-Left to Bottom-Right)" },
+        { "value": "to bottom left", "label": "Diagonal (Top-Right to Bottom-Left)" }
+      ],
+      "default": "to right"
+    },
+    {
+      "type": "color",
+      "id": "rating_summary_gradient_start",
+      "label": "Gradient Start Color",
+      "default": "#FEF3C7"
+    },
+    {
+      "type": "color",
+      "id": "rating_summary_gradient_end",
+      "label": "Gradient End Color",
+      "default": "#FDE68A"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_rating_summary_border",
+      "label": "Enable Rating Summary Border",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "rating_summary_border_width",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "unit": "px",
+      "label": "Rating Summary Border Width",
+      "default": 1
+    },
+    {
+      "type": "select",
+      "id": "rating_summary_border_style",
+      "label": "Rating Summary Border Style",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "dashed", "label": "Dashed" },
+        { "value": "dotted", "label": "Dotted" }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "color",
+      "id": "rating_summary_border_color",
+      "label": "Rating Summary Border Color",
+      "default": "#F59E0B"
+    },
+    {
+      "type": "range",
+      "id": "rating_summary_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Rating Summary Border Radius",
+      "default": 50
+    },
+    {
+      "type": "color",
+      "id": "rating_summary_star_color",
+      "label": "Rating Summary Star Color",
+      "default": "#F59E0B"
+    },
+    {
+      "type": "range",
+      "id": "rating_summary_star_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Rating Summary Star Size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "rating_summary_margin_bottom",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Rating Summary Bottom Margin",
+      "default": 16
     },
     {
       "type": "header",

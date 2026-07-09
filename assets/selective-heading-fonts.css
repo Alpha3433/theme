@@ -130,6 +130,8 @@ body:not(.h2-heading-font) span[class*="section-title"] {
 .global-accent-text,
 .custom-accent-text {
   font-family: var(--font-accent-family, var(--font-body-family)) !important;
+  font-style: var(--font-accent-style, normal) !important;
+  font-weight: var(--font-accent-weight, 400) !important;
 }
 
 /* Ensure .heading-text class always uses heading font */

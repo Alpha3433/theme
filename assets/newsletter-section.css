@@ -13,7 +13,7 @@
   margin-bottom: 0;
 }
 .newsletter__wrapper > * + * {
-  margin-top: 2rem;
+  margin-top: 0rem;
 }
 .newsletter__wrapper > * + .newsletter-form {
   margin-top: 3rem;

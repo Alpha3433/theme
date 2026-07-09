@@ -10,7 +10,7 @@
       {%- when 'featured_image' -%}
         {%- if article.image -%}
           <div
-            class="article-template__hero-container{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}"
+            class="article-template__hero-container{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}"
             {{ block.shopify_attributes }}
           >
             <div
@@ -43,7 +43,7 @@
 
       {%- when 'title' -%}
         <header
-          class="page-width page-width--narrow{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-in{% endif %}"
+          class="page-width page-width--narrow{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--fade-up{% endif %}"
           {{ block.shopify_attributes }}
         >
           <h1

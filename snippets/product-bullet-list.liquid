@@ -79,6 +79,7 @@
 {% assign show_bg = show_bg | default: block.settings.show_bg | default: false %}
 {% assign bg_color = bg_color | default: block.settings.bg_color | default: '#f5f5f5' %}
 {% assign border_radius = border_radius | default: block.settings.border_radius | default: 4 | plus: 0 %}
+{% assign icon_image_width = icon_size | times: 2 %}
 
 {% capture default_icon %}
 <svg width="{{ icon_size }}" height="{{ icon_size }}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -102,13 +103,14 @@
         style="gap: {{ icon_text_gap }}px;{% if show_bg %} background-color: {{ bg_color }}; border-radius: {{ border_radius }}px;{% endif %}"
       >
         <div class="product-bullet-icon">
-          {% if use_custom_icon_1 and custom_image_1 != blank %}
+          {% if custom_image_1 != blank %}
             <img
-              src="{{ custom_image_1 | image_url: width: icon_size }}"
+              src="{{ custom_image_1 | image_url: width: icon_image_width }}"
               alt="{{ bullet_1 | escape }}"
               width="{{ icon_size }}"
               height="{{ icon_size }}"
               style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
+              loading="lazy"
             >
           {% elsif use_custom_icon_1 and custom_icon_1 != blank %}
             {{ custom_icon_1 }}
@@ -131,13 +133,14 @@
         style="gap: {{ icon_text_gap }}px;{% if show_bg %} background-color: {{ bg_color }}; border-radius: {{ border_radius }}px;{% endif %}"
       >
         <div class="product-bullet-icon">
-          {% if use_custom_icon_2 and custom_image_2 != blank %}
+          {% if custom_image_2 != blank %}
             <img
-              src="{{ custom_image_2 | image_url: width: icon_size }}"
+              src="{{ custom_image_2 | image_url: width: icon_image_width }}"
               alt="{{ bullet_2 | escape }}"
               width="{{ icon_size }}"
               height="{{ icon_size }}"
               style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
+              loading="lazy"
             >
           {% elsif use_custom_icon_2 and custom_icon_2 != blank %}
             {{ custom_icon_2 }}
@@ -160,13 +163,14 @@
         style="gap: {{ icon_text_gap }}px;{% if show_bg %} background-color: {{ bg_color }}; border-radius: {{ border_radius }}px;{% endif %}"
       >
         <div class="product-bullet-icon">
-          {% if use_custom_icon_3 and custom_image_3 != blank %}
+          {% if custom_image_3 != blank %}
             <img
-              src="{{ custom_image_3 | image_url: width: icon_size }}"
+              src="{{ custom_image_3 | image_url: width: icon_image_width }}"
               alt="{{ bullet_3 | escape }}"
               width="{{ icon_size }}"
               height="{{ icon_size }}"
               style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
+              loading="lazy"
             >
           {% elsif use_custom_icon_3 and custom_icon_3 != blank %}
             {{ custom_icon_3 }}
@@ -189,13 +193,14 @@
         style="gap: {{ icon_text_gap }}px;{% if show_bg %} background-color: {{ bg_color }}; border-radius: {{ border_radius }}px;{% endif %}"
       >
         <div class="product-bullet-icon">
-          {% if use_custom_icon_4 and custom_image_4 != blank %}
+          {% if custom_image_4 != blank %}
             <img
-              src="{{ custom_image_4 | image_url: width: icon_size }}"
+              src="{{ custom_image_4 | image_url: width: icon_image_width }}"
               alt="{{ bullet_4 | escape }}"
               width="{{ icon_size }}"
               height="{{ icon_size }}"
               style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
+              loading="lazy"
             >
           {% elsif use_custom_icon_4 and custom_icon_4 != blank %}
             {{ custom_icon_4 }}
@@ -218,13 +223,14 @@
         style="gap: {{ icon_text_gap }}px;{% if show_bg %} background-color: {{ bg_color }}; border-radius: {{ border_radius }}px;{% endif %}"
       >
         <div class="product-bullet-icon">
-          {% if use_custom_icon_5 and custom_image_5 != blank %}
+          {% if custom_image_5 != blank %}
             <img
-              src="{{ custom_image_5 | image_url: width: icon_size }}"
+              src="{{ custom_image_5 | image_url: width: icon_image_width }}"
               alt="{{ bullet_5 | escape }}"
               width="{{ icon_size }}"
               height="{{ icon_size }}"
               style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
+              loading="lazy"
             >
           {% elsif use_custom_icon_5 and custom_icon_5 != blank %}
             {{ custom_icon_5 }}
@@ -247,13 +253,14 @@
         style="gap: {{ icon_text_gap }}px;{% if show_bg %} background-color: {{ bg_color }}; border-radius: {{ border_radius }}px;{% endif %}"
       >
         <div class="product-bullet-icon">
-          {% if use_custom_icon_6 and custom_image_6 != blank %}
+          {% if custom_image_6 != blank %}
             <img
-              src="{{ custom_image_6 | image_url: width: icon_size }}"
+              src="{{ custom_image_6 | image_url: width: icon_image_width }}"
               alt="{{ bullet_6 | escape }}"
               width="{{ icon_size }}"
               height="{{ icon_size }}"
               style="width: {{ icon_size }}px; height: {{ icon_size }}px; object-fit: contain;"
+              loading="lazy"
             >
           {% elsif use_custom_icon_6 and custom_icon_6 != blank %}
             {{ custom_icon_6 }}
@@ -338,7 +345,6 @@
   #product-bullet-list-{{ block.id }} .product-bullet-icon svg g,
   #product-bullet-list-{{ block.id }} .product-bullet-icon svg g * {
     fill: {{ icon_color }} !important;
-    stroke: {{ icon_color }} !important;
     color: {{ icon_color }} !important;
   }
 

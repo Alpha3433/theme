@@ -37,6 +37,20 @@
     }
   {%- endif -%}
 
+  /* Full Width Header Styling */
+  {%- if section.settings.full_width_header -%}
+    @media screen and (min-width: 990px) {
+      .header.header--full-width {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: {{ section.settings.header_horizontal_padding }}px !important;
+        padding-right: {{ section.settings.header_horizontal_padding }}px !important;
+      }
+    }
+  {%- endif -%}
+
   {%- if section.settings.menu_type_desktop != "drawer" -%}
     @media screen and (min-width: 990px) {
       header-drawer {
@@ -101,6 +115,46 @@
 
   .header__menu-item:hover {
     text-decoration: none !important;
+  }
+
+  @media screen and (min-width: 990px) {
+    .header-wrapper {
+      --header-menu-underline-thickness: {{ section.settings.menu_underline_thickness }}px;
+      --header-menu-underline-color: {{ section.settings.menu_underline_color }};
+    }
+
+    .header__inline-menu .header__menu-item > span {
+      display: inline-block;
+      position: relative;
+      text-decoration: none;
+    }
+
+    .header__inline-menu .header__menu-item > span::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: var(--header-menu-underline-thickness);
+      left: 0;
+      bottom: -0.3rem;
+      background-color: var(--header-menu-underline-color);
+      border-radius: calc(var(--header-menu-underline-thickness) / 2);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.25s ease-out;
+    }
+
+    .header__inline-menu .header__menu-item:hover > span::after,
+    .header__inline-menu .header__menu-item:focus-visible > span::after,
+    .header__inline-menu details[open] > .header__menu-item > span::after,
+    span.header__active-menu-item::after {
+      transform: scaleX(1) !important;
+    }
+
+    .header__inline-menu .header__menu-item:hover span,
+    .header__inline-menu details[open] > .header__menu-item,
+    .header__inline-menu .header__active-menu-item {
+      text-decoration: none;
+    }
   }
 
   /* Header menu hover functionality */
@@ -244,7 +298,7 @@
       transform: translateX(-50%) translateY(0) !important;
       display: block !important;
     }
-    
+
     .header__submenu,
     .mega-menu__content {
       transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
@@ -252,7 +306,7 @@
       visibility: hidden;
       transform: translateX(-50%) translateY(-10px);
     }
-    
+
     /* Ensure submenus are hidden by default */
     header-menu:not(:hover) details:not([open]) .header__submenu,
     header-menu:not(:hover) details:not([open]) .mega-menu__content {
@@ -260,8 +314,38 @@
       visibility: hidden;
       transform: translateX(-50%) translateY(-10px);
     }
+
+    /* 3rd level menu: flyout lateral (izquierda a derecha) */
+    .header__submenu.list-menu--disclosure > li {
+      position: relative;
+    }
+    .header__submenu--flyout {
+      position: absolute !important;
+      left: 98% !important;
+      top: -10px !important;
+      margin: 0 !important;
+      margin-left: 4px !important;
+      min-width: 14rem;
+      max-width: 20rem;
+      z-index: 101;
+      background: #fff !important;
+      background-color: #fff !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      padding: 1rem 0 !important;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-100%);
+      transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.25s ease-out;
+      animation: none !important;
+    }
+    .header__submenu-item--has-flyout[open] > .header__submenu--flyout {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
   }
-  
+
   /* Header submenu spacing and styling */
   .header__submenu {
     padding: 1rem 0;
@@ -272,17 +356,13 @@
     width: auto;
     min-width: 16rem;
     max-width: 20rem;
-    top: calc(100% + 5px);
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
   }
-  
+
   /* Ensure the parent header-menu has relative positioning */
   header-menu {
     position: relative;
   }
-  
+
   /* Ensure submenus are initially hidden */
   .header__submenu.list-menu--disclosure {
     opacity: 0;
@@ -290,13 +370,13 @@
     transform: translateX(-50%) translateY(-10px);
     transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
   }
-  
+
   .header__submenu .list-menu__item {
     padding: 0.8rem 1.5rem;
     margin: 0;
     border-bottom: none;
   }
-  
+
   .header__submenu .header__menu-item {
     display: block;
     padding: 0.8rem 1.5rem;
@@ -305,22 +385,22 @@
     transition: background-color 0.2s ease, color 0.2s ease;
     border-radius: 0;
   }
-  
+
   .header__submenu .header__menu-item:hover {
     background-color: rgba(var(--color-foreground), 0.05);
     text-decoration: none;
   }
-  
+
   .header__submenu li:first-child .header__menu-item {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
   }
-  
+
   .header__submenu li:last-child .header__menu-item {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
   }
-  
+
   /* Mega menu spacing and styling */
   .mega-menu__content {
     padding: 2rem;
@@ -333,38 +413,38 @@
     left: 50%;
     transform: translateX(-50%);
   }
-  
+
   .mega-menu__list {
     gap: 2rem;
   }
-  
+
   .mega-menu__link {
     padding: 0.6rem 0;
     display: block;
     text-decoration: none;
     transition: color 0.2s ease;
   }
-  
+
   .mega-menu__link:hover {
     color: rgba(var(--color-foreground), 0.7);
     text-decoration: none;
   }
-  
+
   .mega-menu__link--level-2 {
     font-weight: var(--font-weight-medium);
     margin-bottom: 0.5rem;
   }
-  
+
   .mega-menu__list .list-unstyled {
     margin-top: 0.5rem;
   }
-  
+
   .mega-menu__list .list-unstyled a {
     padding: 0.4rem 0;
     font-size: 0.9em;
     opacity: 0.8;
   }
-  
+
   .mega-menu__list .list-unstyled a:hover {
     opacity: 1;
   }
@@ -546,7 +626,7 @@
       assign localization_forms = true
     endif
   -%}
-  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if localization_forms %} header--has-localizations{% endif %}">
+  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }}{% unless section.settings.full_width_header %} page-width{% endunless %}{% if section.settings.full_width_header %} header--full-width{% endif %}{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if localization_forms %} header--has-localizations{% endif %}">
     {%- liquid
       if section.settings.menu != blank
         render 'header-drawer', use_theme_colors: section.settings.use_theme_colors
@@ -704,6 +784,7 @@
         href="{{ routes.cart_url }}"
         class="header__icon header__icon--cart link focus-inset"
         id="cart-icon-bubble"
+        data-cart-icon-type="{{ section.settings.cart_icon_type }}"
         style="color: {% if section.settings.use_theme_colors %}{{ settings.global_section_text_color }}{% endif %};"
       >
         {% if section.settings.cart_icon_type == 'bag' %}
@@ -912,6 +993,7 @@
 {% schema %}
 {
   "name": "t:sections.header.name",
+  "tag": "section",
   "class": "section-header",
   "max_blocks": 3,
   "settings": [
@@ -1013,6 +1095,24 @@
       "label": "t:sections.header.settings.show_line_separator.label"
     },
     {
+      "type": "checkbox",
+      "id": "full_width_header",
+      "default": false,
+      "label": "Full Width Header",
+      "info": "Remove page-width constraints so header elements span the entire width on desktop"
+    },
+    {
+      "type": "range",
+      "id": "header_horizontal_padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Horizontal Padding (Full Width)",
+      "default": 30,
+      "info": "Only applies when Full Width Header is enabled"
+    },
+    {
       "type": "header",
       "content": "Header Borders"
     },
@@ -1039,10 +1139,10 @@
       "id": "top_border_style",
       "label": "Top Border Style",
       "options": [
-        {"value": "solid", "label": "Solid"},
-        {"value": "dashed", "label": "Dashed"},
-        {"value": "dotted", "label": "Dotted"},
-        {"value": "double", "label": "Double"}
+        { "value": "solid", "label": "Solid" },
+        { "value": "dashed", "label": "Dashed" },
+        { "value": "dotted", "label": "Dotted" },
+        { "value": "double", "label": "Double" }
       ],
       "default": "solid",
       "info": "Only used when 'Enable Top Border' is checked"
@@ -1057,6 +1157,26 @@
     {
       "type": "header",
       "content": "t:sections.header.settings.header__1.content"
+    },
+    {
+      "type": "header",
+      "content": "Desktop Menu Underline"
+    },
+    {
+      "type": "range",
+      "id": "menu_underline_thickness",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "label": "Underline Thickness",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "menu_underline_color",
+      "label": "Underline Color",
+      "default": "#0087ca"
     },
     {
       "type": "checkbox",
@@ -1129,10 +1249,10 @@
       "label": "t:sections.header.settings.margin_bottom.label",
       "default": 0
     },
-        {
-          "type": "header",
-          "content": "Header Spacing"
-        },
+    {
+      "type": "header",
+      "content": "Header Spacing"
+    },
     {
       "type": "header",
       "content": "t:sections.all.padding.section_padding_heading"

@@ -58,6 +58,7 @@
             {%- if upsell_product and upsell_product.available -%}
               {%-
                 render 'cart-drawer-upsell',
+                block: block,
                 block_id: block.id,
                 product_form_id: 'cart-notification-upsell-' | append: block.id,
                 upsell_product: upsell_product,
@@ -101,6 +102,7 @@
 {% schema %}
 {
   "name": "Cart Notification Product",
+  "tag": "section",
   "settings": [],
   "blocks": [
     {

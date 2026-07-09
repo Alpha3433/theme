@@ -3,7 +3,6 @@
   assign show_title = show_title | default: false
   assign hide_images = hide_images | default: false
   assign hide_quantity_break_variant_images = hide_quantity_break_variant_images | default: false
-  assign variant_image_thumb_full_width = variant_image_thumb_full_width | default: false
   assign stack_variant_layout = stack_variant_layout | default: false
 
   # Variant option inclusion settings
@@ -32,14 +31,19 @@
     assign hide_product_title_in_variants = hide_product_title_in_variants | default: false
   endif
 
-  # Variant images instead of swatches setting
+  # Variant images instead of swatches setting (global fallback)
   if show_variant_images_instead_of_swatches == false or show_variant_images_instead_of_swatches == 'false'
     assign show_variant_images_instead_of_swatches = false
   else
     assign show_variant_images_instead_of_swatches = show_variant_images_instead_of_swatches | default: false
   endif
 
-  # Color swatch settings
+  # Per-option display type settings
+  assign variant_option_1_display_type = variant_option_1_display_type | default: 'dropdown'
+  assign variant_option_2_display_type = variant_option_2_display_type | default: 'dropdown'
+  assign variant_option_3_display_type = variant_option_3_display_type | default: 'dropdown'
+
+  # Color swatch settings (global fallback)
   if enable_color_swatches == false or enable_color_swatches == 'false'
     assign enable_color_swatches = false
   else
@@ -47,6 +51,7 @@
   endif
 
   assign swatch_size = swatch_size | default: 24
+  assign variant_select_height = variant_select_height | default: 34
   assign swatch_border_radius = swatch_border_radius | default: 50
   assign swatch_container_border_radius = swatch_container_border_radius | default: 8
   assign variant_select_border_radius = variant_select_border_radius | default: 8
@@ -54,6 +59,15 @@
   assign show_swatch_container_border = show_swatch_container_border | default: true
   assign swatch_container_border_color = swatch_container_border_color | default: '#ccc'
   assign max_swatches_per_row = max_swatches_per_row | default: 4
+
+  # Size button settings
+  assign size_button_background_color = size_button_background_color | default: '#ffffff'
+  assign size_button_text_color = size_button_text_color | default: '#374151'
+  assign size_button_border_color = size_button_border_color | default: '#e5e5e5'
+  assign size_button_selected_border_color = size_button_selected_border_color | default: '#000000'
+  assign size_button_border_width = size_button_border_width | default: 1
+  assign size_button_selected_border_width = size_button_selected_border_width | default: 2
+  assign size_button_font_size = size_button_font_size | default: 11
 
   # Variant image and label sizing
   assign variant_image_size = variant_image_size | default: 30
@@ -150,8 +164,9 @@
   assign gap_between_options = gap_between_options | default: 15
   assign option_padding_vertical = option_padding_vertical | default: 16
   assign option_padding_horizontal = option_padding_horizontal | default: 16
-  assign option_min_height = option_min_height | default: 0
+  assign main_content_gap = main_content_gap | default: 12
   assign image_size = image_size | default: 40
+  assign image_height = image_height | default: image_size
   assign variant_image_size = variant_image_size | default: 18
 
   # Enhanced border radius settings
@@ -174,10 +189,14 @@
 
   # Enhanced color settings
   assign border_color = border_color | default: '#e5e5e5'
+  assign unselected_border_width = unselected_border_width | default: 1
+  assign unselected_border_style = unselected_border_style | default: 'solid'
   assign background_color = background_color | default: '#ffffff'
   assign unselected_border_color = unselected_border_color | default: border_color
   assign unselected_background_color = unselected_background_color | default: background_color
   assign best_deal_border_color = best_deal_border_color | default: '#00C7FF'
+  assign selected_border_width = selected_border_width | default: 2
+  assign selected_border_style = selected_border_style | default: 'solid'
   assign best_deal_background_color = best_deal_background_color | default: '#F7FCFF'
 
   # Selected option gradient settings
@@ -227,12 +246,14 @@
   assign variant_selector_border_color = variant_selector_border_color | default: '#e5e5e5'
   assign variant_selector_background_color = variant_selector_background_color | default: '#ffffff'
   assign variant_selector_text_color = variant_selector_text_color | default: '#374151'
-  assign variant_container_border_color = variant_container_border_color | default: 'transparent'
   assign variant_container_background_color = variant_container_background_color | default: 'transparent'
   assign variant_label_color = variant_label_color | default: text_color
 
-  # Variant container border control
-  assign show_variant_container_border = show_variant_container_border | default: false
+  # Variant divider controls
+  assign show_variant_option_divider = show_variant_option_divider | default: true
+  assign variant_option_divider_color = variant_option_divider_color | default: '#e5e7eb'
+  assign show_variant_row_divider = show_variant_row_divider | default: true
+  assign variant_row_divider_color = variant_row_divider_color | default: '#e5e7eb'
 
   # Variant selection border control
   if show_variant_selection_border_top == true or show_variant_selection_border_top == 'true'
@@ -274,6 +295,85 @@
   endif
   assign custom_savings_font_size = custom_savings_font_size | default: 12
   assign custom_savings_text_color = custom_savings_text_color | default: '#666666'
+
+  # Custom savings text format settings
+  assign savings_text_format = savings_text_format | default: 'You save {savings}'
+
+  # Enable individual savings text (allows custom text per option)
+  if enable_individual_savings_text == true or enable_individual_savings_text == 'true'
+    assign enable_individual_savings_text = true
+  else
+    assign enable_individual_savings_text = false
+  endif
+
+  # Show individual savings text (controls visibility)
+  if show_individual_savings_text == true or show_individual_savings_text == 'true'
+    assign show_individual_savings_text = true
+  else
+    assign show_individual_savings_text = false
+  endif
+
+  assign option_1_savings_text = option_1_savings_text
+  assign option_2_savings_text = option_2_savings_text
+  assign option_3_savings_text = option_3_savings_text
+  assign option_4_savings_text = option_4_savings_text
+
+  # Free gift badge settings
+  assign option_1_show_free_gift = option_1_show_free_gift | default: false
+  assign option_1_free_gift_count = option_1_free_gift_count | default: 1
+  assign option_1_free_gift_text = option_1_free_gift_text | default: '🎁 <b>FREE</b> Gift Included!'
+  assign option_1_free_gift_icon = option_1_free_gift_icon
+  assign option_1_free_gift_icon_size = option_1_free_gift_icon_size | default: 16
+  assign option_1_free_gift_font_size = option_1_free_gift_font_size | default: 10
+  assign option_1_free_gift_border_radius = option_1_free_gift_border_radius | default: 6
+  assign option_1_free_gift_bg_color = option_1_free_gift_bg_color | default: '#f0fdf4'
+  assign option_1_free_gift_use_gradient = option_1_free_gift_use_gradient | default: false
+  assign option_1_free_gift_gradient_start = option_1_free_gift_gradient_start | default: '#22c55e'
+  assign option_1_free_gift_gradient_end = option_1_free_gift_gradient_end | default: '#16a34a'
+  assign option_1_free_gift_text_color = option_1_free_gift_text_color | default: '#166534'
+  assign option_1_free_gift_border_color = option_1_free_gift_border_color | default: '#bbf7d0'
+
+  assign option_2_show_free_gift = option_2_show_free_gift | default: false
+  assign option_2_free_gift_count = option_2_free_gift_count | default: 1
+  assign option_2_free_gift_text = option_2_free_gift_text | default: '🎁 <b>FREE</b> Gift Included!'
+  assign option_2_free_gift_icon = option_2_free_gift_icon
+  assign option_2_free_gift_icon_size = option_2_free_gift_icon_size | default: 16
+  assign option_2_free_gift_font_size = option_2_free_gift_font_size | default: 10
+  assign option_2_free_gift_border_radius = option_2_free_gift_border_radius | default: 6
+  assign option_2_free_gift_bg_color = option_2_free_gift_bg_color | default: '#f0fdf4'
+  assign option_2_free_gift_use_gradient = option_2_free_gift_use_gradient | default: false
+  assign option_2_free_gift_gradient_start = option_2_free_gift_gradient_start | default: '#22c55e'
+  assign option_2_free_gift_gradient_end = option_2_free_gift_gradient_end | default: '#16a34a'
+  assign option_2_free_gift_text_color = option_2_free_gift_text_color | default: '#166534'
+  assign option_2_free_gift_border_color = option_2_free_gift_border_color | default: '#bbf7d0'
+
+  assign option_3_show_free_gift = option_3_show_free_gift | default: false
+  assign option_3_free_gift_count = option_3_free_gift_count | default: 1
+  assign option_3_free_gift_text = option_3_free_gift_text | default: '🎁 <b>FREE</b> Gift Included!'
+  assign option_3_free_gift_icon = option_3_free_gift_icon
+  assign option_3_free_gift_icon_size = option_3_free_gift_icon_size | default: 16
+  assign option_3_free_gift_font_size = option_3_free_gift_font_size | default: 10
+  assign option_3_free_gift_border_radius = option_3_free_gift_border_radius | default: 6
+  assign option_3_free_gift_bg_color = option_3_free_gift_bg_color | default: '#f0fdf4'
+  assign option_3_free_gift_use_gradient = option_3_free_gift_use_gradient | default: false
+  assign option_3_free_gift_gradient_start = option_3_free_gift_gradient_start | default: '#22c55e'
+  assign option_3_free_gift_gradient_end = option_3_free_gift_gradient_end | default: '#16a34a'
+  assign option_3_free_gift_text_color = option_3_free_gift_text_color | default: '#166534'
+  assign option_3_free_gift_border_color = option_3_free_gift_border_color | default: '#bbf7d0'
+
+  assign option_4_show_free_gift = option_4_show_free_gift | default: false
+  assign option_4_free_gift_count = option_4_free_gift_count | default: 1
+  assign option_4_free_gift_text = option_4_free_gift_text | default: '🎁 <b>FREE</b> Gift Included!'
+  assign option_4_free_gift_icon = option_4_free_gift_icon
+  assign option_4_free_gift_icon_size = option_4_free_gift_icon_size | default: 16
+  assign option_4_free_gift_font_size = option_4_free_gift_font_size | default: 10
+  assign option_4_free_gift_border_radius = option_4_free_gift_border_radius | default: 6
+  assign option_4_free_gift_bg_color = option_4_free_gift_bg_color | default: '#f0fdf4'
+  assign option_4_free_gift_use_gradient = option_4_free_gift_use_gradient | default: false
+  assign option_4_free_gift_gradient_start = option_4_free_gift_gradient_start | default: '#22c55e'
+  assign option_4_free_gift_gradient_end = option_4_free_gift_gradient_end | default: '#16a34a'
+  assign option_4_free_gift_text_color = option_4_free_gift_text_color | default: '#166534'
+  assign option_4_free_gift_border_color = option_4_free_gift_border_color | default: '#bbf7d0'
 
   # Hide badges setting
   if hide_badges == true or hide_badges == 'true'
@@ -339,6 +439,14 @@
   if enable_variant_selection and enable_single_variant_selection
     assign use_custom_single = true
   endif
+
+  # Custom Pricing Settings
+  if enable_custom_pricing == false or enable_custom_pricing == 'false'
+    assign enable_custom_pricing = false
+  else
+    assign enable_custom_pricing = enable_custom_pricing | default: false
+  endif
+  assign selected_custom_price_format = selected_custom_price_format | default: 'amount'
 %}
 
 {% render 'quantity-break_style',
@@ -361,17 +469,21 @@
   header_icon_size: header_icon_size,
   show_header_icon: show_header_icon,
   unselected_border_color: unselected_border_color,
-  use_dashed_border_unselected: use_dashed_border_unselected,
+  unselected_border_width: unselected_border_width,
+  unselected_border_style: unselected_border_style,
   option_container_border_radius: option_container_border_radius,
   option_padding_vertical: option_padding_vertical,
   option_padding_horizontal: option_padding_horizontal,
-  option_min_height: option_min_height,
+  main_content_gap: main_content_gap,
+  image_height: image_height,
   gap_between_options: gap_between_options,
   unselected_background_color: unselected_background_color,
   option_box_shadow: option_box_shadow,
   option_hover_border_color: option_hover_border_color,
   option_hover_background_color: option_hover_background_color,
   best_deal_border_color: best_deal_border_color,
+  selected_border_width: selected_border_width,
+  selected_border_style: selected_border_style,
   enable_selected_gradient: enable_selected_gradient,
   selected_gradient_direction: selected_gradient_direction,
   selected_gradient_start: selected_gradient_start,
@@ -408,6 +520,7 @@
   quantity_circle_font_size: quantity_circle_font_size,
   quantity_circle_text_color: quantity_circle_text_color,
   swatch_size: swatch_size,
+  variant_select_height: variant_select_height,
   variant_selector_border_color: variant_selector_border_color,
   variant_select_border_radius: variant_select_border_radius,
   variant_selector_background_color: variant_selector_background_color,
@@ -417,16 +530,24 @@
   swatch_container_border_radius: swatch_container_border_radius,
   swatch_border_radius: swatch_border_radius,
   swatch_selected_border_color: swatch_selected_border_color,
+  size_button_background_color: size_button_background_color,
+  size_button_text_color: size_button_text_color,
+  size_button_border_color: size_button_border_color,
+  size_button_selected_border_color: size_button_selected_border_color,
+  size_button_border_width: size_button_border_width,
+  size_button_selected_border_width: size_button_selected_border_width,
+  size_button_font_size: size_button_font_size,
   variant_image_size: variant_image_size,
   variant_image_background_color: variant_image_background_color,
-  variant_image_thumb_full_width: variant_image_thumb_full_width,
   badge_border_radius: badge_border_radius,
   badge_box_shadow: badge_box_shadow,
   enable_badge_shine: enable_badge_shine,
   stack_variant_layout: stack_variant_layout,
-  show_variant_container_border: show_variant_container_border,
-  variant_container_border_color: variant_container_border_color,
   variant_container_background_color: variant_container_background_color,
+  show_variant_option_divider: show_variant_option_divider,
+  variant_option_divider_color: variant_option_divider_color,
+  show_variant_row_divider: show_variant_row_divider,
+  variant_row_divider_color: variant_row_divider_color,
   show_variant_selection_border_top: show_variant_selection_border_top,
   variant_selection_border_top_color: variant_selection_border_top_color,
   variant_label_font_size_mobile: variant_label_font_size_mobile,
@@ -449,7 +570,10 @@
       {% assign show_option_key = 'show_option_' | append: n %}
       {% assign qty_key = 'option_' | append: n | append: '_quantity' %}
       {% assign title_key = 'option_' | append: n | append: '_title' %}
-      {% assign custom_price_key = 'option_' | append: n | append: '_custom_price' %}
+      {% assign enable_custom_price_key = 'enable_option_' | append: n | append: '_custom_price' %}
+      {% assign custom_price_percentage_key = 'option_' | append: n | append: '_custom_price_percentage' %}
+      {% assign custom_price_amount_key = 'option_' | append: n | append: '_custom_price_amount' %}
+      {% assign bogo_multiplier_key = 'option_' | append: n | append: '_bogo_multiplier' %}
       {% assign custom_compare_key = 'option_' | append: n | append: '_compare_at_price' %}
       {% assign badge_key = 'enable_option_' | append: n | append: '_badge' %}
       {% assign badge_color_key = 'option_' | append: n | append: '_badge_color' %}
@@ -464,7 +588,10 @@
       {% assign show_option = block.settings[show_option_key] %}
       {% assign qty = block.settings[qty_key] %}
       {% assign title = block.settings[title_key] %}
-      {% assign custom_price = block.settings[custom_price_key] %}
+      {% assign enable_option_custom_price = block.settings[enable_custom_price_key] %}
+      {% assign custom_price_percentage = block.settings[custom_price_percentage_key] %}
+      {% assign custom_price_amount = block.settings[custom_price_amount_key] %}
+      {% assign bogo_multiplier = block.settings[bogo_multiplier_key] %}
       {% assign custom_compare = block.settings[custom_compare_key] %}
       {% assign hide_compare = block.settings[hide_compare_at_price_key] %}
 
@@ -473,24 +600,25 @@
       {% assign badge_color = block.settings[badge_color_key] %}
       {% assign badge_txt_color = block.settings[badge_txt_color_key] %}
       {% assign save_disp = block.settings[save_disp_key] %}
-      
-      {%- comment -%} Badge border settings for this option {%- endcomment -%}
+
+      {%- comment -%} Badge border settings for this option (border style is global for all options) {%- endcomment -%}
       {% assign enable_badge_border_option_key = 'enable_option_' | append: n | append: '_badge_border' %}
       {% assign badge_border_color_option_key = 'option_' | append: n | append: '_badge_border_color' %}
       {% assign badge_border_width_option_key = 'option_' | append: n | append: '_badge_border_width' %}
-      {% assign badge_border_style_option_key = 'option_' | append: n | append: '_badge_border_style' %}
-      
+
       {% assign enable_badge_border_option = block.settings[enable_badge_border_option_key] %}
       {% assign badge_border_color_option = block.settings[badge_border_color_option_key] %}
       {% assign badge_border_width_option = block.settings[badge_border_width_option_key] %}
-      {% assign badge_border_style_option = block.settings[badge_border_style_option_key] %}
-      
+
       {%- comment -%} Use option-specific settings if available, otherwise use global settings {%- endcomment -%}
       {% if enable_badge_border_option == true or enable_badge_border_option == 'true' %}
         {% assign use_badge_border = true %}
-        {% assign final_badge_border_color = badge_border_color_option | default: badge_border_color | default: '#000000' %}
+        {% assign final_badge_border_color = badge_border_color_option
+          | default: badge_border_color
+          | default: '#000000'
+        %}
         {% assign final_badge_border_width = badge_border_width_option | default: badge_border_width | default: 1 %}
-        {% assign final_badge_border_style = badge_border_style_option | default: badge_border_style | default: 'solid' %}
+        {% assign final_badge_border_style = badge_border_style | default: 'solid' %}
       {% elsif enable_badge_border == true or enable_badge_border == 'true' %}
         {% assign use_badge_border = true %}
         {% assign final_badge_border_color = badge_border_color | default: '#000000' %}
@@ -502,54 +630,102 @@
       {% assign img = block.settings[img_key] %}
       {% assign img_url = block.settings[img_url_key] %}
 
-      {%- comment -%} ==== Prix de base ==== {%- endcomment -%}
-      {% assign base_price = product.price | times: n %}
-      {% assign base_compare = product.compare_at_price | times: n | default: 0 %}
+      {%- comment -%} ==== Base price: use selected/first variant so it matches "REAL PRICE" (not product.price which is min across variants) ==== {%- endcomment -%}
+      {% assign qb_variant = product.selected_or_first_available_variant | default: product.variants.first %}
+      {% assign qb_unit_price = qb_variant.price | default: product.price %}
+      {% assign qb_unit_compare = qb_variant.compare_at_price | default: product.compare_at_price | default: 0 %}
+      {% assign base_price = qb_unit_price | times: qty %}
+      {% assign base_compare = qb_unit_compare | times: qty %}
 
       {%- comment -%} Initialize with base values {%- endcomment -%}
       {% assign final_price = base_price %}
       {% assign final_compare_at_price = base_compare %}
 
-      {% if enable_custom_pricing %}
-        {% case block.settings.selected_custom_price_format %}
+      {%- comment -%} Custom Pricing Logic {%- endcomment -%}
+      {% if enable_custom_pricing and enable_option_custom_price %}
+        {% case selected_custom_price_format %}
           {% when 'percentage' %}
-            {% if custom_price != blank and custom_price != '' %}
-              {% assign discount_percent = custom_price | plus: 0 %}
+            {% if custom_price_percentage != blank and custom_price_percentage != '' %}
+              {% assign discount_percent = custom_price_percentage | plus: 0 %}
               {% if discount_percent > 0 and discount_percent <= 100 %}
-                {% comment %} Calculate price: base_price × (percentage / 100) {% endcomment %}
-                {% comment %} Example: base_price = 4999 cents, discount_percent = 50, result = 4999 × 50 / 100 = 2499.5 cents {% endcomment %}
-                {% assign final_price = base_price | times: discount_percent | divided_by: 100 | round %}
+                {% comment %} Calculate price: base_price × (1 - discount_percent / 100) {% endcomment %}
+                {% assign discount_amount = base_price | times: discount_percent | divided_by: 100 %}
+                {% assign final_price = base_price | minus: discount_amount %}
               {% else %}
-                {% comment %} If percentage is invalid, keep base price {% endcomment %}
                 {% assign final_price = base_price %}
               {% endif %}
             {% else %}
-              {% comment %} If custom_price is blank, keep base price {% endcomment %}
               {% assign final_price = base_price %}
             {% endif %}
-            {% comment %} Use custom_compare if provided, otherwise use base_compare {% endcomment %}
-            {% if custom_compare != blank and custom_compare != '' %}
-              {% assign final_compare_at_price = custom_compare | times: 100 | plus: 0 %}
-            {% else %}
-              {% assign final_compare_at_price = base_compare %}
-            {% endif %}
           {% when 'amount' %}
-            {% if custom_price != blank %}
-              {% assign final_price = custom_price | times: 100 | plus: 0 %}
-            {% endif %}
-            {% if custom_compare != blank %}
-              {% assign final_compare_at_price = custom_compare | times: 100 | plus: 0 %}
+            {% if custom_price_amount != blank and custom_price_amount != '' %}
+              {% comment %} Fixed amount: final bundle price in dollars (not multiplied by quantity) {% endcomment %}
+              {% assign price_amount_num = custom_price_amount | plus: 0 %}
+              {% assign final_price = price_amount_num | times: 100 | round %}
             {% else %}
-              {% assign final_compare_at_price = base_compare %}
+              {% assign final_price = base_price %}
+            {% endif %}
+          {% when 'bogo' %}
+            {% if bogo_multiplier != blank and bogo_multiplier != '' and bogo_multiplier > 0 %}
+              {% assign multiplier_num = bogo_multiplier | plus: 0 %}
+              {% assign variant_price = qb_unit_price %}
+              {% assign final_price = variant_price | times: multiplier_num %}
+            {% else %}
+              {% assign final_price = base_price %}
             {% endif %}
         {% endcase %}
+
+        {% if custom_compare != blank and custom_compare != '' %}
+          {% comment %} Custom compare-at: final bundle compare price in dollars (not multiplied by quantity) {% endcomment %}
+          {% assign compare_amount_num = custom_compare | plus: 0 %}
+          {% assign final_compare_at_price = compare_amount_num | times: 100 | round %}
+        {% else %}
+          {% assign final_compare_at_price = base_compare %}
+        {% endif %}
       {% endif %}
 
       {%- comment -%} ==== Calcul des économies ==== {%- endcomment -%}
       {% assign savings = final_compare_at_price | plus: 0 | minus: final_price | plus: 0 %}
+      {% assign percent_savings = savings | times: 100.0 | divided_by: final_compare_at_price | round %}
+
+      {%- comment -%} ==== Generate savings text ==== {%- endcomment -%}
+      {% assign savings_txt = '' %}
+      {% assign savings_money = savings | money %}
+
+      {%- comment -%} Check for individual option savings text first {%- endcomment -%}
+      {% assign option_savings_text = '' %}
+      {% if enable_individual_savings_text %}
+        {% case n %}
+          {% when 1 %}
+            {% assign option_savings_text = option_1_savings_text %}
+          {% when 2 %}
+            {% assign option_savings_text = option_2_savings_text %}
+          {% when 3 %}
+            {% assign option_savings_text = option_3_savings_text %}
+          {% when 4 %}
+            {% assign option_savings_text = option_4_savings_text %}
+        {% endcase %}
+      {% endif %}
+
+      {%- comment -%} If custom text is provided for this option, show it regardless of savings {%- endcomment -%}
+      {% if show_individual_savings_text %}
+        {% if option_savings_text != blank %}
+          {%- comment -%} Custom text provided - show it even if no calculated savings {%- endcomment -%}
+          {% assign savings_txt = option_savings_text | replace: '{savings}', savings_money %}
+        {% elsif savings > 0 %}
+          {%- comment -%} No custom text but has savings - use global format {%- endcomment -%}
+          {% assign savings_txt = savings_text_format | replace: '{savings}', savings_money %}
+        {% endif %}
+      {% endif %}
 
       {% if show_option %}
-        <div class="quantity-break-option-container" data-option-quantity="{{ qty }}">
+        <div
+          class="quantity-break-option-container"
+          data-option-quantity="{{ qty }}"
+          data-compare-at-price="{{ final_compare_at_price }}"
+          data-save-badge-format="{{ save_badge_format }}"
+          data-save-badge-text="{{ final_save_text | escape }}"
+        >
           <label
             class="quantity-break-option{% if first_visible_option == n %} selected{% endif %}"
             for="quantity-break-option{{ n }}-{{ product.id }}"
@@ -574,8 +750,14 @@
                   checked
                 {% endif %}
                 data-price="{{ final_price }}"
-                data-custom-price="{{ final_price | times: 1 }}"
-                data-enable-custom-pricing="{{ enable_custom_pricing }}"
+                data-base-price="{{ base_price }}"
+                data-enable-custom-pricing="{% if enable_custom_pricing and enable_option_custom_price %}true{% else %}false{% endif %}"
+                data-custom-price-format="{{ selected_custom_price_format }}"
+                data-custom-price-percentage="{{ custom_price_percentage }}"
+                data-custom-price-amount="{{ custom_price_amount }}"
+                data-bogo-multiplier="{{ bogo_multiplier }}"
+                data-custom-compare-at-price="{{ custom_compare }}"
+                data-option-quantity="{{ qty }}"
               >
 
               <div class="quantity-break-radio-container">
@@ -610,14 +792,26 @@
                     <div class="quantity-break-title-container">
                       <div class="quantity-break-title">{{ title }}</div>
                       {% if savings > 0 and show_save_badge and hide_badges != true %}
-                        <div class="quantity-break-save-badge">
-                          {{ final_save_text }}
-                          {{ savings | money }}
-                        </div>
+                        {% if save_badge_format == 'percentage' %}
+                          <div class="quantity-break-save-badge">
+                            {{ final_save_text }}
+                            {{ percent_savings }}%
+                          </div>
+                        {% else %}
+                          <div class="quantity-break-save-badge">
+                            {{ final_save_text }}
+                            {{ savings | money }}
+                          </div>
+                        {% endif %}
                       {% endif %}
                     </div>
-                    {% if savings > 0 %}
-                      <div class="quantity-break-savings">{{ savings_txt }}</div>
+                    {% if show_individual_savings_text and savings_txt != blank %}
+                      <div
+                        class="quantity-break-savings"
+                        style="color: {{ custom_savings_text_color }}; font-size: {{ custom_savings_font_size }}px;"
+                      >
+                        {{ savings_txt }}
+                      </div>
                     {% endif %}
                   </div>
                 </div>
@@ -703,8 +897,97 @@
                               endcase
                             %}
                             {% if show_this_option %}
+                              {%- comment -%} Determine display type for this option - per-option settings override global settings {%- endcomment -%}
+                              {% assign current_option_display_type = 'dropdown' %}
+                              {% case option.position %}
+                                {% when 1 %}
+                                  {% if variant_option_1_display_type != blank %}
+                                    {% assign current_option_display_type = variant_option_1_display_type %}
+                                  {% endif %}
+                                {% when 2 %}
+                                  {% if variant_option_2_display_type != blank %}
+                                    {% assign current_option_display_type = variant_option_2_display_type %}
+                                  {% endif %}
+                                {% when 3 %}
+                                  {% if variant_option_3_display_type != blank %}
+                                    {% assign current_option_display_type = variant_option_3_display_type %}
+                                  {% endif %}
+                              {% endcase %}
+
                               <div class="quantity-break-variant-option">
-                                {% if enable_color_swatches and show_variant_images_instead_of_swatches == false %}
+                                {% if current_option_display_type == 'variant_image' %}
+                                  {%- comment -%} Show variant images {%- endcomment -%}
+                                  <div class="quantity-break-variant-images">
+                                    {% for value in option.values %}
+                                      {%- comment -%} Find the variant image for this option value {%- endcomment -%}
+                                      {% assign variant_image_url = '' %}
+                                      {% for variant in product.variants %}
+                                        {% case option.position %}
+                                          {% when 1 %}
+                                            {% if variant.option1 == value and variant.featured_image %}
+                                              {% assign variant_image_url = variant.featured_image
+                                                | img_url: '100x100', crop: 'center'
+                                              %}
+                                              {% break %}
+                                            {% endif %}
+                                          {% when 2 %}
+                                            {% if variant.option2 == value and variant.featured_image %}
+                                              {% assign variant_image_url = variant.featured_image
+                                                | img_url: '100x100', crop: 'center'
+                                              %}
+                                              {% break %}
+                                            {% endif %}
+                                          {% when 3 %}
+                                            {% if variant.option3 == value and variant.featured_image %}
+                                              {% assign variant_image_url = variant.featured_image
+                                                | img_url: '100x100', crop: 'center'
+                                              %}
+                                              {% break %}
+                                            {% endif %}
+                                        {% endcase %}
+                                      {% endfor %}
+
+                                      <input
+                                        type="radio"
+                                        id="option-{{ n }}-{{ i }}-{{ option.name | handleize }}-{{ value | handleize }}"
+                                        name="option-{{ n }}-{{ i }}-{{ option.name | handleize }}"
+                                        value="{{ value }}"
+                                        class="quantity-break-variant-image-input"
+                                        data-option-value="{{ value }}"
+                                        data-option-selector="{{ option.position }}"
+                                        data-item-index="{{ i }}"
+                                        data-quantity-option="{{ qty }}"
+                                        {% if forloop.first %}
+                                          checked
+                                        {% endif %}
+                                      >
+                                      <label
+                                        for="option-{{ n }}-{{ i }}-{{ option.name | handleize }}-{{ value | handleize }}"
+                                        class="quantity-break-variant-image-label"
+                                        title="{{ value }}"
+                                        style="width: {{ variant_image_size }}px; height: {{ variant_image_size }}px;"
+                                      >
+                                        {% if variant_image_url != blank %}
+                                          <img
+                                            src="{{ variant_image_url }}"
+                                            alt="{{ value }}"
+                                            width="100"
+                                            height="100"
+                                            style="width: 100%; height: 100%; object-fit: cover; border-radius: {{ variant_selector_border_radius }}px;"
+                                          >
+                                        {% else %}
+                                          <span
+                                            class="quantity-break-variant-image-placeholder"
+                                            style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: {{ variant_image_background_color }}; border-radius: {{ variant_selector_border_radius }}px; font-size: 10px;"
+                                          >
+                                            {{- value | truncate: 3, '' -}}
+                                          </span>
+                                        {% endif %}
+                                      </label>
+                                    {% endfor %}
+                                  </div>
+                                {% elsif current_option_display_type == 'color_swatch' %}
+                                  {%- comment -%} Show color swatches {%- endcomment -%}
                                   <div class="quantity-break-color-swatches">
                                     {% for value in option.values %}
                                       {% assign value_downcase = value | downcase %}
@@ -785,7 +1068,96 @@
                                       </label>
                                     {% endfor %}
                                   </div>
+                                {% elsif current_option_display_type == 'size_buttons' %}
+                                  {%- comment -%} Show size buttons (S, M, L, etc.) {%- endcomment -%}
+                                  <div class="quantity-break-size-buttons">
+                                    {% for value in option.values %}
+                                      {%- comment -%} Convert size names to abbreviated form {%- endcomment -%}
+                                      {% assign value_downcase = value | downcase %}
+                                      {% assign display_value = value %}
+                                      {% case value_downcase %}
+                                        {% when 'extra small',
+                                          'extra-small',
+                                          'xsmall',
+                                          'x-small',
+                                          'xs',
+                                          'x small',
+                                          'extra small size'
+                                        %}
+                                          {% assign display_value = 'XS' %}
+                                        {% when 'small', 'small size' %}
+                                          {% assign display_value = 'S' %}
+                                        {% when 'medium', 'medium size' %}
+                                          {% assign display_value = 'M' %}
+                                        {% when 'large', 'large size' %}
+                                          {% assign display_value = 'L' %}
+                                        {% when 'extra large',
+                                          'extra-large',
+                                          'xlarge',
+                                          'x-large',
+                                          'xl',
+                                          'x large',
+                                          'extra large size'
+                                        %}
+                                          {% assign display_value = 'XL' %}
+                                        {% when 'extra extra large',
+                                          'extra-extra-large',
+                                          'xxlarge',
+                                          'xx-large',
+                                          'xxl',
+                                          'xx large',
+                                          '2xl',
+                                          '2x large',
+                                          'extra extra large size'
+                                        %}
+                                          {% assign display_value = '2XL' %}
+                                        {% when 'extra extra extra large',
+                                          'extra-extra-extra-large',
+                                          'xxxlarge',
+                                          'xxx-large',
+                                          'xxxl',
+                                          'xxx large',
+                                          '3xl',
+                                          '3x large',
+                                          'extra extra extra large size'
+                                        %}
+                                          {% assign display_value = '3XL' %}
+                                        {% when 'one size',
+                                          'one size fits all',
+                                          'one-size',
+                                          'one-size-fits-all',
+                                          'os'
+                                        %}
+                                          {% assign display_value = 'OS' %}
+                                        {% when 'petite' %}
+                                          {% assign display_value = 'P' %}
+                                      {% endcase %}
+
+                                      <input
+                                        type="radio"
+                                        id="option-{{ n }}-{{ i }}-{{ option.name | handleize }}-{{ value | handleize }}"
+                                        name="option-{{ n }}-{{ i }}-{{ option.name | handleize }}"
+                                        value="{{ value }}"
+                                        class="quantity-break-size-button-input"
+                                        data-option-value="{{ value }}"
+                                        data-option-selector="{{ option.position }}"
+                                        data-item-index="{{ i }}"
+                                        data-quantity-option="{{ qty }}"
+                                        {% if forloop.first %}
+                                          checked
+                                        {% endif %}
+                                      >
+                                      <label
+                                        for="option-{{ n }}-{{ i }}-{{ option.name | handleize }}-{{ value | handleize }}"
+                                        class="quantity-break-size-button"
+                                        title="{{ value }}"
+                                      >
+                                        {{ display_value }}
+                                      </label>
+                                    {% endfor %}
+                                  </div>
                                 {% else %}
+                                  {%- comment -%} Show dropdown select (default) {%- endcomment -%}
                                   <select
                                     id="option-{{ n }}-{{ i }}-{{ option.name | handleize }}"
                                     class="quantity-break-variant-select"
@@ -803,6 +1175,106 @@
                             {% endif %}
                           {% endfor %}
                         </div>
+
+                        {%- comment -%} Free Gift Badge - show on the last X items based on free_gift_count {%- endcomment -%}
+                        {% assign show_free_gift = false %}
+                        {% assign free_gift_count = 1 %}
+                        {% assign free_gift_text = '' %}
+                        {% assign free_gift_icon = null %}
+                        {% assign free_gift_icon_size = 16 %}
+                        {% assign free_gift_font_size = 10 %}
+                        {% assign free_gift_border_radius = 6 %}
+                        {% assign free_gift_bg_color = '#f0fdf4' %}
+                        {% assign free_gift_use_gradient = false %}
+                        {% assign free_gift_gradient_start = '#22c55e' %}
+                        {% assign free_gift_gradient_end = '#16a34a' %}
+                        {% assign free_gift_text_color = '#166534' %}
+                        {% assign free_gift_border_color = '#bbf7d0' %}
+
+                        {% case n %}
+                          {% when 1 %}
+                            {% assign show_free_gift = option_1_show_free_gift %}
+                            {% assign free_gift_count = option_1_free_gift_count %}
+                            {% assign free_gift_text = option_1_free_gift_text %}
+                            {% assign free_gift_icon = option_1_free_gift_icon %}
+                            {% assign free_gift_icon_size = option_1_free_gift_icon_size %}
+                            {% assign free_gift_font_size = option_1_free_gift_font_size %}
+                            {% assign free_gift_border_radius = option_1_free_gift_border_radius %}
+                            {% assign free_gift_bg_color = option_1_free_gift_bg_color %}
+                            {% assign free_gift_use_gradient = option_1_free_gift_use_gradient %}
+                            {% assign free_gift_gradient_start = option_1_free_gift_gradient_start %}
+                            {% assign free_gift_gradient_end = option_1_free_gift_gradient_end %}
+                            {% assign free_gift_text_color = option_1_free_gift_text_color %}
+                            {% assign free_gift_border_color = option_1_free_gift_border_color %}
+                          {% when 2 %}
+                            {% assign show_free_gift = option_2_show_free_gift %}
+                            {% assign free_gift_count = option_2_free_gift_count %}
+                            {% assign free_gift_text = option_2_free_gift_text %}
+                            {% assign free_gift_icon = option_2_free_gift_icon %}
+                            {% assign free_gift_icon_size = option_2_free_gift_icon_size %}
+                            {% assign free_gift_font_size = option_2_free_gift_font_size %}
+                            {% assign free_gift_border_radius = option_2_free_gift_border_radius %}
+                            {% assign free_gift_bg_color = option_2_free_gift_bg_color %}
+                            {% assign free_gift_use_gradient = option_2_free_gift_use_gradient %}
+                            {% assign free_gift_gradient_start = option_2_free_gift_gradient_start %}
+                            {% assign free_gift_gradient_end = option_2_free_gift_gradient_end %}
+                            {% assign free_gift_text_color = option_2_free_gift_text_color %}
+                            {% assign free_gift_border_color = option_2_free_gift_border_color %}
+                          {% when 3 %}
+                            {% assign show_free_gift = option_3_show_free_gift %}
+                            {% assign free_gift_count = option_3_free_gift_count %}
+                            {% assign free_gift_text = option_3_free_gift_text %}
+                            {% assign free_gift_icon = option_3_free_gift_icon %}
+                            {% assign free_gift_icon_size = option_3_free_gift_icon_size %}
+                            {% assign free_gift_font_size = option_3_free_gift_font_size %}
+                            {% assign free_gift_border_radius = option_3_free_gift_border_radius %}
+                            {% assign free_gift_bg_color = option_3_free_gift_bg_color %}
+                            {% assign free_gift_use_gradient = option_3_free_gift_use_gradient %}
+                            {% assign free_gift_gradient_start = option_3_free_gift_gradient_start %}
+                            {% assign free_gift_gradient_end = option_3_free_gift_gradient_end %}
+                            {% assign free_gift_text_color = option_3_free_gift_text_color %}
+                            {% assign free_gift_border_color = option_3_free_gift_border_color %}
+                          {% when 4 %}
+                            {% assign show_free_gift = option_4_show_free_gift %}
+                            {% assign free_gift_count = option_4_free_gift_count %}
+                            {% assign free_gift_text = option_4_free_gift_text %}
+                            {% assign free_gift_icon = option_4_free_gift_icon %}
+                            {% assign free_gift_icon_size = option_4_free_gift_icon_size %}
+                            {% assign free_gift_font_size = option_4_free_gift_font_size %}
+                            {% assign free_gift_border_radius = option_4_free_gift_border_radius %}
+                            {% assign free_gift_bg_color = option_4_free_gift_bg_color %}
+                            {% assign free_gift_use_gradient = option_4_free_gift_use_gradient %}
+                            {% assign free_gift_gradient_start = option_4_free_gift_gradient_start %}
+                            {% assign free_gift_gradient_end = option_4_free_gift_gradient_end %}
+                            {% assign free_gift_text_color = option_4_free_gift_text_color %}
+                            {% assign free_gift_border_color = option_4_free_gift_border_color %}
+                        {% endcase %}
+
+                        {% assign free_gift_start_index = qty | minus: free_gift_count | plus: 1 %}
+                        {% if show_free_gift and free_gift_text != blank and i >= free_gift_start_index %}
+                          {% capture free_gift_bg_style %}
+                            {% if free_gift_use_gradient %}
+                              background: linear-gradient(135deg, {{ free_gift_gradient_start }}, {{ free_gift_gradient_end }});
+                            {% else %}
+                              background-color: {{ free_gift_bg_color }};
+                            {% endif %}
+                          {% endcapture %}
+                          <div
+                            class="quantity-break-free-gift-badge"
+                            style="{{ free_gift_bg_style }} color: {{ free_gift_text_color }}; border: 1px solid {{ free_gift_border_color }}; font-size: {{ free_gift_font_size }}px; border-radius: {{ free_gift_border_radius }}px;"
+                          >
+                            {% if free_gift_icon != blank %}
+                              <img
+                                src="{{ free_gift_icon | image_url: width: 80 }}"
+                                alt="Free gift"
+                                width="{{ free_gift_icon_size }}"
+                                height="{{ free_gift_icon_size }}"
+                                style="width: {{ free_gift_icon_size }}px; height: {{ free_gift_icon_size }}px;"
+                              >
+                            {% endif %}
+                            <span>{{ free_gift_text }}</span>
+                          </div>
+                        {% endif %}
                       </div>
                     {% endfor %}
                   </div>
@@ -822,14 +1294,15 @@
   console.log('[QB Init] use_custom_single from Liquid:', {{ use_custom_single | json }});
 
   document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Elixir_ProductFormExists !== 'function' || !Elixir_ProductFormExists()) return;
     var quantitySelectors = document.querySelectorAll('.quantity-break-option');
     var quantityInputs = document.querySelectorAll('.quantity-break-input');
     var shouldUpdatePrice = {% if update_price == true %}true{% else %}false{% endif %};
     var enableVariantSelection = {% if enable_variant_selection == true %}true{% else %}false{% endif %};
     var showRadioButtons = {% if show_radio_buttons == true %}true{% else %}false{% endif %};
-    var enableCustomPricing = {% if enable_custom_pricing == true %}true{% else %}false{% endif %};
     var productVariants = {{ product.variants | json }};
     var hasVariants = {% unless product.has_only_default_variant %}true{% else %}false{% endunless %};
+    var enableCustomPricing = {% if enable_custom_pricing == true %}true{% else %}false{% endif %};
     const simpleVariantPickerRadioInputs = document.querySelectorAll('.simple-variant-picker__radio');
 
     // Debug logging
@@ -923,9 +1396,10 @@
       return !!document.querySelector(
         // Selects QB
         `.quantity-break-variant-select[data-quantity-option="${quantityOption}"][data-item-index="${itemIndex}"][data-option-selector="${position}"],` +
-        // Radios QB (swatches et images)
+        // Radios QB (swatches, images, and size buttons)
         `input.quantity-break-color-swatch-input[data-quantity-option="${quantityOption}"][data-item-index="${itemIndex}"][data-option-selector="${position}"],` +
-        `input.quantity-break-variant-image-input[data-quantity-option="${quantityOption}"][data-item-index="${itemIndex}"][data-option-selector="${position}"]`
+        `input.quantity-break-variant-image-input[data-quantity-option="${quantityOption}"][data-item-index="${itemIndex}"][data-option-selector="${position}"],` +
+        `input.quantity-break-size-button-input[data-quantity-option="${quantityOption}"][data-item-index="${itemIndex}"][data-option-selector="${position}"]`
       );
     }
       
@@ -1138,27 +1612,14 @@
             if (!input) return;
             input.checked = true;
 
-            // Get current prices and quantity
-            const curPriceEl = this.querySelector(".quantity-break-price");
-            const curCompareEl = this.querySelector(".quantity-break-original-price");
-            const curPrice = curPriceEl ? curPriceEl.innerHTML : "";
-            const curComparePrice = curCompareEl ? curCompareEl.innerHTML : "";
             const currentQuantity = input.value;
 
-            // Update product price display
-            const productPriceLabel = document.querySelector(".shop-product-price-block");
-            const comparePriceLabel = document.querySelector(".shop-compare-price");
-            if (productPriceLabel) productPriceLabel.innerHTML = curPrice;
-            if (comparePriceLabel) comparePriceLabel.innerHTML = curComparePrice;
-
-            // Update form quantity
             if (form) {
               form.querySelectorAll('input[type="hidden"][name="quantity"]').forEach(el => el.remove());
               addQuantityElem(currentQuantity);
               form.setAttribute('data-quantity', currentQuantity);
             }
 
-            // Find and update product quantity input
             var quantityInput = document.querySelector('input[name="quantity"]:not([type="hidden"])');
             if (quantityInput) {
               quantityInput.value = currentQuantity;
@@ -1166,59 +1627,33 @@
               quantityInput.dispatchEvent(event);
             }
 
-            // Update Add to Cart button text
-            const addToCartButton = document.querySelector('.product-form__submit .button__text')
-              || document.querySelector('.shop-add-to-cart-button .button-text')
-              || document.querySelector('[data-add-to-cart-text]');
-            
-            if (addToCartButton) {
-              const submitButton = addToCartButton.closest('button[type="submit"]') || addToCartButton.closest('.shop-add-to-cart-button');
-              const hasTextOverride = submitButton && submitButton.dataset.textOverride === 'true';
-              const persistentText = submitButton && submitButton.dataset.persistentText;
-              
-              // Respect text override - use persistent text if available
-              let buttonText = '';
-              if (hasTextOverride && persistentText) {
-                buttonText = persistentText;
-              } else {
-                buttonText = addToCartButtonText || 'Get the Complete Kit';
-              }
-              
-              let newButtonText = buttonText;
-              if (typeof showPriceInButton !== 'undefined' && showPriceInButton && curPrice) {
-                newButtonText += ' - ' + formatMoneyWithoutSuffix(curPrice.replace(/[^0-9.,]/g, ''));
-                if (curComparePrice) {
-                  newButtonText += ` <span class="compare-price">(${formatMoneyWithoutSuffix(curComparePrice.replace(/[^0-9.,]/g, ''))})</span>`;
-                }
-              }
-              
-              addToCartButton.innerHTML = newButtonText;
-            }
-
-            // Always update variant selections to ensure items are added to cart
             updateVariantSelections();
 
             // Only update display if custom selectors are enabled
             if (enableVariantSelection && hasVariants && usesCustomSelectorsForSelectedOption()) {
               setTimeout(updateSimpleVariantPickerDisplay, 100);
             } else {
-              // Clean up stale variant forms
-              const stale = document.querySelector('.quantity-break-variant-form');
-              if (stale) stale.remove();
+              // Clean up stale variant forms and restore single-id mode when using PDP form controller
+              if (typeof Elixir_ProductFormSwitchToSingleIdMode === 'function') {
+                Elixir_ProductFormSwitchToSingleIdMode(undefined, '.quantity-break-variant-form');
+              } else {
+                const stale = document.querySelector('.quantity-break-variant-form');
+                if (stale) stale.remove();
+              }
             }
 
-            // Trigger change event to update cart
-            if (shouldUpdatePrice && typeof window.updatePrice === 'function') {
-              window.updatePrice(input.dataset.price);
-            }
-
-            // Dispatch custom event for other scripts to listen to
+            // Dispatch custom event so Price block and Subscribe & Save can update via Elixir_GetDisplayPrice
             document.dispatchEvent(new CustomEvent('quantity_break:changed', {
               detail: {
                 quantity: parseInt(input.value),
                 price: parseInt(input.dataset.price)
               }
             }));
+            
+            // Recalculate custom prices if enabled
+            if (enableCustomPricing) {
+              updateCustomPrices();
+            }
           });
         });
         
@@ -1243,6 +1678,11 @@
             
             // Update simple variant picker display
             updateSimpleVariantPickerDisplay();
+            
+            // Recalculate custom prices if enabled
+            if (enableCustomPricing) {
+              updateCustomPrices();
+            }
             });
           });
           
@@ -1258,6 +1698,7 @@
         }
         if (enableVariantSelection && hasVariants) {
 
+          // Event handlers for color swatches
           var variantSwatches = document.querySelectorAll('.quantity-break-color-swatch-input');
 
               variantSwatches.forEach(swatch => {
@@ -1284,6 +1725,50 @@
                   updateVariantImages(quantityOption, itemIndex);
                   updateVariantNameDisplay(quantityOption, itemIndex);
                   updateVariantSelections();
+                  
+                  // Recalculate custom prices if enabled
+                  if (enableCustomPricing) {
+                    updateCustomPrices();
+                  }
+                });
+          });
+          
+          // Event handlers for variant images (instead of swatches)
+          var variantImageInputs = document.querySelectorAll('.quantity-break-variant-image-input');
+
+              variantImageInputs.forEach(imageInput => {
+                imageInput.addEventListener('change', function () {
+                  var quantityOption = this.getAttribute('data-quantity-option');
+                  var itemIndex      = this.getAttribute('data-item-index');
+
+                  // Récupère les data du label associé
+                  const label = document.querySelector(`label[for="${this.id}"]`);
+                  const mediaSrc = label?.querySelector('img')?.src;
+
+                  // 1) Affiche l'image près des sélecteurs de variantes (petite vignette de ligne)
+                  if (mediaSrc) {
+                    switchRowImage(quantityOption, itemIndex, mediaSrc, this.value);
+                  }
+
+                  // Update variant images and selections
+                  updateVariantImages(quantityOption, itemIndex);
+                  updateVariantNameDisplay(quantityOption, itemIndex);
+                  updateVariantSelections();
+                });
+          });
+          
+          // Event handlers for size buttons
+          var sizeButtonInputs = document.querySelectorAll('.quantity-break-size-button-input');
+
+              sizeButtonInputs.forEach(sizeInput => {
+                sizeInput.addEventListener('change', function () {
+                  var quantityOption = this.getAttribute('data-quantity-option');
+                  var itemIndex      = this.getAttribute('data-item-index');
+
+                  // Update variant images and selections
+                  updateVariantImages(quantityOption, itemIndex);
+                  updateVariantNameDisplay(quantityOption, itemIndex);
+                  updateVariantSelections();
                 });
           });
         }
@@ -1298,9 +1783,6 @@
           if (quantityInput) {
             quantityInput.value = selectedBundleInput.value;
             quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-          if (shouldUpdatePrice && typeof window.updatePrice === 'function') {
-            window.updatePrice(selectedBundleInput.dataset.price);
           }
         }
         
@@ -1376,70 +1858,82 @@
             }, {})
           );
 
-          // First remove any existing input
-          var existingContainer = document.querySelector('.quantity-break-variant-form');
-          if (existingContainer) {
-            existingContainer.parentNode.removeChild(existingContainer);
-          }
-          
           const premiumKitItems = document.querySelectorAll('.product-variant-premium-kit');
           const premiumKitLength = premiumKitItems.length;
-          
-          // Create a new input element
-          const container = document.createElement('div');
-          container.classList.add('quantity-break-variant-form');
-        
-          let index = premiumKitLength + 1;
-          quantityList.forEach(_item => {
-            const inputId = document.createElement('input');
-            inputId.type = 'hidden';
-            inputId.name = `items[${index}][id]`;
-            inputId.value = _item.id;
-            inputId.classList.add('product-variant-id');
-            inputId.classList.add('product-variant-quantity-break');
+          const startIndex = premiumKitLength + 1;
 
-            const inputQuantity = document.createElement('input');
-            inputQuantity.type = 'hidden';
-            inputQuantity.name = `items[${index}][quantity]`;
-            inputQuantity.value = _item.quantity;
-            inputQuantity.classList.add('product-variant-id');
-            
-            // If custom pricing is enabled, add the custom price as a property
-            // This allows discount apps or custom logic to apply the correct total price
-            if (hasCustomPricing && customPrice > 0 && index === premiumKitLength + 1) {
-              // Add custom price property to the first item
-              const inputProperties = document.createElement('input');
-              inputProperties.type = 'hidden';
-              inputProperties.name = `items[${index}][properties][_custom_total_price]`;
-              inputProperties.value = (customPrice / 100).toFixed(2);
-              container.appendChild(inputProperties);
-              
-              // Also add quantity option for reference
-              const inputQuantityOption = document.createElement('input');
-              inputQuantityOption.type = 'hidden';
-              inputQuantityOption.name = `items[${index}][properties][_quantity_option]`;
-              inputQuantityOption.value = quantityOption;
-              container.appendChild(inputQuantityOption);
+          // When Subscribe & Save is on, use window.subscriptionContext so items[] get selling_plan per item
+          const subscriptionContext = window.subscriptionContext;
+          const sellingPlanId = (subscriptionContext && subscriptionContext.sellingPlanId) ? String(subscriptionContext.sellingPlanId) : null;
+
+          const itemsForForm = quantityList.map(function(_item, i) {
+            var props = {};
+            if (hasCustomPricing && customPrice > 0 && i === 0) {
+              props._custom_total_price = (customPrice / 100).toFixed(2);
+              props._quantity_option = String(quantityOption);
             }
-            
-            container.appendChild(inputId);
-            container.appendChild(inputQuantity);
-            index ++;
-          })
-          
-          // Find the cart form
-          const productForm = document.querySelector('form[action*="/cart/add"]:not(.free-product-form):not(.shipping-protection-form)');
-          if (productForm) {
-            productForm.appendChild(container);
+            var item = { id: _item.id, quantity: _item.quantity, properties: Object.keys(props).length ? props : undefined };
+            if (sellingPlanId) item.selling_plan = sellingPlanId;
+            return item;
+          });
 
-            // Remove the main variant ID input since we're using items[] format
-            // But we need to ensure items[] inputs are properly created first
-            if (selectedVariants.length > 0 && container.children.length > 0) {
-              var mainVariantInput = productForm.querySelector('input[name="id"]');
-              if (mainVariantInput) {
-                mainVariantInput.remove();
+          const productForm = (typeof Elixir_GetProductForm === 'function' && Elixir_GetProductForm()) || document.querySelector('form[action*="/cart/add"]:not(.free-product-form):not(.shipping-protection-form)');
+          var container = null;
+
+          if (typeof Elixir_ProductFormSwitchToItemsMode === 'function' && productForm && Elixir_GetProductForm() === productForm) {
+            if (Elixir_ProductFormSwitchToItemsMode(itemsForForm, { containerClass: 'quantity-break-variant-form', startIndex: startIndex })) {
+              container = productForm.querySelector('.quantity-break-variant-form');
+            }
+          }
+
+          if (!container && productForm) {
+            // Fallback: build container manually when not on PDP or controller unavailable
+            var existingContainer = document.querySelector('.quantity-break-variant-form');
+            if (existingContainer) existingContainer.parentNode.removeChild(existingContainer);
+
+            container = document.createElement('div');
+            container.classList.add('quantity-break-variant-form');
+            var index = startIndex;
+            quantityList.forEach(function(_item) {
+              var inputId = document.createElement('input');
+              inputId.type = 'hidden';
+              inputId.name = 'items[' + index + '][id]';
+              inputId.value = _item.id;
+              inputId.classList.add('product-variant-id', 'product-variant-quantity-break');
+              var inputQuantity = document.createElement('input');
+              inputQuantity.type = 'hidden';
+              inputQuantity.name = 'items[' + index + '][quantity]';
+              inputQuantity.value = _item.quantity;
+              inputQuantity.classList.add('product-variant-id');
+              if (sellingPlanId) {
+                var inputSellingPlan = document.createElement('input');
+                inputSellingPlan.type = 'hidden';
+                inputSellingPlan.name = 'items[' + index + '][selling_plan]';
+                inputSellingPlan.value = sellingPlanId;
+                container.appendChild(inputSellingPlan);
               }
-            }
+              if (hasCustomPricing && customPrice > 0 && index === startIndex) {
+                var inputProperties = document.createElement('input');
+                inputProperties.type = 'hidden';
+                inputProperties.name = 'items[' + index + '][properties][_custom_total_price]';
+                inputProperties.value = (customPrice / 100).toFixed(2);
+                container.appendChild(inputProperties);
+                var inputQuantityOption = document.createElement('input');
+                inputQuantityOption.type = 'hidden';
+                inputQuantityOption.name = 'items[' + index + '][properties][_quantity_option]';
+                inputQuantityOption.value = quantityOption;
+                container.appendChild(inputQuantityOption);
+              }
+              container.appendChild(inputId);
+              container.appendChild(inputQuantity);
+              index++;
+            });
+            productForm.appendChild(container);
+          }
+
+          if (productForm && container) {
+            var mainVariantInput = productForm.querySelector('input[name="product-id"]');
+            if (mainVariantInput) mainVariantInput.remove();
 
             console.log('Variant form created with', container.children.length, 'inputs');
             console.log('Items to add:', quantityList);
@@ -1464,46 +1958,9 @@
           }
 
           const selectedOption = document.querySelector('.quantity-break-option.selected input')?.parentElement;
-          
-
           if (!selectedOption) return;
-          
-          // Only update prices automatically if custom pricing is NOT enabled
-          if (!enableCustomPricing) {
-            const priceLabel = selectedOption.querySelector(".quantity-break-price");
-            const originPrice = priceLabel.innerText;
-            const totalPriceLabel = formatPrice(originPrice, totalPrice);
-            if (priceLabel) priceLabel.innerHTML = totalPriceLabel;
-            const compareLabel = selectedOption.querySelector(".quantity-break-original-price");
-            const totalComparePriceLabel = formatPrice(originPrice, totalComparePrice);
-            if (compareLabel) compareLabel.innerHTML = totalComparePriceLabel;
-            if (totalComparePrice == 0 && compareLabel) {
-              compareLabel.style.visibility = "hidden";
-            } else if (totalComparePrice > totalPrice && compareLabel) {
-              compareLabel.style.visibility = "visible";
-            }
 
-            const productPriceLabel = document.querySelector(".shop-product-price-block");
-            const comparePriceLabel = document.querySelector(".shop-compare-price");
-
-            if (productPriceLabel)
-              productPriceLabel.innerHTML = totalPriceLabel;
-            if (totalComparePrice > totalPrice && comparePriceLabel)
-              comparePriceLabel.innerText = totalComparePriceLabel;
-
-            let buttonText = addToCartButtonText || 'Get the Complete Kit';
-            buttonText += " - " + totalPriceLabel;
-            if (totalComparePrice > totalPrice) {
-              buttonText += ` <span class="compare-price">(${totalComparePriceLabel})</span>`;
-            }
-
-            const addToCartButton = document.querySelector('.product-form__submit .button__text') || 
-                                    document.querySelector('.shop-add-to-cart-button .button-text') ||
-                                    document.querySelector('[data-add-to-cart-text]');
-            if (!addToCartButton) return;    
-
-            addToCartButton.innerHTML = buttonText;
-          }
+          refreshQuantityBreakDisplay();
         }
       }
 
@@ -1555,6 +2012,14 @@ function updateQuantityBreakSelectors(quantityOption, position, value) {
   ).forEach(imageInput => {
     const imageValue = imageInput.getAttribute('data-option-value') || imageInput.value;
     imageInput.checked = (imageValue === value);
+  });
+  
+  // Mettre à jour les boutons de taille
+  document.querySelectorAll(
+    `.quantity-break-size-button-input[data-quantity-option="${quantityOption}"][data-option-selector="${position}"]`
+  ).forEach(sizeInput => {
+    const sizeValue = sizeInput.getAttribute('data-option-value') || sizeInput.value;
+    sizeInput.checked = (sizeValue === value);
   });
 }
 
@@ -1615,7 +2080,271 @@ function updateAllQuantityBreakDisplays(quantityOption) {
             updateVariantSelections();
           }
         }
+        
+        if (enableCustomPricing) {
+          updateCustomPrices();
+        }
       });
+      
+      function calculateCustomPrice(variantPrice, quantity, priceFormat, pricePercentage, priceAmount, bogoMultiplier) {
+        if (!priceFormat || priceFormat === 'none') {
+          return variantPrice * quantity;
+        }
+        
+        switch(priceFormat) {
+          case 'percentage':
+            if (pricePercentage && pricePercentage !== '' && pricePercentage > 0 && pricePercentage <= 100) {
+              const discountMultiplier = (100 - pricePercentage) / 100;
+              return Math.round(variantPrice * quantity * discountMultiplier);
+            }
+            return variantPrice * quantity;
+          
+          case 'amount':
+            if (priceAmount && priceAmount !== '') {
+              const amount = parseFloat(priceAmount);
+              if (!isNaN(amount)) {
+                return Math.round(amount * 100);
+              }
+            }
+            return variantPrice * quantity;
+          
+          case 'bogo':
+            if (bogoMultiplier && bogoMultiplier !== '' && parseFloat(bogoMultiplier) > 0) {
+              const multiplier = parseFloat(bogoMultiplier);
+              if (!isNaN(multiplier)) {
+                return Math.round(variantPrice * multiplier);
+              }
+            }
+            return variantPrice * quantity;
+          
+          default:
+            return variantPrice * quantity;
+        }
+      }
+      
+      function getCurrentVariant() {
+        let selectedVariant = null;
+        
+        if (hasVariants && typeof variantOptions !== 'undefined') {
+          const selectedOptions = {};
+          for (let pos = 1; pos <= variantOptions.length; pos++) {
+            const radio = document.querySelector(`.simple-variant-picker__radio[data-option-position="${pos}"]:checked`);
+            const select = document.querySelector(`.simple-variant-picker__select[data-option-position="${pos}"]`);
+            const value = radio ? radio.value : (select ? select.value : null);
+            if (value) {
+              selectedOptions[`option${pos}`] = value;
+            }
+          }
+          
+          if (Object.keys(selectedOptions).length > 0) {
+            selectedVariant = productVariants.find(v => 
+              Object.keys(selectedOptions).every(k => v[k] === selectedOptions[k])
+            );
+          }
+        }
+        
+        if (!selectedVariant && typeof getSelectedVariants === 'function') {
+          const [selectedVariantIds] = getSelectedVariants();
+          const firstVariantId = selectedVariantIds && selectedVariantIds.length > 0 ? selectedVariantIds[0] : null;
+          selectedVariant = firstVariantId ? 
+            productVariants.find(v => v.id === firstVariantId) : 
+            productVariants[0];
+        }
+        
+        if (!selectedVariant) {
+          selectedVariant = {{ product.selected_or_first_available_variant | json }};
+        }
+        
+        return selectedVariant;
+      }
+      
+      function updateCustomPrices() {
+        const selectedVariant = getCurrentVariant();
+        if (!selectedVariant) return;
+        
+        const variantPrice = selectedVariant.price;
+        const variantComparePrice = selectedVariant.compare_at_price || 0;
+        
+        quantityInputs.forEach(input => {
+          const hasCustomPricing = input.getAttribute('data-enable-custom-pricing') === 'true';
+          if (!hasCustomPricing) return;
+          
+          const quantity = parseInt(input.getAttribute('data-option-quantity'), 10);
+          const priceFormat = input.getAttribute('data-custom-price-format') || 'none';
+          
+          // Only use fields that match the selected format to avoid conflicts
+          let pricePercentage = 0;
+          let priceAmount = '';
+          let bogoMultiplier = '';
+          
+          if (priceFormat === 'percentage') {
+            pricePercentage = parseFloat(input.getAttribute('data-custom-price-percentage'), 10) || 0;
+          } else if (priceFormat === 'amount') {
+            priceAmount = input.getAttribute('data-custom-price-amount') || '';
+          } else if (priceFormat === 'bogo') {
+            bogoMultiplier = input.getAttribute('data-bogo-multiplier') || '';
+          }
+          
+          const customCompareAtPrice = input.getAttribute('data-custom-compare-at-price') || '';
+          
+          const calculatedPrice = calculateCustomPrice(variantPrice, quantity, priceFormat, pricePercentage, priceAmount, bogoMultiplier);
+          
+          // Calculate compare price: use custom compare if provided, otherwise use variant compare × quantity
+          let calculatedComparePrice = variantComparePrice * quantity;
+          if (customCompareAtPrice && customCompareAtPrice !== '') {
+            const compareAmount = parseFloat(customCompareAtPrice);
+            if (!isNaN(compareAmount)) {
+              calculatedComparePrice = Math.round(compareAmount * 100);
+            }
+          }
+          
+          input.setAttribute('data-price', calculatedPrice);
+          
+          const optionContainer = input.closest('.quantity-break-option-container');
+          if (optionContainer) {
+            const priceElement = optionContainer.querySelector('.quantity-break-price');
+            const comparePriceElement = optionContainer.querySelector('.quantity-break-original-price');
+            
+            if (priceElement) {
+              if (!priceElement.dataset.originalPrice) {
+                priceElement.dataset.originalPrice = priceElement.textContent || '';
+              }
+              const formattedPrice = Elixir_FormatMoney(calculatedPrice);
+              priceElement.textContent = formattedPrice;
+            }
+            
+            if (comparePriceElement && calculatedComparePrice > calculatedPrice) {
+              const formattedComparePrice = Elixir_FormatMoney(calculatedComparePrice);
+              comparePriceElement.textContent = formattedComparePrice;
+              comparePriceElement.style.visibility = 'visible';
+            } else if (comparePriceElement) {
+              comparePriceElement.style.visibility = 'hidden';
+            }
+            
+            if (optionContainer.querySelector('.quantity-break-option.selected')) {
+              const addToCartButton = document.querySelector('.product-form__submit .button__text')
+                || document.querySelector('.shop-add-to-cart-button .button-text')
+                || document.querySelector('[data-add-to-cart-text]');
+              
+              if (addToCartButton && priceElement) {
+                const submitButton = addToCartButton.closest('button[type="submit"]') || addToCartButton.closest('.shop-add-to-cart-button');
+                const hasTextOverride = submitButton && submitButton.dataset.textOverride === 'true';
+                const persistentText = submitButton && submitButton.dataset.persistentText;
+                
+                const showPriceInButton = submitButton && submitButton.dataset.showPrice === 'true' 
+                  || (typeof window.showPriceButton !== 'undefined' && window.showPriceButton);
+                
+                let buttonText = '';
+                if (hasTextOverride && persistentText) {
+                  buttonText = persistentText;
+                } else {
+                  buttonText = addToCartButtonText || 'Get the Complete Kit';
+                }
+                
+                let newButtonText = buttonText;
+                // Only add price if the setting is enabled
+                if (showPriceInButton && priceElement.textContent) {
+                  newButtonText += ' - ' + formatMoneyWithoutSuffix(priceElement.textContent.replace(/[^0-9.,]/g, ''));
+                  if (comparePriceElement && calculatedComparePrice > calculatedPrice) {
+                    newButtonText += ` <span class="compare-price">(${formatMoneyWithoutSuffix(comparePriceElement.textContent.replace(/[^0-9.,]/g, ''))})</span>`;
+                  }
+                }
+                
+                addToCartButton.innerHTML = newButtonText;
+              }
+            }
+          }
+        });
+      }
+
+      /**
+       * Single place for quantity break price display: uses Elixir_GetDisplayPrice so prices
+       * respect subscription and stay in sync with variant/quantity. Updates all option labels
+       * and the add-to-cart button for the selected option.
+       */
+      function refreshQuantityBreakDisplay() {
+        if (typeof Elixir_GetDisplayPrice !== 'function' || typeof Elixir_FormatMoney !== 'function') return;
+        var variant = getCurrentVariant();
+        if (!variant) return;
+        var variantPrice = variant.price;
+        var variantComparePrice = variant.compare_at_price || 0;
+        var selectedInput = document.querySelector('.quantity-break-option.selected input.quantity-break-input');
+        document.querySelectorAll('.quantity-break-option-container').forEach(function(container) {
+          var input = container.querySelector('input.quantity-break-input');
+          if (!input) return;
+          var qty = Math.max(1, parseInt(input.getAttribute('data-option-quantity') || input.value, 10) || 1);
+          var hasCustom = input.getAttribute('data-enable-custom-pricing') === 'true';
+          var priceCents, compareCents;
+          if (hasCustom) {
+            var priceFormat = input.getAttribute('data-custom-price-format') || 'none';
+            var pricePercentage = parseFloat(input.getAttribute('data-custom-price-percentage'), 10) || 0;
+            var priceAmount = input.getAttribute('data-custom-price-amount') || '';
+            var bogoMultiplier = input.getAttribute('data-bogo-multiplier') || '';
+            priceCents = calculateCustomPrice(variantPrice, qty, priceFormat, pricePercentage, priceAmount, bogoMultiplier);
+            var customCompare = input.getAttribute('data-custom-compare-at-price') || '';
+            compareCents = (customCompare && customCompare !== '') ? Math.round(parseFloat(customCompare) * 100) : (variantComparePrice * qty);
+          } else {
+            priceCents = parseInt(input.getAttribute('data-price'), 10) || parseInt(input.getAttribute('data-base-price'), 10) || 0;
+            compareCents = parseInt(container.getAttribute('data-compare-at-price'), 10) || 0;
+          }
+          // Pass per-unit price and option quantity; always multiply by quantity so subscription is applied per unit then × qty
+          var perUnitPrice = qty > 0 ? Math.round(priceCents / qty) : priceCents;
+          var perUnitCompare = qty > 0 ? Math.round(compareCents / qty) : compareCents;
+          var result = Elixir_GetDisplayPrice({
+            price: perUnitPrice,
+            compareAtPrice: perUnitCompare,
+            quantity: qty,
+            multiplyByQuantity: true,
+            applySubscriptionDiscount: true
+          });
+          var priceEl = container.querySelector('.quantity-break-price');
+          var compareEl = container.querySelector('.quantity-break-original-price');
+          if (priceEl) priceEl.textContent = Elixir_FormatMoney(result.price);
+          if (compareEl) {
+            if (result.compareAtPrice <= result.price || result.compareAtPrice <= 0) {
+              compareEl.style.visibility = 'hidden';
+            } else {
+              compareEl.textContent = Elixir_FormatMoney(result.compareAtPrice);
+              compareEl.style.visibility = 'visible';
+            }
+          }
+          var saveBadge = container.querySelector('.quantity-break-save-badge');
+          if (saveBadge) {
+            var savingsCents = Math.max(0, result.compareAtPrice - result.price);
+            var compareAtCents = result.compareAtPrice;
+            var badgeFormat = (container.getAttribute('data-save-badge-format') || 'dollar').toLowerCase();
+            var badgeText = container.getAttribute('data-save-badge-text') || 'Save';
+            if (savingsCents <= 0) {
+              saveBadge.style.display = 'none';
+            } else {
+              saveBadge.style.display = '';
+              if (badgeFormat === 'percentage' && compareAtCents > 0) {
+                saveBadge.textContent = badgeText + ' ' + Math.round(savingsCents * 100 / compareAtCents) + '%';
+              } else {
+                saveBadge.textContent = badgeText + ' ' + Elixir_FormatMoney(savingsCents);
+              }
+            }
+          }
+          var isSelected = container.querySelector('.quantity-break-option.selected');
+          if (isSelected) {
+            var addToCartButton = document.querySelector('.product-form__submit .button__text') || document.querySelector('.shop-add-to-cart-button .button-text') || document.querySelector('[data-add-to-cart-text]');
+            if (addToCartButton) {
+              var submitButton = addToCartButton.closest('button[type="submit"]') || addToCartButton.closest('.shop-add-to-cart-button');
+              var hasTextOverride = submitButton && submitButton.dataset.textOverride === 'true';
+              var persistentText = submitButton && submitButton.dataset.persistentText;
+              var showPriceInButton = submitButton && submitButton.dataset.showPrice === 'true' || (typeof window.showPriceButton !== 'undefined' && window.showPriceButton);
+              var buttonText = (hasTextOverride && persistentText) ? persistentText : (addToCartButtonText || 'Get the Complete Kit');
+              if (showPriceInButton && priceEl) {
+                buttonText += ' - ' + (typeof formatMoneyWithoutSuffix === 'function' ? formatMoneyWithoutSuffix(priceEl.textContent.replace(/[^0-9.,]/g, '')) : priceEl.textContent);
+                if (compareEl && result.compareAtPrice > result.price) {
+                  buttonText += ' <span class="compare-price">(' + (typeof formatMoneyWithoutSuffix === 'function' ? formatMoneyWithoutSuffix(compareEl.textContent.replace(/[^0-9.,]/g, '')) : compareEl.textContent) + ')</span>';
+                }
+              }
+              addToCartButton.innerHTML = buttonText;
+            }
+          }
+        });
+      }
       
       // Function to update simple variant picker display
       function updateSimpleVariantPickerDisplay() {
@@ -1676,6 +2405,27 @@ function updateAllQuantityBreakDisplays(quantityOption) {
         updateVariantSelections();
         setTimeout(updateSimpleVariantPickerDisplay, 200);
       }
+      
+      // Initialize custom prices on load if enabled
+      if (enableCustomPricing) {
+        setTimeout(function() {
+          updateCustomPrices();
+        }, 300);
+      }
+      // One refresh after init so subscription and form state are reflected (works with items[] mode)
+      setTimeout(function() {
+        refreshQuantityBreakDisplay();
+      }, 350);
+
+      // Standard events: keep quantity break prices and add-to-cart button in sync with variant, quantity, subscription
+      function onStandardPriceEvent() {
+        updateVariantSelections();
+      }
+
+      document.addEventListener('simple-variant-picker:variantChange', onStandardPriceEvent);
+      document.addEventListener('quantity:changed', onStandardPriceEvent);
+      document.addEventListener('quantity_break:changed', onStandardPriceEvent);
+      document.addEventListener('subscriptionContext:updated', onStandardPriceEvent);
       
       // Function to detect when quantity break titles wrap to multiple lines
       function checkTitleWrapping() {
@@ -1752,6 +2502,9 @@ function updateAllQuantityBreakDisplays(quantityOption) {
           const variantSelectors = container.closest('.quantity-break-variant-selectors');
           if (!variantSelectors || variantSelectors.classList.contains('quantity-break-swatches-processed')) return;
 
+          // Get the parent variant-option div that contains the swatches
+          const swatchParentOption = container.closest('.quantity-break-variant-option');
+
           // Create full-width wrapper and move swatches into it
           const fullWidthWrapper = document.createElement('div');
           fullWidthWrapper.className = 'quantity-break-color-swatches-full-width';
@@ -1759,16 +2512,24 @@ function updateAllQuantityBreakDisplays(quantityOption) {
           fullWidthWrapper.appendChild(container);
           variantSelectors.parentNode.insertBefore(fullWidthWrapper, variantSelectors.nextSibling);
 
+          // Remove the now-empty parent option div (the one that contained swatches)
+          if (swatchParentOption) {
+            swatchParentOption.remove();
+          }
+
           // Move the variant selects inline with the swatches
           const variantRight = variantSelectors.querySelector('.quantity-break-variant-right');
           if (variantRight) {
             const inlineOptions = document.createElement('div');
             inlineOptions.className = 'quantity-break-variant-options-inline';
-            // Move all variant options to the inline container
+            // Move all remaining variant options to the inline container
             while (variantRight.firstChild) {
               inlineOptions.appendChild(variantRight.firstChild);
             }
-            fullWidthWrapper.appendChild(inlineOptions);
+            // Only append if there are actual options to show
+            if (inlineOptions.children.length > 0) {
+              fullWidthWrapper.appendChild(inlineOptions);
+            }
           }
 
           // Mark as processed
@@ -1787,8 +2548,41 @@ function updateAllQuantityBreakDisplays(quantityOption) {
           layOutSwatchesAndSelects();
           // Also check variant wrapping on resize
           document.querySelectorAll('.quantity-break-color-swatches-full-width').forEach(checkVariantWrapping);
+          checkVariantRightWrapping();
         }, 100);
       });
+
+      // Function to check if variant-right content would wrap to multiple rows
+      // If so, move entire variant-right below variant-left
+      function checkVariantRightWrapping() {
+        const variantSelectors = document.querySelectorAll('.quantity-break-variant-selectors');
+        
+        variantSelectors.forEach(function(container) {
+          const variantRight = container.querySelector('.quantity-break-variant-right');
+          if (!variantRight) return;
+          
+          // Temporarily allow single row to measure
+          variantRight.style.flexWrap = 'nowrap';
+          const singleRowHeight = variantRight.offsetHeight;
+          const singleRowWidth = variantRight.scrollWidth;
+          
+          // Check if content overflows (would need to wrap)
+          const containerWidth = variantRight.offsetWidth;
+          const wouldWrap = singleRowWidth > containerWidth + 10; // +10px tolerance
+          
+          // Restore flex-wrap
+          variantRight.style.flexWrap = '';
+          
+          if (wouldWrap) {
+            container.classList.add('variant-right-stacked');
+          } else {
+            container.classList.remove('variant-right-stacked');
+          }
+        });
+      }
+      
+      // Check variant-right wrapping on load
+      setTimeout(checkVariantRightWrapping, 200);
       
     });
 </script>
